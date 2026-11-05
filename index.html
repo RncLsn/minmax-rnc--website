@@ -94,6 +94,14 @@
       color: var(--muted);
       font-size: 0.9rem;
     }
+    footer .label {
+      margin-right: 0.35em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    footer .name { color: var(--ink); font-weight: 700; }
     footer a { color: inherit; white-space: nowrap; }
     footer a:focus-visible {
       outline: 2px solid var(--ink);
@@ -113,15 +121,15 @@
       <li>Long-Range Sensitivity</li>
     </ul>
     <nav class="links" aria-label="Resources">
-      <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043">NeurIPS 2026 paper</a>
-      <a href="https://arxiv.org/abs/2605.06384">Extended arXiv version</a>
-      <a href="resources/PS-155043--RGB.pdf">Poster</a>
-      <a href="https://github.com/minmaxrnc/model">Code</a>
-      <a href="https://pypi.org/project/minmaxrnc/">pip</a>
+      <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043" target="_blank" rel="noopener">NeurIPS 2026 paper</a>
+      <a href="https://arxiv.org/abs/2605.06384" target="_blank" rel="noopener">Extended arXiv version</a>
+      <a href="resources/PS-155043--RGB.pdf" target="_blank" rel="noopener">Poster</a>
+      <a href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener">Code</a>
+      <a href="https://pypi.org/project/minmaxrnc/" target="_blank" rel="noopener">Python package</a>
     </nav>
   </main>
   <footer>
-    Author: Alessandro Ronca · <a href="mailto:ronca@iris-ai.org">ronca@iris-ai.org</a>
+    <span class="label">Author</span> <span class="name">Alessandro Ronca</span> · <a href="mailto:ronca@iris-ai.org">ronca@iris-ai.org</a>
   </footer>
 </body>
 </html>
