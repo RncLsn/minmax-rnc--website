@@ -33,8 +33,10 @@
       min-height: 100vh;
       min-height: 100dvh;
       display: grid;
+      grid-template-rows: 1fr auto;
       place-items: center;
-      padding: 2rem 1rem;
+      gap: 2rem;
+      padding: 2rem 1rem 1.5rem;
       background: var(--bg);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
@@ -88,6 +90,15 @@
       outline: 3px solid var(--ink);
       outline-offset: 3px;
     }
+    footer {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: inherit; white-space: nowrap; }
+    footer a:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
@@ -109,5 +120,8 @@
       <a href="https://pypi.org/project/minmaxrnc/">pip</a>
     </nav>
   </main>
+  <footer>
+    Author: Alessandro Ronca · <a href="mailto:ronca@iris-ai.org">ronca@iris-ai.org</a>
+  </footer>
 </body>
 </html>
