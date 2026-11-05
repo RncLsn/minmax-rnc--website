@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MinMax Recurrent Neural Cascades</title>
+  <meta name="description" content="MinMax Recurrent Neural Cascades: truly for long-sequence processing. Paper, poster, code and pip package.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <style>
+    :root {
+      --bg: #ffc13b;
+      --ink: #1a1609;
+      --muted: #4d3c0c;
+      --chip-bg: #1a1609;
+      --chip-ink: #fff6dc;
+      --chip-hover: #4d3c0c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1609;
+        --ink: #fff6dc;
+        --muted: #e8c56a;
+        --chip-bg: #ffc13b;
+        --chip-ink: #1a1609;
+        --chip-hover: #ffd877;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1rem;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+      text-align: center;
+    }
+    main { width: 100%; max-width: 68rem; }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 7vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    .tagline {
+      margin: 1rem 0 0;
+      font-size: clamp(1.15rem, 3vw, 1.6rem);
+    }
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1.75rem;
+      margin: 2.5rem 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2.5rem;
+    }
+    .links a {
+      padding: 0.7rem 1.25rem;
+      border-radius: 999px;
+      background: var(--chip-bg);
+      color: var(--chip-ink);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.15s;
+    }
+    .links a:hover { background: var(--chip-hover); }
+    .links a:focus-visible {
+      outline: 3px solid var(--ink);
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MinMax Recurrent Neural Cascades</h1>
+    <p class="tagline">truly for long-sequence processing</p>
+    <ul class="keywords">
+      <li>Maximal Expressivity</li>
+      <li>Long-Term Memory</li>
+      <li>High Parallelisability</li>
+      <li>Guaranteed Stability</li>
+      <li>Long-Range Sensitivity</li>
+    </ul>
+    <nav class="links" aria-label="Resources">
+      <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043">NeurIPS 2026 paper</a>
+      <a href="https://arxiv.org/abs/2605.06384">Extended arXiv version</a>
+      <a href="docs/PS-155043--RGB.pdf">Poster</a>
+      <a href="https://github.com/minmaxrnc/model">Code</a>
+      <a href="https://pypi.org/project/minmaxrnc/">pip</a>
+    </nav>
+  </main>
+</body>
+</html>
