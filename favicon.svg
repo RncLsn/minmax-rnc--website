@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <style>
+    g { stroke: #000; }
+    @media (prefers-color-scheme: dark) {
+      g { stroke: #fff6dc; }
+    }
+  </style>
+  <g fill="none" stroke-width="18">
+    <circle cx="128" cy="128" r="115"/>
+    <path d="M128 13V243M13 128H243M46.7 46.7 209.3 209.3M209.3 46.7 46.7 209.3"/>
+  </g>
+</svg>
