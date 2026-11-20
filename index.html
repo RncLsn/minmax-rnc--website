@@ -47,148 +47,238 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <style>
-    :root {
-      --bg: #ffc13b;
-      --ink: #1a1609;
-      --muted: #4d3c0c;
-      --chip-bg: #1a1609;
-      --chip-ink: #fff6dc;
-      --chip-hover: #4d3c0c;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1a1609;
-        --ink: #fff6dc;
-        --muted: #e8c56a;
-        --chip-bg: #ffc13b;
-        --chip-ink: #1a1609;
-        --chip-hover: #ffd877;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: grid;
-      grid-template-rows: 1fr auto;
-      place-items: center;
-      gap: 2rem;
-      padding: 2rem 1rem 1.5rem;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
-      text-align: center;
-    }
-    main { width: 100%; max-width: 68rem; }
-    h1 {
-      margin: 0;
-      font-size: clamp(2.25rem, 7vw, 4.5rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-      text-wrap: balance;
-    }
-    .tagline {
-      margin: 1rem 0 0;
-      font-size: clamp(1.15rem, 3vw, 1.6rem);
-    }
-    .keywords {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem 1.75rem;
-      margin: 2.5rem 0 0;
-      padding: 0;
-      list-style: none;
-      color: var(--muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-    }
-    .links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-top: 2.5rem;
-    }
-    .links a {
-      padding: 0.7rem 1.25rem;
-      border-radius: 999px;
-      background: var(--chip-bg);
-      color: var(--chip-ink);
-      font-weight: 600;
-      text-decoration: none;
-      transition: background-color 0.15s;
-    }
-    .links a:hover { background: var(--chip-hover); }
-    .links a:focus-visible {
-      outline: 3px solid var(--ink);
-      outline-offset: 3px;
-    }
-    footer {
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: baseline;
-      gap: 0.25rem 0.6em;
-      font-size: 0.9rem;
-    }
-    footer .item {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 0.6em;
-    }
-    @media (max-width: 28rem) {
-      footer {
-        display: grid;
-        grid-template-columns: auto auto;
-        justify-content: center;
-        text-align: left;
-      }
-      footer .item { display: contents; }
-      footer .label { text-align: right; }
-      footer .sep { display: none; }
-    }
-    footer .label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-    }
-    footer .sep { margin: 0 0.2em; }
-    footer .name { color: var(--ink); font-weight: 700; }
-    footer a { color: inherit; white-space: nowrap; }
-    footer a:focus-visible {
-      outline: 2px solid var(--ink);
-      outline-offset: 2px;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/main.js" defer></script>
 </head>
 <body>
+  <header class="hero">
+    <div class="hero-inner">
+      <h1>MinMax Recurrent Neural Cascades</h1>
+      <p class="tagline">truly for long-sequence processing</p>
+      <ul class="keywords">
+        <li>Maximal Expressivity</li>
+        <li>Long-Term Memory</li>
+        <li>High Parallelisability</li>
+        <li>Guaranteed Stability</li>
+        <li>Long-Range Sensitivity</li>
+      </ul>
+      <nav class="links" aria-label="Resources">
+        <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043" target="_blank" rel="noopener">NeurIPS 2026 paper</a>
+        <a href="https://arxiv.org/abs/2605.06384" target="_blank" rel="noopener">Extended arXiv version</a>
+        <a href="resources/PS-155043--RGB.pdf" target="_blank" rel="noopener">Poster</a>
+        <a href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener">Code</a>
+        <a href="https://pypi.org/project/minmaxrnc/" target="_blank" rel="noopener">Python package</a>
+      </nav>
+      <p class="byline hero-byline">
+        <span class="item"><span class="label">Author</span> <span class="name">Alessandro Ronca</span></span>
+        <span class="sep" aria-hidden="true">·</span>
+        <span class="item"><span class="label">Contact</span> <a href="mailto:ronca@iris-ai.org">ronca@iris-ai.org</a></span>
+      </p>
+    </div>
+  </header>
+
   <main>
-    <h1>MinMax Recurrent Neural Cascades</h1>
-    <p class="tagline">truly for long-sequence processing</p>
-    <ul class="keywords">
-      <li>Maximal Expressivity</li>
-      <li>Long-Term Memory</li>
-      <li>High Parallelisability</li>
-      <li>Guaranteed Stability</li>
-      <li>Long-Range Sensitivity</li>
-    </ul>
-    <nav class="links" aria-label="Resources">
-      <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043" target="_blank" rel="noopener">NeurIPS 2026 paper</a>
-      <a href="https://arxiv.org/abs/2605.06384" target="_blank" rel="noopener">Extended arXiv version</a>
-      <a href="resources/PS-155043--RGB.pdf" target="_blank" rel="noopener">Poster</a>
-      <a href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener">Code</a>
-      <a href="https://pypi.org/project/minmaxrnc/" target="_blank" rel="noopener">Python package</a>
-    </nav>
+    <section id="why" aria-labelledby="why-title">
+      <div class="wrap wide">
+        <h2 id="why-title">What long sequences demand</h2>
+        <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
+        <div class="cards">
+          <div class="card">
+            <h3>Expressive, with long-term memory</h3>
+            <p>Remember what matters for as long as needed, and recognise rich temporal patterns: from simple ones, like &ldquo;B happened after A&rdquo;, up to everything a finite-memory system can recognise.</p>
+          </div>
+          <div class="card">
+            <h3>Efficient</h3>
+            <p>Cost grows only linearly with length. Run it step by step, or in parallel with a number of sequential steps that grows only logarithmically.</p>
+          </div>
+          <div class="card">
+            <h3>Stable</h3>
+            <p>Activations and gradients stay bounded, however long the sequence gets.</p>
+          </div>
+          <div class="card">
+            <h3>Long-range sensitive</h3>
+            <p>Early inputs can still shape late outputs, so dependencies across very long distances can be learned.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tradeoffs" aria-labelledby="tradeoffs-title">
+      <div class="wrap wide">
+        <h2 id="tradeoffs-title">Today&rsquo;s architectures trade them off</h2>
+        <p class="lead">Each popular family gives up at least one of the four. MinMax RNCs have all of them.</p>
+        <div class="table-scroll">
+          <table class="compare">
+            <thead>
+              <tr>
+                <th scope="col">Architecture</th>
+                <th scope="col">Expressive</th>
+                <th scope="col">Efficient</th>
+                <th scope="col">Stable</th>
+                <th scope="col">Long-range</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Transformers</th>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: cannot express some basic languages</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: quadratic work</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: limited-range sensitivity</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Contractive linear RNNs<span class="eg">Mamba, mLSTM, Gated DeltaNet</span></th>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: limited expressivity, no long-term memory</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: limited-range sensitivity</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Non-expansive linear RNNs<span class="eg">DeltaNet, DeltaProduct</span></th>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: unstable</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+              </tr>
+              <tr class="ours">
+                <th scope="row">MinMax RNCs</th>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <details>
+          <summary>References</summary>
+          <ul class="refs">
+            <li><b>Transformers</b>: <i>Attention is All you Need</i>, Vaswani et al., NeurIPS 2017</li>
+            <li><b>Mamba</b>: <i>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</i>, Gu and Dao, COLM 2024</li>
+            <li><b>mLSTM</b>: <i>xLSTM: Extended Long Short-Term Memory</i>, Beck et al., NeurIPS 2024</li>
+            <li><b>DeltaNet</b>: <i>Parallelizing Linear Transformers with the Delta Rule over Sequence Length</i>, Yang et al., NeurIPS 2024</li>
+            <li><b>Gated DeltaNet</b>: <i>Gated Delta Networks: Improving Mamba2 with Delta Rule</i>, Yang, Kautz, and Hatamizadeh, ICLR 2025</li>
+            <li><b>DeltaProduct</b>: <i>DeltaProduct: Improving State-Tracking in Linear RNNs via Householder Products</i>, Siems et al., NeurIPS 2025</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section id="idea" aria-labelledby="idea-title">
+      <div class="wrap">
+        <h2 id="idea-title">The idea: swap + and × for max and min</h2>
+        <p class="lead">Recurrent networks update their state with sums and products. MinMax RNCs use max and min instead.</p>
+        <p>Each neuron keeps a state <i>x</i> and, at every step, reads two numbers computed from the current input: a cap <i>R</i> and a floor <i>s</i>. It updates its state like this:</p>
+        <div class="formula" role="math" aria-label="x t equals max of min of R t and x t minus 1, and s t">
+          <i>x</i><sub><i>t</i></sub> = <b>max</b>( <b>min</b>( <i>R</i><sub><i>t</i></sub>, <i>x</i><sub><i>t</i>&minus;1</sub> ), <i>s</i><sub><i>t</i></sub> )
+        </div>
+        <p>In words: keep the old state, but no higher than the cap; then raise it to at least the floor. This is the familiar linear recurrence <i>x</i><sub><i>t</i></sub> = <i>R</i><sub><i>t</i></sub> &times; <i>x</i><sub><i>t</i>&minus;1</sub> + <i>s</i><sub><i>t</i></sub>, with &times; replaced by min and + by max.</p>
+
+        <div class="stepper" id="stepper">
+          <h3>Try it</h3>
+          <p class="note hint" hidden>Press <b>Step</b> to run the neuron one input at a time, starting from state 0. You can also edit the inputs.</p>
+          <table>
+            <thead>
+              <tr><th scope="col">Step</th><th scope="col">Cap <i>R</i></th><th scope="col">Floor <i>s</i></th><th scope="col">Update</th><th scope="col">State</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td><input type="number" value="0" readonly aria-label="Cap R at step 1"></td><td><input type="number" value="2" readonly aria-label="Floor s at step 1"></td><td class="calc">max(min(0, 0), 2) = 2</td><td class="state">2</td></tr>
+              <tr><td>2</td><td><input type="number" value="7" readonly aria-label="Cap R at step 2"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 2"></td><td class="calc">max(min(7, 2), 0) = 2</td><td class="state">2</td></tr>
+              <tr><td>3</td><td><input type="number" value="5" readonly aria-label="Cap R at step 3"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 3"></td><td class="calc">max(min(5, 2), 0) = 2</td><td class="state">2</td></tr>
+              <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Cap R at step 4"></td><td><input type="number" value="1" readonly aria-label="Floor s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
+            </tbody>
+          </table>
+          <div class="controls">
+            <button type="button" class="primary" data-step>Step</button>
+            <button type="button" data-reset>Reset</button>
+          </div>
+        </div>
+
+        <p>The state is written once (step 1), held unchanged while the caps stay above it (steps 2 and 3), and overwritten when a low cap resets it (step 4). This kind of exact, lossless holding is what lets the model remember over arbitrarily long spans.</p>
+        <p>A <b>MinMax RNC</b> is a cascade of layers of such neurons, where each neuron&rsquo;s cap and floor are computed from the input by a small feedforward network.</p>
+      </div>
+    </section>
+
+    <section id="properties" aria-labelledby="properties-title">
+      <div class="wrap wide">
+        <h2 id="properties-title">Why it works</h2>
+        <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, with guarantees.</p>
+        <div class="cards">
+          <div class="card">
+            <h3>✓ Maximal expressivity</h3>
+            <p>MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Neurons with a single number as their state already capture the star-free ones.</p>
+          </div>
+          <div class="card">
+            <h3>✓ Efficient, step by step or in parallel</h3>
+            <p>Updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</p>
+          </div>
+          <div class="card">
+            <h3>✓ Guaranteed stability</h3>
+            <p>Max and min only ever select one of their inputs; they never amplify. States and activations stay bounded at every length, and so do the gradients used in training.</p>
+          </div>
+          <div class="card">
+            <h3>✓ Long-range sensitivity</h3>
+            <p>A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" aria-labelledby="results-title">
+      <div class="wrap wide">
+        <h2 id="results-title">Results</h2>
+        <p class="headline">Only <em>MinMax</em> solves every task: <em>100%</em>.</p>
+        <p class="note">Synthetic tasks testing memory and state tracking, evaluated on sequences up to one million steps long. <span class="todo">TODO: one-line description of each task</span></p>
+
+        <div id="results-chart">
+          <div class="tabs" role="group" aria-label="Metric" hidden>
+            <button type="button" data-metric="acc" aria-pressed="true">Accuracy</button>
+            <button type="button" data-metric="thr" aria-pressed="false">Throughput</button>
+          </div>
+          <div class="panels"></div>
+          <p class="note" data-metric-note="acc">Evaluation accuracy (%), means of 99% confidence intervals with max margin 1.7.</p>
+          <p class="note" data-metric-note="thr" hidden>Average training and evaluation tokens per second, relative to MinMax (dashed line = 1&times;); means of 99% confidence intervals with max margin 0.4. sLSTM&rsquo;s throughput is negligible. *&nbsp;Estimates: on S&#8323; and S&#8324;, DeltaNet&rsquo;s value is its mean over the other tasks, and DeltaProduct&rsquo;s is 0.9&times; DeltaNet&rsquo;s, its relative speed reported by Siems et al.</p>
+          <noscript>
+            <div class="table-scroll">
+              <table class="compare">
+                <caption class="note">Evaluation accuracy (%)</caption>
+                <thead><tr><th scope="col">Model</th><th scope="col">Latching</th><th scope="col">Sequences</th><th scope="col">Induction heads</th><th scope="col">S&#8323;</th><th scope="col">S&#8324;</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">MinMax</th><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td></tr>
+                  <tr><th scope="row">Mamba</th><td>54</td><td>47</td><td>52</td><td>&ndash;</td><td>&ndash;</td></tr>
+                  <tr><th scope="row">xLSTM-L</th><td>8</td><td>47</td><td>5</td><td>&ndash;</td><td>&ndash;</td></tr>
+                  <tr><th scope="row">mLSTM</th><td>7</td><td>45</td><td>5</td><td>&ndash;</td><td>&ndash;</td></tr>
+                  <tr><th scope="row">sLSTM</th><td>28</td><td>47</td><td>4.5</td><td>&ndash;</td><td>&ndash;</td></tr>
+                  <tr><th scope="row">DeltaNet</th><td>8</td><td>17</td><td>4.5</td><td>0</td><td>0</td></tr>
+                  <tr><th scope="row">DeltaProduct</th><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>17.2</td><td>17.4</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </noscript>
+        </div>
+
+        <div class="stat">
+          <div class="num">3.12</div>
+          <p><b>Language modelling.</b> On OpenWebText, a MinMax RNC with 112M parameters and single-number neuron states reaches a validation loss of 3.12, the same as GPT-2 with 124M parameters.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cite" aria-labelledby="cite-title">
+      <div class="wrap">
+        <h2 id="cite-title">Cite</h2>
+        <pre class="bib" id="bib">@article{ronca2026minmax,
+  title   = {MinMax Recurrent Neural Cascades},
+  author  = {Ronca, Alessandro},
+  journal = {arXiv preprint arXiv:2605.06384},
+  year    = {2026}
+}</pre>
+        <button type="button" id="copy-bib" hidden>Copy BibTeX</button>
+      </div>
+    </section>
   </main>
-  <footer>
+
+  <footer class="byline">
     <span class="item"><span class="label">Author</span> <span class="name">Alessandro Ronca</span></span>
     <span class="sep" aria-hidden="true">·</span>
     <span class="item"><span class="label">Contact</span> <a href="mailto:ronca@iris-ai.org">ronca@iris-ai.org</a></span>
