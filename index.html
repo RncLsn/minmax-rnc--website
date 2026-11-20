@@ -188,6 +188,15 @@
               <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Cap R at step 4"></td><td><input type="number" value="1" readonly aria-label="Floor s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
             </tbody>
           </table>
+          <figure class="viz" hidden>
+            <ul class="viz-legend" aria-hidden="true">
+              <li><span class="key"></span>Update<span class="long"> at step <i>t</i></span></li>
+              <li><span class="key diag"></span><span class="long">No change, </span><i>y</i> = <i>x</i></li>
+              <li><span class="key path"></span>State</li>
+            </ul>
+            <svg role="img" aria-label="3D plot with one panel per step, stacked in depth. Each panel plots that step's update, max of min of R and x, and s, against the previous state x, next to the dashed line y equals x. A path traces the state from panel to panel. The table above lists the same values."></svg>
+            <figcaption class="note"></figcaption>
+          </figure>
           <div class="controls">
             <button type="button" class="primary" data-step>Step</button>
             <button type="button" data-reset>Reset</button>

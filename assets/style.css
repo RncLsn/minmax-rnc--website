@@ -216,6 +216,45 @@ summary { cursor: pointer; font-weight: 600; }
 .stepper tr.pending td.calc, .stepper tr.pending td.state { opacity: 0.25; }
 .stepper tr.current { background: var(--card-head); }
 
+/* stepper 3D view (drawn by main.js): one panel per step, the state's path in --yes */
+.viz { --viz-path: var(--yes); margin: 1.1rem 0 0; }
+.viz svg { display: block; width: 100%; overflow: visible; font-size: 11px; font-variant-numeric: tabular-nums; }
+.viz figcaption { margin: 0.4rem 0 0; min-height: 3.2em; }
+.viz-legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; margin: 0 0 0.5rem; padding: 0; list-style: none; font-size: 0.85rem; color: var(--muted); }
+.viz-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.viz-legend .key { width: 1.4rem; height: 0; border-top: 2px solid var(--muted); }
+.viz-legend .key.diag { border-top: 1.5px dashed var(--muted); opacity: 0.8; }
+.viz-legend .key.path { position: relative; border-top: 3px solid var(--viz-path); }
+.viz-legend .key.path::after { content: ""; position: absolute; left: 50%; top: -6.5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--viz-path); }
+.viz .rail { fill: none; stroke: var(--muted); stroke-opacity: 0.5; }
+.viz .frame { fill: var(--card); fill-opacity: 0.8; stroke: var(--muted); stroke-opacity: 0.4; }
+.viz .cur .frame { fill: var(--card-head); stroke: var(--ink); stroke-opacity: 0.6; }
+.viz .pending .frame { fill: none; stroke-dasharray: 3 3; stroke-opacity: 0.3; }
+.viz .axis { fill: none; stroke: var(--muted); stroke-opacity: 0.25; }
+.viz .diag { fill: none; stroke: var(--muted); stroke-opacity: 0.7; stroke-dasharray: 4 3; }
+.viz .curve { fill: none; stroke: var(--muted); stroke-width: 1.75; stroke-linejoin: round; }
+.viz .cur .curve { stroke: var(--ink); }
+.viz .pending .diag, .viz .pending .curve { opacity: 0.3; }
+.viz .guide { fill: none; stroke: var(--viz-path); stroke-width: 1; stroke-dasharray: 2 3; }
+.viz .traj { fill: none; stroke: var(--viz-path); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.viz .dot { fill: var(--viz-path); stroke: var(--card); stroke-width: 1.5; }
+.viz .start { fill: var(--viz-path); }
+.viz .tick { fill: var(--muted); }
+.viz .tick.on { fill: var(--ink); font-weight: 700; }
+.viz .var { font-style: italic; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 1.2em; }
+.viz .value { fill: var(--ink); font-weight: 700; font-size: 12px; }
+.viz .bend { fill: var(--ink); font-size: 11px; }
+.viz .value, .viz .bend { paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+.viz .cur .bend, .viz .value.cur { stroke: var(--card-head); }
+/* a newly revealed step draws its path, then shows its dot */
+.viz .traj.grow { stroke-dasharray: 1; animation: viz-draw 0.6s ease-out both; }
+.viz .dot.grow, .viz .value.grow { animation: viz-fade 0.2s 0.5s both; }
+@keyframes viz-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes viz-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .viz .grow { animation: none; }
+  .viz .traj.grow { stroke-dasharray: none; }
+}
 .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
 button {
   font: inherit;
@@ -323,6 +362,9 @@ footer.byline { padding: 2rem 1rem; background: var(--band); }
   .byline .sep { display: none; }
 }
 @media (max-width: 30rem) {
+  .viz-legend { gap: 0.2rem 0.7rem; font-size: 0.75rem; }
+  .viz-legend li { gap: 0.3rem; }
+  .viz-legend .key { width: 1rem; }
   .bar-row { grid-template-columns: 5.6rem 1fr 3.2rem; }
 
   /* stepper: each step's update moves onto its own line under the inputs */
@@ -343,4 +385,7 @@ footer.byline { padding: 2rem 1rem; background: var(--band); }
   .compare th:first-child, .compare td:first-child { padding-left: 0.6rem; }
   .compare thead th { font-size: 0.62rem; letter-spacing: 0.02em; }
   .compare .eg { font-size: 0.75rem; }
+}
+@media (max-width: 22rem) {
+  .viz-legend .long { display: none; }
 }
