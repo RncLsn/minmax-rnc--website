@@ -106,9 +106,10 @@
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
         <h2 id="tradeoffs-title">Today&rsquo;s architectures trade them off</h2>
-        <p class="lead">Each popular family gives up at least one of the four. MinMax RNCs have all of them.</p>
+        <p class="lead">Each popular family gives up at least one of the four.</p>
         <div class="table-scroll">
           <table class="compare">
+            <colgroup><col class="c-arch"><col><col><col><col></colgroup>
             <thead>
               <tr>
                 <th scope="col">Architecture</th>
@@ -140,12 +141,12 @@
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: unstable</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
               </tr>
-              <tr class="ours">
-                <th scope="row">MinMax RNCs</th>
+              <tr>
+                <th scope="row">Nonlinear RNNs<span class="eg">Elman, LSTM, GRU, sLSTM</span></th>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: strictly sequential, cannot be parallelised over the sequence</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: gradients vanish over long distances</span></td>
               </tr>
             </tbody>
           </table>
@@ -155,12 +156,40 @@
           <ul class="refs">
             <li><b>Transformers</b>: <i>Attention is All you Need</i>, Vaswani et al., NeurIPS 2017</li>
             <li><b>Mamba</b>: <i>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</i>, Gu and Dao, COLM 2024</li>
-            <li><b>mLSTM</b>: <i>xLSTM: Extended Long Short-Term Memory</i>, Beck et al., NeurIPS 2024</li>
             <li><b>DeltaNet</b>: <i>Parallelizing Linear Transformers with the Delta Rule over Sequence Length</i>, Yang et al., NeurIPS 2024</li>
             <li><b>Gated DeltaNet</b>: <i>Gated Delta Networks: Improving Mamba2 with Delta Rule</i>, Yang, Kautz, and Hatamizadeh, ICLR 2025</li>
             <li><b>DeltaProduct</b>: <i>DeltaProduct: Improving State-Tracking in Linear RNNs via Householder Products</i>, Siems et al., NeurIPS 2025</li>
+            <li><b>Elman</b>: <i>Finding Structure in Time</i>, Elman, Cognitive Science 1990</li>
+            <li><b>LSTM</b>: <i>Long Short-Term Memory</i>, Hochreiter and Schmidhuber, Neural Computation 1997</li>
+            <li><b>GRU</b>: <i>Learning Phrase Representations using RNN Encoder&ndash;Decoder for Statistical Machine Translation</i>, Cho et al., EMNLP 2014</li>
+            <li><b>sLSTM</b> and <b>mLSTM</b>: <i>xLSTM: Extended Long Short-Term Memory</i>, Beck et al., NeurIPS 2024</li>
           </ul>
         </details>
+        <h3 class="verdict-title">MinMax RNCs don&rsquo;t trade them off</h3>
+        <div class="table-scroll">
+          <table class="compare ours">
+            <colgroup><col class="c-arch"><col><col><col><col></colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Architecture</th>
+                <th scope="col">Expressive</th>
+                <th scope="col">Efficient</th>
+                <th scope="col">Stable</th>
+                <th scope="col">Long-range</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">MinMax RNCs</th>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="verdict-lead">They have all four at once. <a href="#idea">See how &darr;</a></p>
       </div>
     </section>
 
