@@ -1,85 +1,34 @@
 // minmaxrnc.org: worked-example stepper, results charts, BibTeX copy.
 // The page reads fine without this script; it only adds interaction.
 
-// ---------- interaction state in the URL, so a link restores the view ----------
-// ?dim, ?notation, ?metric: toggles; ?row: open comparison row; ?refs: References open;
-// ?step, ?caps, ?floors and ?step2, ?inputs2: progress and edited inputs of the two steppers.
+// ---------- view state in the URL, so a link opens the same views ----------
+// Only the main view switches are kept: ?dim (state dimension), ?notation (max/min or oplus/otimes),
+// ?metric (results), ?tryit and ?tryit2 (the two Try it views). Defaults are left out; switching replaces the history entry.
 const urlState = {
   get(key, allowed, fallback) {
     const v = new URLSearchParams(location.search).get(key);
     return allowed.includes(v) ? v : fallback;
   },
-  raw(key) { return new URLSearchParams(location.search).get(key); },
-  set(key, value, fallback) { // defaults are left out to keep URLs clean; no new history entries
+  set(key, value, fallback) {
     const url = new URL(location.href);
     if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value);
-    history.replaceState(history.state, '', url.href.replace(/%2C/gi, ',')); // readable lists: 0,7,5,0
-  },
-  // a list of numbers, e.g. "0,7,5,0"; null unless it has exactly n valid entries
-  numbers(key, n) {
-    const v = this.raw(key);
-    if (v === null) return null;
-    const a = v.split(',');
-    return a.length === n && a.every((x) => x.trim() !== '' && Number.isFinite(Number(x))) ? a.map(Number) : null;
+    history.replaceState(history.state, '', url);
   },
 };
-// wire a stepper's progress and inputs to URL keys
-function stepperState(rows, stepKey, inputKeys) {
-  const cols = inputKeys.map((_, c) => rows.map((row) => row.querySelectorAll('input')[c]));
-  const defaults = cols.map((inputs) => inputs.map((i) => i.value).join(','));
-  cols.forEach((inputs, c) => {
-    const saved = urlState.numbers(inputKeys[c], inputs.length);
-    if (saved) inputs.forEach((input, i) => { input.value = saved[i]; });
-  });
-  const steps = Array.from({ length: rows.length + 1 }, (_, i) => String(i));
-  return {
-    shown: Number(urlState.get(stepKey, steps, '0')),
-    save(shown) {
-      urlState.set(stepKey, String(shown), '0');
-      cols.forEach((inputs, c) => urlState.set(inputKeys[c], inputs.map((i) => i.value).join(','), defaults[c]));
-    },
-  };
+(function () { // drop keys that earlier versions stored (open rows, stepper inputs, ...) from old links
+  const url = new URL(location.href);
+  const old = ['row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
+  if (old.some((k) => url.searchParams.has(k))) {
+    old.forEach((k) => url.searchParams.delete(k));
+    history.replaceState(history.state, '', url);
+  }
+})();
+// a stepper's progress (not kept in the URL)
+function stepperState() {
+  return { shown: 0, save() {} };
 }
 
-// ---------- MinMax neuron stepper ----------
-(function () {
-  const root = document.getElementById('stepper');
-  if (!root) return;
-  const rows = Array.from(root.querySelectorAll('tbody tr'));
-  const stepBtn = root.querySelector('[data-step]');
-  const resetBtn = root.querySelector('[data-reset]');
-  const state = stepperState(rows, 'step', ['caps', 'floors']);
-  let shown = state.shown;
-
-  rows.forEach((row) => row.querySelectorAll('input').forEach((input) => {
-    input.readOnly = false;
-    input.addEventListener('input', () => { render(); state.save(shown); });
-  }));
-  root.querySelector('.hint').hidden = false;
-
-  function num(input) {
-    const v = parseFloat(input.value);
-    return Number.isFinite(v) ? v : 0;
-  }
-  function render() {
-    let x = 0;
-    rows.forEach((row, i) => {
-      const [rIn, sIn] = row.querySelectorAll('input');
-      const r = num(rIn), s = num(sIn);
-      const kept = Math.min(r, x);
-      const next = Math.max(kept, s);
-      row.querySelector('.calc').textContent = `max(min(${r}, ${x}), ${s}) = ${next}`;
-      row.querySelector('.state').textContent = next;
-      row.classList.toggle('pending', i >= shown);
-      row.classList.toggle('current', i === shown - 1);
-      x = next;
-    });
-    stepBtn.disabled = shown >= rows.length;
-  }
-  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); state.save(shown); });
-  resetBtn.addEventListener('click', () => { shown = 0; render(); state.save(shown); });
-  render();
-})();
+// (the scalar neuron's "Try it" lives in tryit.js)
 
 // ---------- "The idea": scalar state / state of any dimension ----------
 (function () {
@@ -111,54 +60,7 @@ function stepperState(rows, stepKey, inputKeys) {
   show(urlState.get('notation', ['minmax', 'algebra'], 'minmax'));
 })();
 
-// ---------- two-entry neuron stepper: R(u) = [[1-u, u], [u, 1-u]], s = 0, x0 = (1, 0) ----------
-(function () {
-  const root = document.getElementById('stepper-2d');
-  if (!root) return;
-  const rows = Array.from(root.querySelectorAll('tbody tr'));
-  const stepBtn = root.querySelector('[data-step]');
-  const resetBtn = root.querySelector('[data-reset]');
-  const op = (c) => `<mo lspace="0.2222em" rspace="0.2222em">${c}</mo>`;
-  const eq = '<mo lspace="0.2778em" rspace="0.2778em">=</mo>';
-  const n = (v) => {
-    const r = Math.round(v * 100) / 100 + 0; // + 0 turns -0 into 0
-    return r < 0 ? `<mrow><mo>&minus;</mo><mn>${-r}</mn></mrow>` : `<mn>${r}</mn>`;
-  };
-  const mat = (m) => '<mrow><mo>(</mo><mtable>' +
-    m.map((r) => '<mtr>' + r.map((v) => `<mtd>${n(v)}</mtd>`).join('') + '</mtr>').join('') +
-    '</mtable><mo>)</mo></mrow>';
-  const vec = (v) => mat(v.map((a) => [a]));
-  const state = stepperState(rows, 'step2', ['inputs2']);
-  let shown = state.shown;
-
-  rows.forEach((row) => {
-    const input = row.querySelector('input');
-    input.readOnly = false;
-    input.addEventListener('input', () => { render(); state.save(shown); });
-  });
-  root.querySelector('.hint').hidden = false;
-
-  function render() {
-    let x = [1, 0];
-    const s = [0, 0];
-    rows.forEach((row, i) => {
-      const u = parseFloat(row.querySelector('input').value);
-      const uu = Number.isFinite(u) ? u : 0;
-      const R = [[1 - uu, uu], [uu, 1 - uu]];
-      const next = R.map((r, k) => Math.max(Math.max(...r.map((rij, j) => Math.min(rij, x[j]))), s[k]));
-      row.querySelector('.calc').innerHTML =
-        `<math>${mat(R)}${op('&otimes;')}${vec(x)}${op('&oplus;')}${vec(s)}${eq}${vec(next)}</math>`;
-      row.querySelector('.state').innerHTML = `<math>${vec(next)}</math>`;
-      row.classList.toggle('pending', i >= shown);
-      row.classList.toggle('current', i === shown - 1);
-      x = next;
-    });
-    stepBtn.disabled = shown >= rows.length;
-  }
-  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); state.save(shown); });
-  resetBtn.addEventListener('click', () => { shown = 0; render(); state.save(shown); });
-  render();
-})();
+// (the two-entry neuron's "Try it" lives in tryit2d.js)
 
 // ---------- comparison table: expandable rows, at most one open ----------
 (function () {
@@ -194,15 +96,12 @@ function stepperState(rows, stepKey, inputKeys) {
     item.row.classList.toggle('open', open);
     item.btn.setAttribute('aria-expanded', String(open));
   }
-  const slug = (item) => item.detail.id.replace(/^why-/, '');
   items.forEach((item) => item.row.addEventListener('click', () => {
     const open = item.detail.hidden;
     items.forEach((other) => set(other, false));
     set(item, open);
-    urlState.set('row', open ? slug(item) : '', '');
   }));
-  const initial = urlState.get('row', items.map(slug), '');
-  items.forEach((item) => { if (slug(item) === initial) set(item, true); });
+
 })();
 
 // ---------- comparison table: rows whose cue links elsewhere (MinMax RNCs: "Why", to "Why MinMax works") ----------
@@ -294,14 +193,6 @@ function stepperState(rows, stepKey, inputKeys) {
   tabs.forEach((b) => b.addEventListener('click', () => { draw(b.dataset.metric); urlState.set('metric', b.dataset.metric, 'acc'); }));
   root.querySelector('.tabs').hidden = false;
   draw(urlState.get('metric', ['acc', 'thr'], 'acc'));
-})();
-
-// ---------- References: open/closed ----------
-(function () {
-  const refs = document.querySelector('#tradeoffs details');
-  if (!refs) return;
-  if (urlState.raw('refs') === '1') refs.open = true;
-  refs.addEventListener('toggle', () => urlState.set('refs', refs.open ? '1' : '', ''));
 })();
 
 // ---------- BibTeX copy ----------
