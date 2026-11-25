@@ -266,3 +266,14 @@ function stepperState() {
     });
   });
 })();
+
+// ---------- collapsed subsections: open one when a link points to it ----------
+(function () {
+  function openTarget() {
+    const el = location.hash && document.getElementById(location.hash.slice(1));
+    const d = el && (el.closest('details.fold') || (el.nextElementSibling && el.nextElementSibling.matches('details.fold') && el.nextElementSibling));
+    if (d) d.open = true;
+  }
+  addEventListener('hashchange', openTarget);
+  openTarget();
+})();
