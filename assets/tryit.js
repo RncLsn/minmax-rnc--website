@@ -2,7 +2,7 @@
 //   timeline: one column per step, draggable reset values R and set values s, the state's path drawn step by step;
 //   gauge:    one neuron as a tube, R resetting the level down, then s setting it up (off for now);
 //   memory:   an input strip (hold / set / reset), MinMax next to a contractive linear RNN.
-// Needs urlState and stepperState from main.js. Without JavaScript the static table stays.
+// Needs urlState and stepperState from main.js (only the view choice is kept in the URL). Without JavaScript the static table stays.
 (function () {
   const root = document.getElementById('stepper');
   if (!root || typeof urlState === 'undefined') return;
@@ -10,14 +10,14 @@
   const rows = Array.from(table.querySelectorAll('tbody tr'));
   const capInputs = rows.map((r) => r.querySelectorAll('input')[0]);
   const floorInputs = rows.map((r) => r.querySelectorAll('input')[1]);
-  const url = stepperState(rows, 'step', ['caps', 'floors']); // restores caps/floors from the URL
+  const url = stepperState();
   const N = rows.length;
   const VMAX = 8; // values are whole numbers 0..VMAX
   const clampV = (v) => Math.max(0, Math.min(VMAX, Math.round(v)));
   const caps = capInputs.map((i) => clampV(+i.value));
   const floors = floorInputs.map((i) => clampV(+i.value));
   let shown = url.shown;
-  let x0 = Number(urlState.get('x0', Array.from({ length: VMAX + 1 }, (_, v) => String(v)), '0')); // initial state
+  let x0 = 0; // initial state
 
   const SVG = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, attrs, parent) => {
@@ -92,7 +92,6 @@
     caps.forEach((v, i) => { capInputs[i].value = v; });
     floors.forEach((v, i) => { floorInputs[i].value = v; });
     url.save(shown);
-    urlState.set('x0', String(x0), '0');
   }
 
   // ---------- view 1: timeline ----------
@@ -290,8 +289,7 @@
   const memory = (function () {
     const T = 12, DEF = '.S.......R..'; // hold / Set / Reset
     const A = 0.7; // the linear RNN keeps 70% per step while holding
-    const saved = urlState.raw('mem');
-    const pat = (saved && saved.length === T && /^[.SWR]+$/.test(saved) ? saved.replace(/W/g, 'S') : DEF).split('');
+    const pat = DEF.split('');
     const el = html('div', { class: 'tryit-view memory' });
     const legend = html('p', { class: 'mem-legend' });
     legend.innerHTML = '<span class="key minmax"></span> MinMax neuron &nbsp; <span class="key linear"></span> contractive linear RNN (keeps 70% per step)';
@@ -308,7 +306,7 @@
         const g = svgEl('g', { class: 'cell', tabindex: 0, role: 'button' }, svg);
         svgEl('rect', { x: L + t * cw + 1, y: CT, width: cw - 2, height: CH, rx: 3 }, g);
         svgEl('text', { x: L + t * cw + cw / 2, y: CT + CH / 2 + 4, 'text-anchor': 'middle' }, g);
-        const cycle = () => { pat[t] = { '.': 'S', S: 'R', R: '.' }[pat[t]]; urlState.set('mem', pat.join(''), DEF); render(); };
+        const cycle = () => { pat[t] = { '.': 'S', S: 'R', R: '.' }[pat[t]]; render(); };
         g.addEventListener('click', cycle);
         g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycle(); } });
         return g;

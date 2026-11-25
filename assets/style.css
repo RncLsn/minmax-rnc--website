@@ -422,6 +422,38 @@ h2 math { font-weight: 400; }
 .mem-legend .key.linear { border-top: 2.5px dashed var(--muted); }
 @media (prefers-reduced-motion: reduce) { .gauge .level, .gauge .level-val, .gauge .g-marker { transition: none; } }
 
+/* two-entry "Try it": timeline and wiring */
+.tl2 svg, .wiring svg { display: block; width: 100%; height: auto; margin-top: 0.5rem; }
+.wiring svg { max-width: 26rem; margin-left: auto; margin-right: auto; }
+.tl2 .grid, .wiring .grid { stroke: var(--line); }
+.tl2 .axis, .wiring .axis { fill: var(--muted); font-size: 12px; }
+.tl2-line { fill: none; stroke-width: 3; stroke-linejoin: round; }
+.tl2-line.e1 { stroke: var(--ink); }
+.tl2-line.e2 { stroke: #EF8633; stroke-dasharray: 7 5; }
+.tl2-dot { stroke-width: 2.5; fill: var(--card); }
+.tl2-dot.e1 { stroke: var(--ink); }
+.tl2-dot.e2 { stroke: #EF8633; }
+.tl2-dot.current.e1 { fill: var(--ink); }
+.tl2-dot.current.e2 { fill: #EF8633; }
+.tl2 .cell { cursor: pointer; outline: none; }
+.tl2 .cell rect { fill: var(--page); stroke: var(--line); }
+.tl2 .cell text { font-size: 15px; font-weight: 700; fill: var(--muted); pointer-events: none; }
+.tl2 .cell.swap rect { fill: var(--ours-bar); stroke: var(--ours-bar); }
+.tl2 .cell.swap text { fill: #1a1609; }
+.tl2 .cell.future { opacity: 0.55; }
+.tl2 .cell:hover rect, .tl2 .cell:focus-visible rect { stroke: var(--ink); stroke-width: 2; }
+.wiring .wire path { fill: none; stroke: var(--muted); stroke-width: calc(var(--w, 2) * 1px); stroke-linecap: round; transition: opacity 0.3s; }
+.wiring .wire.win path { stroke: var(--yes); }
+.wiring .wire text { font-size: 13px; font-weight: 700; fill: var(--muted); }
+.wiring .wire-title { font-size: 14px; font-weight: 700; fill: var(--ink); }
+.wiring .node circle { fill: var(--card); stroke-width: 3; }
+.wiring .node.e1 circle { stroke: var(--ink); }
+.wiring .node.e2 circle { stroke: #EF8633; }
+.wiring .node text { font-size: 18px; font-weight: 800; fill: var(--ink); }
+.tl2 .mem-legend .key.e1 { border-top: 3px solid var(--ink); }
+.tl2 .mem-legend .key.e2 { border-top: 3px dashed #EF8633; }
+@media (max-width: 30rem) { .tl2 .axis { font-size: 14px; } }
+
 /* two-entry stepper: updates and states are small matrices */
 .stepper-2d td.calc { font-family: inherit; font-size: 1.3rem; text-align: center; }
 .stepper-2d td.state { font-weight: 400; font-size: 1.3rem; }
