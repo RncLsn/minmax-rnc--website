@@ -1,6 +1,46 @@
 // minmaxrnc.org: worked-example stepper, results charts, BibTeX copy.
 // The page reads fine without this script; it only adds interaction.
 
+// ---------- interaction state in the URL, so a link restores the view ----------
+// ?dim, ?notation, ?metric: toggles; ?row: open comparison row; ?refs: References open;
+// ?step, ?caps, ?floors and ?step2, ?inputs2: progress and edited inputs of the two steppers.
+const urlState = {
+  get(key, allowed, fallback) {
+    const v = new URLSearchParams(location.search).get(key);
+    return allowed.includes(v) ? v : fallback;
+  },
+  raw(key) { return new URLSearchParams(location.search).get(key); },
+  set(key, value, fallback) { // defaults are left out to keep URLs clean; no new history entries
+    const url = new URL(location.href);
+    if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value);
+    history.replaceState(history.state, '', url.href.replace(/%2C/gi, ',')); // readable lists: 0,7,5,0
+  },
+  // a list of numbers, e.g. "0,7,5,0"; null unless it has exactly n valid entries
+  numbers(key, n) {
+    const v = this.raw(key);
+    if (v === null) return null;
+    const a = v.split(',');
+    return a.length === n && a.every((x) => x.trim() !== '' && Number.isFinite(Number(x))) ? a.map(Number) : null;
+  },
+};
+// wire a stepper's progress and inputs to URL keys
+function stepperState(rows, stepKey, inputKeys) {
+  const cols = inputKeys.map((_, c) => rows.map((row) => row.querySelectorAll('input')[c]));
+  const defaults = cols.map((inputs) => inputs.map((i) => i.value).join(','));
+  cols.forEach((inputs, c) => {
+    const saved = urlState.numbers(inputKeys[c], inputs.length);
+    if (saved) inputs.forEach((input, i) => { input.value = saved[i]; });
+  });
+  const steps = Array.from({ length: rows.length + 1 }, (_, i) => String(i));
+  return {
+    shown: Number(urlState.get(stepKey, steps, '0')),
+    save(shown) {
+      urlState.set(stepKey, String(shown), '0');
+      cols.forEach((inputs, c) => urlState.set(inputKeys[c], inputs.map((i) => i.value).join(','), defaults[c]));
+    },
+  };
+}
+
 // ---------- MinMax neuron stepper ----------
 (function () {
   const root = document.getElementById('stepper');
@@ -8,11 +48,12 @@
   const rows = Array.from(root.querySelectorAll('tbody tr'));
   const stepBtn = root.querySelector('[data-step]');
   const resetBtn = root.querySelector('[data-reset]');
-  let shown = 0;
+  const state = stepperState(rows, 'step', ['caps', 'floors']);
+  let shown = state.shown;
 
   rows.forEach((row) => row.querySelectorAll('input').forEach((input) => {
     input.readOnly = false;
-    input.addEventListener('input', render);
+    input.addEventListener('input', () => { render(); state.save(shown); });
   }));
   root.querySelector('.hint').hidden = false;
 
@@ -35,8 +76,8 @@
     });
     stepBtn.disabled = shown >= rows.length;
   }
-  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); });
-  resetBtn.addEventListener('click', () => { shown = 0; render(); });
+  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); state.save(shown); });
+  resetBtn.addEventListener('click', () => { shown = 0; render(); state.save(shown); });
   render();
 })();
 
@@ -50,9 +91,9 @@
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dim === dim)));
     panels.forEach((p) => { p.hidden = p.dataset.dimPanel !== dim; });
   }
-  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.dim)));
+  buttons.forEach((b) => b.addEventListener('click', () => { show(b.dataset.dim); urlState.set('dim', b.dataset.dim, 'scalar'); }));
   tabs.hidden = false;
-  show('scalar');
+  show(urlState.get('dim', ['scalar', 'general'], 'scalar'));
 })();
 
 // ---------- recurrence equations: max/min or ⊕/⊗ notation, kept in sync across cards ----------
@@ -65,9 +106,9 @@
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.notation === n)));
     panels.forEach((p) => { p.hidden = p.dataset.notationPanel !== n; });
   }
-  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.notation)));
+  buttons.forEach((b) => b.addEventListener('click', () => { show(b.dataset.notation); urlState.set('notation', b.dataset.notation, 'minmax'); }));
   groups.forEach((g) => { g.hidden = false; });
-  show('minmax');
+  show(urlState.get('notation', ['minmax', 'algebra'], 'minmax'));
 })();
 
 // ---------- two-entry neuron stepper: R(u) = [[1-u, u], [u, 1-u]], s = 0, x0 = (1, 0) ----------
@@ -87,12 +128,13 @@
     m.map((r) => '<mtr>' + r.map((v) => `<mtd>${n(v)}</mtd>`).join('') + '</mtr>').join('') +
     '</mtable><mo>)</mo></mrow>';
   const vec = (v) => mat(v.map((a) => [a]));
-  let shown = 0;
+  const state = stepperState(rows, 'step2', ['inputs2']);
+  let shown = state.shown;
 
   rows.forEach((row) => {
     const input = row.querySelector('input');
     input.readOnly = false;
-    input.addEventListener('input', render);
+    input.addEventListener('input', () => { render(); state.save(shown); });
   });
   root.querySelector('.hint').hidden = false;
 
@@ -113,8 +155,8 @@
     });
     stepBtn.disabled = shown >= rows.length;
   }
-  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); });
-  resetBtn.addEventListener('click', () => { shown = 0; render(); });
+  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); state.save(shown); });
+  resetBtn.addEventListener('click', () => { shown = 0; render(); state.save(shown); });
   render();
 })();
 
@@ -152,11 +194,15 @@
     item.row.classList.toggle('open', open);
     item.btn.setAttribute('aria-expanded', String(open));
   }
+  const slug = (item) => item.detail.id.replace(/^why-/, '');
   items.forEach((item) => item.row.addEventListener('click', () => {
     const open = item.detail.hidden;
     items.forEach((other) => set(other, false));
     set(item, open);
+    urlState.set('row', open ? slug(item) : '', '');
   }));
+  const initial = urlState.get('row', items.map(slug), '');
+  items.forEach((item) => { if (slug(item) === initial) set(item, true); });
 })();
 
 // ---------- comparison table: rows whose cue links elsewhere (MinMax RNCs: "Why", to "Why MinMax works") ----------
@@ -245,9 +291,17 @@
     tabs.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.metric === metric)));
     notes.forEach((n) => { n.hidden = n.dataset.metricNote !== metric; });
   }
-  tabs.forEach((b) => b.addEventListener('click', () => draw(b.dataset.metric)));
+  tabs.forEach((b) => b.addEventListener('click', () => { draw(b.dataset.metric); urlState.set('metric', b.dataset.metric, 'acc'); }));
   root.querySelector('.tabs').hidden = false;
-  draw('acc');
+  draw(urlState.get('metric', ['acc', 'thr'], 'acc'));
+})();
+
+// ---------- References: open/closed ----------
+(function () {
+  const refs = document.querySelector('#tradeoffs details');
+  if (!refs) return;
+  if (urlState.raw('refs') === '1') refs.open = true;
+  refs.addEventListener('toggle', () => urlState.set('refs', refs.open ? '1' : '', ''));
 })();
 
 // ---------- BibTeX copy ----------
