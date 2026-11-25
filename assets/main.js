@@ -55,9 +55,9 @@ function stepperState() {
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.notation === n)));
     panels.forEach((p) => { p.hidden = p.dataset.notationPanel !== n; });
   }
-  buttons.forEach((b) => b.addEventListener('click', () => { show(b.dataset.notation); urlState.set('notation', b.dataset.notation, 'minmax'); }));
+  buttons.forEach((b) => b.addEventListener('click', () => { show(b.dataset.notation); urlState.set('notation', b.dataset.notation, 'algebra'); }));
   groups.forEach((g) => { g.hidden = false; });
-  show(urlState.get('notation', ['minmax', 'algebra'], 'minmax'));
+  show(urlState.get('notation', ['minmax', 'algebra'], 'algebra'));
 })();
 
 // (the two-entry neuron's "Try it" lives in tryit2d.js)
