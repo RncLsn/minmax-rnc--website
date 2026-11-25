@@ -1,7 +1,7 @@
 // minmaxrnc.org: "Try it" for the scalar MinMax neuron, three views the reader can switch between:
-//   timeline: one column per step, draggable caps and floors, the state's path drawn step by step;
-//   gauge:    one neuron as a tube, the cap pushing the level down, then the floor pushing it up;
-//   memory:   a long input strip (hold / write / reset), MinMax next to a contractive linear RNN.
+//   timeline: one column per step, draggable reset values R and set values s, the state's path drawn step by step;
+//   gauge:    one neuron as a tube, R resetting the level down, then s setting it up (off for now);
+//   memory:   an input strip (hold / set / reset), MinMax next to a contractive linear RNN.
 // Needs urlState and stepperState from main.js. Without JavaScript the static table stays.
 (function () {
   const root = document.getElementById('stepper');
@@ -34,7 +34,7 @@
   };
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // the recurrence: kept = min(cap, x), next = max(kept, floor)
+  // the recurrence: kept = min(R, x) (reset), next = max(kept, s) (set)
   function run() {
     const xs = [x0], kept = [];
     for (let k = 0; k < N; k++) {
@@ -46,13 +46,13 @@
   function narrate(k) { // step k (1-based)
     const { xs, kept } = run();
     const x = xs[k - 1], r = caps[k - 1], s = floors[k - 1], m = kept[k - 1], y = xs[k];
-    const capPart = r >= x
-      ? `cap ${r} is not below the state ${x}, so it is kept`
-      : `cap ${r} is below the state ${x}, so the state drops to ${r}`;
-    const floorPart = s <= m
-      ? `floor ${s} is not above ${m}, so nothing more changes`
-      : `floor ${s} is above ${m}, so the state rises to ${s}`;
-    return `Step ${k}: ${capPart}; ${floorPart}. New state: ${y}.`;
+    const resetPart = r >= x
+      ? `R = ${r} is not below the state ${x}, so the state is kept`
+      : `R = ${r} is below the state ${x}, so it resets the state to ${r}`;
+    const setPart = s <= m
+      ? `s = ${s} is not above ${m}, so nothing more changes`
+      : `s = ${s} is above ${m}, so it sets the state to ${s}`;
+    return `Step ${k}: ${resetPart}; ${setPart}. New state: ${y}.`;
   }
 
   // ---------- shell: view tabs, views, narration, controls ----------
@@ -62,7 +62,8 @@
   root.querySelector('h4').after(head);
   head.appendChild(root.querySelector('h4'));
   const tabs = html('div', { class: 'tabs tryit-tabs', role: 'group', 'aria-label': 'View' }, head);
-  const VIEWS = [['timeline', 'Timeline'], ['gauge', 'Gauge'], ['memory', 'Memory']];
+  const GAUGE = false; // the gauge view is switched off for now
+  const VIEWS = [['timeline', 'Timeline'], ['gauge', 'Gauge'], ['memory', 'Memory']].filter(([k]) => GAUGE || k !== 'gauge');
   const tabButtons = VIEWS.map(([key, label]) => {
     const b = html('button', { type: 'button', 'data-view': key, 'aria-pressed': 'false', text: label }, tabs);
     b.addEventListener('click', () => { showView(key); urlState.set('tryit', key, 'timeline'); });
@@ -82,9 +83,9 @@
   controls.insertBefore(backBtn, stepBtn);
 
   const HINTS = {
-    timeline: 'Press Step to run the neuron. Drag the start state ●, a cap ▼ or a floor ▲ up and down (or focus it and use the arrow keys) to change them.',
-    gauge: 'Press Step: first the cap pushes the state down to it, if lower; then the floor pushes it up to it, if higher.',
-    memory: 'Click a cell to cycle hold · / write W / reset R. MinMax keeps what was written, however long; a contractive linear RNN slowly forgets it.',
+    timeline: 'Press Step to run the neuron. Drag the start state ●, a reset value R or a set value s up and down (or focus it and use the arrow keys) to change them.',
+    gauge: 'Press Step: first R resets the state down to it, if lower; then s sets the state up to it, if higher.',
+    memory: 'Click a cell to cycle hold · / set S / reset R. MinMax keeps what was set, however long; a contractive linear RNN slowly forgets it.',
   };
 
   function save() {
@@ -137,17 +138,18 @@
       }
       paths = []; dots = []; markers = [];
       for (let k = 1; k <= N; k++) paths.push(svgEl('path', { class: 'tl-path', pathLength: 1 }, svg));
-      // caps (▼, pushing down) and floors (▲, pushing up), drawn beside the column so they never hide the state
+      // reset values R (pull down) and set values s (push up), labelled beside the column so they never hide the state
       for (let k = 1; k <= N; k++) {
         ['cap', 'floor'].forEach((kind) => {
           const g = svgEl('g', {
             class: `tl-marker ${kind}`, tabindex: 0, role: 'slider',
-            'aria-label': `${kind === 'cap' ? 'Cap' : 'Floor'} at step ${k}`,
+            'aria-label': `${kind === 'cap' ? 'Reset R' : 'Set s'} at step ${k}`,
             'aria-valuemin': 0, 'aria-valuemax': VMAX,
           }, svg);
           svgEl('rect', { x: -26, y: -16, width: 52, height: 32, class: 'hit' }, g);
           svgEl('line', { x1: -18, x2: 18, y1: 0, y2: 0, class: 'bar' }, g);
-          svgEl('path', { d: kind === 'cap' ? 'M-20,-11 L-8,-11 L-14,-3 Z' : 'M-20,11 L-8,11 L-14,3 Z', class: 'tri' }, g);
+          // label to the left of its bar, centred on it
+          svgEl('text', { x: -24, y: 0, class: 'sym', 'text-anchor': 'end', 'dominant-baseline': 'central' }, g).textContent = kind === 'cap' ? 'R' : 's';
           markers.push({ g, kind, i: k - 1 });
           const arr = kind === 'cap' ? caps : floors;
           draggable(g, svg, toValue, () => arr[k - 1], (v) => {
@@ -167,20 +169,28 @@
       for (let k = 1; k <= N; k++) dots.push(svgEl('circle', { r: 6, class: 'tl-dot' }, svg));
     }
     function render(animate) {
-      const { xs, kept } = run();
+      const { xs } = run();
       start.setAttribute('transform', `translate(${X(0)},${Y(x0)})`);
       start.setAttribute('aria-valuenow', x0);
       start.classList.toggle('current', shown === 0);
       markers.forEach(({ g, kind, i }) => {
         const v = kind === 'cap' ? caps[i] : floors[i];
-        g.setAttribute('transform', `translate(${X(i + 1)},${Y(v)})`);
+        // R and s equal: nudge the bars apart (R above, s below), split the labels and the drag areas
+        const tie = caps[i] === floors[i];
+        const up = kind === 'cap';
+        g.setAttribute('transform', `translate(${X(i + 1)},${Y(v) + (tie ? (up ? -3 : 3) : 0)})`);
+        g.classList.toggle('tie', tie);
+        const hit = g.querySelector('.hit');
+        hit.setAttribute('y', tie && !up ? 0 : -16);
+        hit.setAttribute('height', tie ? 16 : 32);
+        g.querySelector('.sym').setAttribute('y', tie ? (up ? -6 : 6) : 0);
         g.setAttribute('aria-valuenow', v);
         g.classList.toggle('future', i >= shown);
       });
       paths.forEach((p, i) => {
         const k = i + 1;
-        // across to step k at the old level, down to the cap (min), up to the floor (max)
-        p.setAttribute('d', `M${X(k - 1)},${Y(xs[k - 1])} H${X(k)} V${Y(kept[i])} V${Y(xs[k])}`);
+        // across to step k at the old level, then straight to the new state (no overshoot past it)
+        p.setAttribute('d', `M${X(k - 1)},${Y(xs[k - 1])} H${X(k)} V${Y(xs[k])}`);
         p.style.display = k <= shown ? '' : 'none';
         p.classList.remove('draw');
         if (animate && k === shown && !reduceMotion) { void p.getBBox(); p.classList.add('draw'); }
@@ -204,7 +214,7 @@
     const W = 360, H = 300, T = 20, B = 30, TX = 130, TW = 90;
     const Y = (v) => T + ((VMAX - v) * (H - T - B)) / VMAX;
     const el = html('div', { class: 'tryit-view gauge' });
-    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'The neuron state as a level between cap and floor' }, el);
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'The neuron state as a level between the reset value R and the set value s' }, el);
     const clip = svgEl('clipPath', { id: 'gauge-tube' }, svgEl('defs', {}, svg));
     svgEl('rect', { x: TX, y: Y(VMAX), width: TW, height: Y(0) - Y(VMAX), rx: 10 }, clip);
     for (let v = 0; v <= VMAX; v++) {
@@ -250,7 +260,7 @@
       history(xs);
       if (shown === 0) {
         el.classList.add('idle');
-        place(capM, VMAX, 'cap'); place(floorM, 0, 'floor'); level(xs[0]);
+        place(capM, VMAX, 'R'); place(floorM, 0, 's'); level(xs[0]);
         ghost.style.display = 'none';
         return;
       }
@@ -260,28 +270,28 @@
       ghost.style.transform = `translate(0px, ${Y(xs[i])}px)`;
       ghostText.textContent = `before: ${xs[i]}`;
       if (!animate || reduceMotion) {
-        place(capM, caps[i], `cap ${caps[i]}`); place(floorM, floors[i], `floor ${floors[i]}`); level(xs[shown]);
+        place(capM, caps[i], `R = ${caps[i]}`); place(floorM, floors[i], `s = ${floors[i]}`); level(xs[shown]);
         return;
       }
-      // phase 0: previous level, cap and floor out of the way
+      // phase 0: previous level, R and s markers out of the way
       el.classList.add('instant');
-      place(capM, VMAX, `cap ${caps[i]}`); place(floorM, 0, `floor ${floors[i]}`); level(xs[i]);
+      place(capM, VMAX, `R = ${caps[i]}`); place(floorM, 0, `s = ${floors[i]}`); level(xs[i]);
       void el.offsetWidth;
       el.classList.remove('instant');
-      // phase 1: the cap comes down; min(cap, state)
-      timers.push(setTimeout(() => { place(capM, caps[i], `cap ${caps[i]}`); level(kept[i]); }, 80));
-      // phase 2: the floor comes up; max(kept, floor)
-      timers.push(setTimeout(() => { place(floorM, floors[i], `floor ${floors[i]}`); level(xs[shown]); }, 900));
+      // phase 1: R comes down; min(R, state)
+      timers.push(setTimeout(() => { place(capM, caps[i], `R = ${caps[i]}`); level(kept[i]); }, 80));
+      // phase 2: s comes up; max(kept, s)
+      timers.push(setTimeout(() => { place(floorM, floors[i], `s = ${floors[i]}`); level(xs[shown]); }, 900));
     }
     return { el, render };
   })();
 
   // ---------- view 3: memory over a long sequence ----------
   const memory = (function () {
-    const T = 12, DEF = '.W.......R..'; // hold / Write / Reset
+    const T = 12, DEF = '.S.......R..'; // hold / Set / Reset
     const A = 0.7; // the linear RNN keeps 70% per step while holding
     const saved = urlState.raw('mem');
-    const pat = (saved && saved.length === T && /^[.WR]+$/.test(saved) ? saved : DEF).split('');
+    const pat = (saved && saved.length === T && /^[.SWR]+$/.test(saved) ? saved.replace(/W/g, 'S') : DEF).split('');
     const el = html('div', { class: 'tryit-view memory' });
     const legend = html('p', { class: 'mem-legend' });
     legend.innerHTML = '<span class="key minmax"></span> MinMax neuron &nbsp; <span class="key linear"></span> contractive linear RNN (keeps 70% per step)';
@@ -298,7 +308,7 @@
         const g = svgEl('g', { class: 'cell', tabindex: 0, role: 'button' }, svg);
         svgEl('rect', { x: L + t * cw + 1, y: CT, width: cw - 2, height: CH, rx: 3 }, g);
         svgEl('text', { x: L + t * cw + cw / 2, y: CT + CH / 2 + 4, 'text-anchor': 'middle' }, g);
-        const cycle = () => { pat[t] = { '.': 'W', W: 'R', R: '.' }[pat[t]]; urlState.set('mem', pat.join(''), DEF); render(); };
+        const cycle = () => { pat[t] = { '.': 'S', S: 'R', R: '.' }[pat[t]]; urlState.set('mem', pat.join(''), DEF); render(); };
         g.addEventListener('click', cycle);
         g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycle(); } });
         return g;
@@ -317,44 +327,44 @@
       const m = [0], l = [0];
       pat.forEach((c) => {
         const x = m[m.length - 1], z = l[l.length - 1];
-        // MinMax: write = floor 1; reset = cap 0; hold = cap 1, floor 0 (state kept as is)
-        m.push(c === 'W' ? Math.max(Math.min(1, x), 1) : c === 'R' ? Math.max(Math.min(0, x), 0) : Math.max(Math.min(1, x), 0));
-        // linear: write sets 1, reset sets 0, hold multiplies by A
-        l.push(c === 'W' ? 1 : c === 'R' ? 0 : A * z);
+        // MinMax: set = (R 1, s 1); reset = (R 0, s 0); hold = (R 1, s 0), the state kept as is
+        m.push(c === 'S' ? Math.max(Math.min(1, x), 1) : c === 'R' ? Math.max(Math.min(0, x), 0) : Math.max(Math.min(1, x), 0));
+        // linear: set gives 1, reset gives 0, hold multiplies by A
+        l.push(c === 'S' ? 1 : c === 'R' ? 0 : A * z);
       });
       return { m, l };
     }
     function render() {
       pat.forEach((c, t) => {
-        cells[t].setAttribute('class', `cell ${c === 'W' ? 'w' : c === 'R' ? 'r' : 'h'}`);
+        cells[t].setAttribute('class', `cell ${c === 'S' ? 'w' : c === 'R' ? 'r' : 'h'}`);
         cells[t].querySelector('text').textContent = c === '.' ? '·' : c;
-        cells[t].setAttribute('aria-label', `Step ${t + 1}: ${c === 'W' ? 'write' : c === 'R' ? 'reset' : 'hold'}`);
+        cells[t].setAttribute('aria-label', `Step ${t + 1}: ${c === 'S' ? 'set' : c === 'R' ? 'reset' : 'hold'}`);
       });
       const { m, l } = traces();
       mm.setAttribute('d', pathOf(m));
       lin.setAttribute('d', pathOf(l));
-      // narration: the longest hold after a write
+      // narration: the longest hold after a set
       let best = null;
       for (let t = 0; t < T; t++) {
-        if (pat[t] !== 'W') continue;
+        if (pat[t] !== 'S') continue;
         let u = t + 1;
         while (u < T && pat[u] === '.') u++;
         const span = u - t - 1;
         if (!best || span > best.span) best = { span, at: t + 1 };
       }
       say.textContent = !best
-        ? 'Nothing written yet: click a cell to make it W.'
+        ? 'Nothing set yet: click a cell to make it S.'
         : best.span === 0
-          ? 'The written value is overwritten straight away; add some hold steps · after a W.'
-          : `After the write at step ${best.at}, MinMax still holds exactly 1 after ${best.span} steps; the linear RNN is down to ${(A ** best.span).toFixed(2)}.`;
+          ? 'The value is overwritten straight away; add some hold steps · after an S.'
+          : `After the set at step ${best.at}, MinMax still holds exactly 1 after ${best.span} steps; the linear RNN is down to ${(A ** best.span).toFixed(2)}.`;
     }
     build();
     narrowMQ.addEventListener('change', () => { build(); render(); });
     return { el, render };
   })();
 
-  stage.append(timeline.el, gauge.el, memory.el);
-  const viewEls = { timeline: timeline.el, gauge: gauge.el, memory: memory.el };
+  const viewEls = GAUGE ? { timeline: timeline.el, gauge: gauge.el, memory: memory.el } : { timeline: timeline.el, memory: memory.el };
+  stage.append(...Object.values(viewEls));
   let view = 'timeline';
 
   function renderAll(animate) {

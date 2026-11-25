@@ -380,6 +380,10 @@ h2 math { font-weight: 400; }
 .tl-marker.floor .bar, .tl-marker.floor .tri { stroke: var(--yes); fill: var(--yes); }
 .tl-marker.future { opacity: 0.4; }
 .tl-marker:hover .bar, .tl-marker.dragging .bar { stroke-width: 5; }
+.tl-marker .sym { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; font-style: italic; font-size: 17px; }
+.tl-marker.cap .sym { fill: var(--no); }
+.tl-marker.floor .sym { fill: var(--yes); }
+@media (max-width: 30rem) { .tl-marker .sym { font-size: 19px; } }
 .tl-marker:focus-visible .hit { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6; }
 /* gauge */
 .tryit-view.gauge svg { max-width: 24rem; margin-left: auto; margin-right: auto; }

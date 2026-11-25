@@ -232,7 +232,7 @@
           </div>
         </div>
         <div data-dim-panel="scalar">
-          <p>Each neuron keeps a state <math><mi>x</mi></math> and, at every step, reads two numbers computed from the current input: a cap <math><mi>R</mi></math> and a floor <math><mi>s</mi></math>. It updates its state like this:</p>
+          <p>Each neuron keeps a state <math><mi>x</mi></math> and, at every step, reads two numbers computed from the current input: a reset value <math><mi>R</mi></math> and a set value <math><mi>s</mi></math>. It updates its state like this:</p>
           <div class="formula">
             <div class="tabs notation-tabs" role="group" aria-label="Notation" hidden>
               <button type="button" data-notation="minmax" aria-pressed="true"><math><mi>max</mi></math>, <math><mi>min</mi></math></button>
@@ -246,20 +246,20 @@
             </div>
             <p class="formula-note">Two notations for the same update. In the MinMax algebra, <math><mo lspace="0" rspace="0">&oplus;</mo></math> and <math><mo lspace="0" rspace="0">&otimes;</mo></math> play the roles of sum and product: <math><mi>a</mi><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>max</mi><mo>(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo>)</mo></math> and <math><mi>a</mi><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>min</mi><mo>(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo>)</mo></math>.</p>
           </div>
-          <p>In words: keep the old state, but no higher than the cap; then raise it to at least the floor. This is the familiar linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math>, with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>.</p>
+          <p>In words: keep the old state, but reset it down to <math><mi>R</mi></math> if it is higher; then set it up to <math><mi>s</mi></math> if it is lower. This is the familiar linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math>, with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>.</p>
 
           <div class="stepper" id="stepper">
             <h4>Try it</h4>
             <p class="note hint" hidden>Press <b>Step</b> to run the neuron one input at a time, starting from state 0. You can also edit the inputs.</p>
             <table>
               <thead>
-                <tr><th scope="col">Step</th><th scope="col">Cap <math><mi>R</mi></math></th><th scope="col">Floor <math><mi>s</mi></math></th><th scope="col">Update</th><th scope="col">State</th></tr>
+                <tr><th scope="col">Step</th><th scope="col">Reset <math><mi>R</mi></math></th><th scope="col">Set <math><mi>s</mi></math></th><th scope="col">Update</th><th scope="col">State</th></tr>
               </thead>
               <tbody>
-                <tr><td>1</td><td><input type="number" value="0" readonly aria-label="Cap R at step 1"></td><td><input type="number" value="2" readonly aria-label="Floor s at step 1"></td><td class="calc">max(min(0, 0), 2) = 2</td><td class="state">2</td></tr>
-                <tr><td>2</td><td><input type="number" value="7" readonly aria-label="Cap R at step 2"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 2"></td><td class="calc">max(min(7, 2), 0) = 2</td><td class="state">2</td></tr>
-                <tr><td>3</td><td><input type="number" value="5" readonly aria-label="Cap R at step 3"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 3"></td><td class="calc">max(min(5, 2), 0) = 2</td><td class="state">2</td></tr>
-                <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Cap R at step 4"></td><td><input type="number" value="1" readonly aria-label="Floor s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
+                <tr><td>1</td><td><input type="number" value="0" readonly aria-label="Reset R at step 1"></td><td><input type="number" value="2" readonly aria-label="Set s at step 1"></td><td class="calc">max(min(0, 0), 2) = 2</td><td class="state">2</td></tr>
+                <tr><td>2</td><td><input type="number" value="7" readonly aria-label="Reset R at step 2"></td><td><input type="number" value="0" readonly aria-label="Set s at step 2"></td><td class="calc">max(min(7, 2), 0) = 2</td><td class="state">2</td></tr>
+                <tr><td>3</td><td><input type="number" value="5" readonly aria-label="Reset R at step 3"></td><td><input type="number" value="0" readonly aria-label="Set s at step 3"></td><td class="calc">max(min(5, 2), 0) = 2</td><td class="state">2</td></tr>
+                <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Reset R at step 4"></td><td><input type="number" value="1" readonly aria-label="Set s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
               </tbody>
             </table>
             <div class="controls">
@@ -268,10 +268,10 @@
             </div>
           </div>
 
-          <p>The state is written once (step 1), held unchanged while the caps stay above it (steps 2 and 3), and overwritten when a low cap resets it (step 4). This kind of exact, lossless holding is what lets the model remember over arbitrarily long spans.</p>
+          <p>The state is written once (step 1), held unchanged while <math><mi>R</mi></math> stays above it (steps 2 and 3), and overwritten at step 4, where a low <math><mi>R</mi></math> resets it and <math><mi>s</mi></math> sets it to 1. This kind of exact, lossless holding is what lets the model remember over arbitrarily long spans.</p>
         </div>
         <div data-dim-panel="general">
-          <p>In general, each neuron keeps a state <math><msub><mi>x</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries and, at every step, reads from the current input a <math><mi>d</mi><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><mi>d</mi></math> cap matrix <math><msub><mi>R</mi><mi>t</mi></msub></math> and a floor vector <math><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries. It updates its state like this:</p>
+          <p>In general, each neuron keeps a state <math><msub><mi>x</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries and, at every step, reads from the current input a <math><mi>d</mi><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><mi>d</mi></math> reset matrix <math><msub><mi>R</mi><mi>t</mi></msub></math> and a set vector <math><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries. It updates its state like this:</p>
           <div class="formula">
             <div class="tabs notation-tabs" role="group" aria-label="Notation" hidden>
               <button type="button" data-notation="minmax" aria-pressed="true"><math><mi>max</mi></math>, <math><mi>min</mi></math></button>
@@ -285,11 +285,11 @@
             </div>
             <p class="formula-note">Two notations for the same update. In the MinMax algebra, <math><mo lspace="0" rspace="0">&oplus;</mo></math> is <math><mi>max</mi></math> and <math><mo lspace="0" rspace="0">&otimes;</mo></math> is <math><mi>min</mi></math>, so <math><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub></math> is the usual matrix&ndash;vector product with <math><mi>max</mi></math> in place of sums and <math><mi>min</mi></math> in place of products.</p>
           </div>
-          <p>In words: entry <math><mi>i</mi></math> of the new state is the largest of the old entries, each first capped by its entry of <math><msub><mi>R</mi><mi>t</mi></msub></math>, and at least the floor. This is the linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>; with <math><mi>d</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mn>1</mn></math> it is the scalar update.</p>
+          <p>In words: entry <math><mi>i</mi></math> of the new state is the largest of the old entries, each first reset down to at most its entry of <math><msub><mi>R</mi><mi>t</mi></msub></math>, and then set up to at least its entry of <math><msub><mi>s</mi><mi>t</mi></msub></math>. This is the linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>; with <math><mi>d</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mn>1</mn></math> it is the scalar update.</p>
 
           <div class="stepper stepper-2d" id="stepper-2d">
             <h4>Try it: a two-entry state that tracks parity</h4>
-            <p class="note">This neuron reads one number <math><mi>u</mi></math> per step, with cap <math><mi>R</mi><mo>(</mo><mi>u</mi><mo>)</mo><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd><mtd><mi>u</mi></mtd></mtr><mtr><mtd><mi>u</mi></mtd><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd></mtr></mtable><mo>)</mo></mrow></math> and floor <math><mi>s</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>, starting from state <math><msub><mi>x</mi><mn>0</mn></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>. So <math><mi>R</mi><mo>(</mo><mn>0</mn><mo>)</mo></math> is the identity and <math><mi>R</mi><mo>(</mo><mn>1</mn><mo>)</mo></math> swaps the two entries.</p>
+            <p class="note">This neuron reads one number <math><mi>u</mi></math> per step, with reset <math><mi>R</mi><mo>(</mo><mi>u</mi><mo>)</mo><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd><mtd><mi>u</mi></mtd></mtr><mtr><mtd><mi>u</mi></mtd><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd></mtr></mtable><mo>)</mo></mrow></math> and set <math><mi>s</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>, starting from state <math><msub><mi>x</mi><mn>0</mn></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>. So <math><mi>R</mi><mo>(</mo><mn>0</mn><mo>)</mo></math> is the identity and <math><mi>R</mi><mo>(</mo><mn>1</mn><mo>)</mo></math> swaps the two entries.</p>
             <p class="note hint" hidden>Press <b>Step</b> to run it one input at a time. You can also edit the inputs.</p>
             <table>
               <thead>
@@ -310,7 +310,7 @@
           <p>The neuron swaps its two state entries on input 1 and leaves them unchanged on input 0. Its state is <math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math> after an even number of 1s and <math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math> after an odd number: it implements parity. Swapping two entries needs a state of dimension two. In general, the state dimension of a neuron matches the degree of the permutations it can realise, and a single number already suffices for the star-free patterns.</p>
         </div>
         <h3 class="subsection">Architecture of MinMax RNCs</h3>
-        <p>A <b>MinMax RNC</b> is a cascade of layers of such neurons, where each neuron&rsquo;s cap and floor are computed from the input by a small feedforward network.</p>
+        <p>A <b>MinMax RNC</b> is a cascade of layers of such neurons, where each neuron&rsquo;s <math><mi>R</mi></math> and <math><mi>s</mi></math> are computed from the input by a small feedforward network.</p>
       </div>
     </section>
 
@@ -335,6 +335,7 @@
             <h3>✓ Long-range sensitivity</h3>
             <p>A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</p>
           </div>
+        </div>
         </div>
       </div>
     </section>
