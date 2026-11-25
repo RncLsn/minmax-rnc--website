@@ -591,6 +591,34 @@ button:disabled { opacity: 0.4; cursor: default; }
 .stat p { margin: 0; }
 
 /* cite */
+/* Cite: one card listing the entries; each opens to its BibTeX and has its own copy button */
+.cite-list { margin-top: 1rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.cite-item { position: relative; border-top: 1px solid var(--rule); }
+.cite-item:first-child { border-top: 0; }
+.cite-item summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; padding: 0.85rem 14rem 0.85rem 1.1rem; cursor: pointer; list-style: none; }
+.cite-item summary::-webkit-details-marker { display: none; } /* no native marker: Safari (old) */
+.cite-item summary::marker { content: ""; font-size: 0; } /* Safari 18+, Firefox */
+.cite-item .chev { align-self: center; flex: none; color: var(--muted); transition: transform 0.2s ease; }
+.cite-item details[open] .chev { transform: rotate(90deg); color: var(--ink); }
+.cite-t { font-weight: 700; color: var(--ink); }
+.cite-s { font-size: 0.88rem; color: var(--muted); }
+.cite-item summary:hover .cite-t { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 0.18em; }
+.cite-item summary:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 8px; }
+.cite-body { transition: height 0.3s ease, opacity 0.3s ease; }
+.cite-body pre.bib { margin: 0 1.1rem 1rem; }
+.cite-actions { position: absolute; top: 0.6rem; right: 1rem; display: flex; align-items: center; gap: 0.9rem; }
+.cite-item .copy-bib { font-size: 0.85rem; padding: 0.3rem 0.85rem; }
+.cite-link { font-size: 0.88rem; font-weight: 600; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.cite-link .arrow { display: inline-block; width: 0.9em; height: 0.9em; margin-left: 0.25em; vertical-align: -0.08em; color: var(--link-accent); transition: transform 0.15s; }
+.cite-link .arrow path { stroke-width: 1.9; }
+.cite-link:hover { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 0.18em; }
+.cite-link:hover .arrow { transform: translate(2px, -2px); }
+@media (max-width: 30rem) { /* phones: the copy button goes under the title */
+  .cite-item { display: flex; flex-direction: column; }
+  .cite-item summary { padding-right: 1.1rem; padding-bottom: 0.4rem; }
+  .cite-actions { position: static; order: 1; margin: 0 0 0.8rem 2.6rem; }
+}
+@media (prefers-reduced-motion: reduce) { .cite-item .chev, .cite-body { transition: none; } }
 pre.bib {
   margin: 1rem 0 0.75rem;
   padding: 1rem 1.1rem;

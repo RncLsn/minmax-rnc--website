@@ -410,7 +410,7 @@
     <section id="results" aria-labelledby="results-title">
       <div class="wrap wide">
         <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span><span class="sec-t">Performance</span></h2>
-        <p class="headline">Only <em>MinMax</em> solves every task: <em>100%</em>.</p>
+        <p class="headline">Only <em>MinMax</em> solves all considered long-sequence tasks: <em>100%</em>.</p>
         <p class="note">Synthetic tasks testing memory and state tracking, evaluated on sequences up to one million steps long. <span class="todo">TODO: one-line description of each task</span></p>
 
         <div id="results-chart">
@@ -433,7 +433,7 @@
                   <tr><th scope="row">mLSTM</th><td>7</td><td>45</td><td>5</td><td>&ndash;</td><td>&ndash;</td></tr>
                   <tr><th scope="row">sLSTM</th><td>28</td><td>47</td><td>4.5</td><td>&ndash;</td><td>&ndash;</td></tr>
                   <tr><th scope="row">DeltaNet</th><td>8</td><td>17</td><td>4.5</td><td>0</td><td>0</td></tr>
-                  <tr><th scope="row">DeltaProduct</th><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>17.2</td><td>17.4</td></tr>
+                  <tr><th scope="row">DeltaProduct</th><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>17.2</td><td>4.3</td></tr>
                 </tbody>
               </table>
             </div>
@@ -449,14 +449,58 @@
 
     <section id="cite" aria-labelledby="cite-title">
       <div class="wrap">
-        <h2 id="cite-title">Cite</h2>
-        <pre class="bib" id="bib">@article{ronca2026minmax,
-  title   = {MinMax Recurrent Neural Cascades},
-  author  = {Ronca, Alessandro},
-  journal = {arXiv preprint arXiv:2605.06384},
-  year    = {2026}
-}</pre>
-        <button type="button" id="copy-bib" hidden>Copy BibTeX</button>
+        <h2 id="cite-title">How to cite MinMax RNCs</h2>
+        <div class="cite-list">
+          <div class="cite-item">
+            <details>
+              <summary><svg class="chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cite-t">NeurIPS 2026 paper</span><span class="cite-s">Ronca, NeurIPS 2026</span></summary>
+              <div class="cite-body"><pre class="bib">@inproceedings{ronca2026minmax,
+  title={{MinMax} Recurrent Neural Cascades},
+  author={Alessandro Ronca},
+  booktitle={NeurIPS 2026},
+  year={2026},
+  url={https://openreview.net/forum?id=8sPcuoX2cj}
+}</pre></div>
+            </details>
+            <div class="cite-actions">
+              <a class="cite-link" href="https://openreview.net/forum?id=8sPcuoX2cj" target="_blank" rel="noopener" aria-label="Open the NeurIPS 2026 paper on OpenReview">OpenReview<svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button type="button" class="copy-bib" hidden>Copy BibTeX</button>
+            </div>
+          </div>
+          <div class="cite-item">
+            <details>
+              <summary><svg class="chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cite-t">Extended arXiv version</span><span class="cite-s">Ronca, arXiv:2605.06384, 2026</span></summary>
+              <div class="cite-body"><pre class="bib">@misc{ronca2026minmax-arxiv,
+  title={{MinMax} Recurrent Neural Cascades},
+  author={Alessandro Ronca},
+  year={2026},
+  eprint={2605.06384},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2605.06384},
+}</pre></div>
+            </details>
+            <div class="cite-actions">
+              <a class="cite-link" href="https://arxiv.org/abs/2605.06384" target="_blank" rel="noopener" aria-label="Open the extended version on arXiv">arXiv<svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button type="button" class="copy-bib" hidden>Copy BibTeX</button>
+            </div>
+          </div>
+          <div class="cite-item">
+            <details>
+              <summary><svg class="chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cite-t">Code</span><span class="cite-s">Ronca, GitHub, 2026</span></summary>
+              <div class="cite-body"><pre class="bib">@software{ronca2026minmax-code,
+  author  = {Alessandro Ronca},
+  title   = {{MinMax} Recurrent Neural Cascades},
+  year    = {2026},
+  url     = {https://github.com/minmaxrnc/model},
+}</pre></div>
+            </details>
+            <div class="cite-actions">
+              <a class="cite-link" href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener" aria-label="Open the code on GitHub">GitHub<svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+              <button type="button" class="copy-bib" hidden>Copy BibTeX</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

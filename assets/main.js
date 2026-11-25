@@ -173,7 +173,8 @@ function stepperState() {
     'DeltaNet':     '#EF8633',
     'DeltaProduct': '#1F7A8C',
   };
-  // Data: poster figures/results-charts.tex. est = estimate (see notes below the chart).
+  // Data: poster figures/results-charts.tex, except DeltaProduct on S₄, run in the MinMax setting (3 seeds,
+  // cumulative token accuracy up to length 1,024,000, averaged over seeds, as for S₃). est = estimate (see notes).
   const TASKS = [
     { name: 'Latching', acc: { 'MinMax': 100, 'Mamba': 54, 'xLSTM-L': 8, 'mLSTM': 7, 'sLSTM': 28, 'DeltaNet': 8 },
       thr: { 'MinMax': 1, 'Mamba': 0.297, 'xLSTM-L': 1.090, 'mLSTM': 0.103, 'sLSTM': 0, 'DeltaNet': 0.615 } },
@@ -183,7 +184,7 @@ function stepperState() {
       thr: { 'MinMax': 1, 'Mamba': 0.279, 'xLSTM-L': 1.210, 'mLSTM': 0.084, 'sLSTM': 0, 'DeltaNet': 1.157 } },
     { name: 'S₃ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 17.16, 'DeltaNet': 0 },
       thr: { 'MinMax': 1, 'DeltaProduct': 0.888, 'DeltaNet': 0.987 }, est: ['DeltaProduct', 'DeltaNet'] },
-    { name: 'S₄ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 17.42, 'DeltaNet': 0 },
+    { name: 'S₄ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 4.33, 'DeltaNet': 0 },
       thr: { 'MinMax': 1, 'DeltaProduct': 0.888, 'DeltaNet': 0.987 }, est: ['DeltaProduct', 'DeltaNet'] },
   ];
   const METRICS = {
@@ -227,19 +228,51 @@ function stepperState() {
   draw(urlState.get('metric', ['acc', 'thr'], 'acc'));
 })();
 
-// ---------- BibTeX copy ----------
+// ---------- Cite: one expandable entry per BibTeX record, each with its own copy button ----------
 (function () {
-  const btn = document.getElementById('copy-bib');
-  const bib = document.getElementById('bib');
-  if (!btn || !bib || !navigator.clipboard) return;
-  btn.hidden = false;
-  btn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(bib.textContent.trim());
-      btn.textContent = 'Copied';
-    } catch (e) {
-      btn.textContent = 'Copy failed';
-    }
-    setTimeout(() => { btn.textContent = 'Copy BibTeX'; }, 1800);
+  const items = Array.from(document.querySelectorAll('.cite-item'));
+  if (!items.length) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  items.forEach((item) => {
+    const details = item.querySelector('details');
+    const summary = item.querySelector('summary');
+    const body = item.querySelector('.cite-body');
+    const bib = item.querySelector('pre.bib');
+    const btn = item.querySelector('.copy-bib');
+    // smooth open/close: animate the body's height, then hand back to the native <details> state
+    let token = 0;
+    summary.addEventListener('click', (e) => {
+      if (reduceMotion.matches) return; // native, instant
+      e.preventDefault();
+      const t = ++token;
+      const opening = !details.open;
+      body.style.overflow = 'hidden';
+      if (opening) {
+        details.open = true;
+        body.style.height = '0px'; body.style.opacity = '0';
+        void body.offsetHeight;
+        body.style.height = `${body.scrollHeight}px`; body.style.opacity = '1';
+      } else {
+        body.style.height = `${body.scrollHeight}px`;
+        void body.offsetHeight;
+        body.style.height = '0px'; body.style.opacity = '0';
+      }
+      setTimeout(() => {
+        if (t !== token) return;
+        if (!opening) details.open = false;
+        body.style.height = ''; body.style.opacity = ''; body.style.overflow = '';
+      }, 320);
+    });
+    if (!btn || !bib || !navigator.clipboard) return;
+    btn.hidden = false;
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(bib.textContent.trim());
+        btn.textContent = 'Copied';
+      } catch (err) {
+        btn.textContent = 'Copy failed';
+      }
+      setTimeout(() => { btn.textContent = 'Copy BibTeX'; }, 1800);
+    });
   });
 })();
