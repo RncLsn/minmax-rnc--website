@@ -379,7 +379,13 @@ table.compare { table-layout: fixed; }
 math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; }
 p math, h2 math { font-size: 1.08em; } /* maths fonts run small next to the sans-serif text */
 h2 math { font-weight: 400; }
-h2 math:has(mi) { margin-inline: 0.13em; } /* serif max/min next to the bold sans heading need a little more room */
+/* operator chips: + × ⊕ ⊗ max min, shown as objects worth attention, in text and in equations.
+   Each is an <mpadded class="op" height="0.8em" depth="0.26em">: a fixed box on the baseline, so every chip has the
+   same height and alignment whatever its glyph. */
+mpadded.op { padding: 0.07em 0.34em; margin-inline: 0.1em; border-radius: 0.38em; background: color-mix(in srgb, var(--ours-bar) 24%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ours-bar) 75%, transparent); color: var(--ink); }
+.formula mpadded.op, .stepper mpadded.op { margin-inline: 0.06em; } /* inside equations: a little tighter */
+h2 mpadded.op { padding-inline: 0.24em; margin-inline: 0.06em; } /* compact in headings, so they stay on one line */
+h2 math:has(mpadded.op) { font-size: 0.88em; vertical-align: 0.02em; }
 
 .stepper {
   margin: 1.5rem 0;

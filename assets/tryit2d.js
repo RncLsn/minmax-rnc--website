@@ -195,7 +195,7 @@
   // ---------- view 3: matrices (the table) ----------
   const matrices = (function () {
     const el = html('div', { class: 'tryit-view matrices' });
-    const op = (c) => `<mo lspace="0.2222em" rspace="0.2222em">${c}</mo>`;
+    const op = (c) => `<mpadded class="op" height="0.8em" depth="0.26em"><mo lspace="0.2222em" rspace="0.2222em">${c}</mo></mpadded>`; // chip of fixed height
     const eq = '<mo lspace="0.2778em" rspace="0.2778em">=</mo>';
     const n = (v) => { const r = r2(v); return r < 0 ? `<mrow><mo>&minus;</mo><mn>${-r}</mn></mrow>` : `<mn>${r}</mn>`; };
     const mat = (m) => '<mrow><mo>(</mo><mtable>' + m.map((r) => '<mtr>' + r.map((v) => `<mtd>${n(v)}</mtd>`).join('') + '</mtr>').join('') + '</mtable><mo>)</mo></mrow>';
