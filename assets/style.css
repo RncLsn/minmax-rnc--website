@@ -647,6 +647,8 @@ footer.byline { padding: 2rem 1rem; background: var(--band); }
 .byline .sep { margin: 0 0.2em; }
 .byline .label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; }
 .byline .name { color: var(--ink); font-weight: 700; }
+.byline a.name { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent); text-underline-offset: 0.2em; }
+.byline a.name:hover { text-decoration-color: currentColor; }
 .byline a { white-space: nowrap; }
 @media (max-width: 28rem) {
   .byline { display: grid; grid-template-columns: auto auto; justify-content: center; text-align: left; }
