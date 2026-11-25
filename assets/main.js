@@ -40,9 +40,137 @@
   render();
 })();
 
+// ---------- "The idea": scalar state / state of any dimension ----------
+(function () {
+  const tabs = document.querySelector('#idea .dim-tabs');
+  if (!tabs) return;
+  const buttons = Array.from(tabs.querySelectorAll('button'));
+  const panels = Array.from(document.querySelectorAll('#idea [data-dim-panel]'));
+  function show(dim) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dim === dim)));
+    panels.forEach((p) => { p.hidden = p.dataset.dimPanel !== dim; });
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.dim)));
+  tabs.hidden = false;
+  show('scalar');
+})();
+
+// ---------- recurrence equations: max/min or ⊕/⊗ notation, kept in sync across cards ----------
+(function () {
+  const groups = Array.from(document.querySelectorAll('.notation-tabs'));
+  if (!groups.length) return;
+  const buttons = groups.flatMap((g) => Array.from(g.querySelectorAll('button')));
+  const panels = Array.from(document.querySelectorAll('[data-notation-panel]'));
+  function show(n) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.notation === n)));
+    panels.forEach((p) => { p.hidden = p.dataset.notationPanel !== n; });
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.notation)));
+  groups.forEach((g) => { g.hidden = false; });
+  show('minmax');
+})();
+
+// ---------- two-entry neuron stepper: R(u) = [[1-u, u], [u, 1-u]], s = 0, x0 = (1, 0) ----------
+(function () {
+  const root = document.getElementById('stepper-2d');
+  if (!root) return;
+  const rows = Array.from(root.querySelectorAll('tbody tr'));
+  const stepBtn = root.querySelector('[data-step]');
+  const resetBtn = root.querySelector('[data-reset]');
+  const op = (c) => `<mo lspace="0.2222em" rspace="0.2222em">${c}</mo>`;
+  const eq = '<mo lspace="0.2778em" rspace="0.2778em">=</mo>';
+  const n = (v) => {
+    const r = Math.round(v * 100) / 100 + 0; // + 0 turns -0 into 0
+    return r < 0 ? `<mrow><mo>&minus;</mo><mn>${-r}</mn></mrow>` : `<mn>${r}</mn>`;
+  };
+  const mat = (m) => '<mrow><mo>(</mo><mtable>' +
+    m.map((r) => '<mtr>' + r.map((v) => `<mtd>${n(v)}</mtd>`).join('') + '</mtr>').join('') +
+    '</mtable><mo>)</mo></mrow>';
+  const vec = (v) => mat(v.map((a) => [a]));
+  let shown = 0;
+
+  rows.forEach((row) => {
+    const input = row.querySelector('input');
+    input.readOnly = false;
+    input.addEventListener('input', render);
+  });
+  root.querySelector('.hint').hidden = false;
+
+  function render() {
+    let x = [1, 0];
+    const s = [0, 0];
+    rows.forEach((row, i) => {
+      const u = parseFloat(row.querySelector('input').value);
+      const uu = Number.isFinite(u) ? u : 0;
+      const R = [[1 - uu, uu], [uu, 1 - uu]];
+      const next = R.map((r, k) => Math.max(Math.max(...r.map((rij, j) => Math.min(rij, x[j]))), s[k]));
+      row.querySelector('.calc').innerHTML =
+        `<math>${mat(R)}${op('&otimes;')}${vec(x)}${op('&oplus;')}${vec(s)}${eq}${vec(next)}</math>`;
+      row.querySelector('.state').innerHTML = `<math>${vec(next)}</math>`;
+      row.classList.toggle('pending', i >= shown);
+      row.classList.toggle('current', i === shown - 1);
+      x = next;
+    });
+    stepBtn.disabled = shown >= rows.length;
+  }
+  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); });
+  resetBtn.addEventListener('click', () => { shown = 0; render(); });
+  render();
+})();
+
+// ---------- comparison table: expandable rows, at most one open ----------
+(function () {
+  const rows = Array.from(document.querySelectorAll('table.compare tbody tr'))
+    .filter((r) => r.nextElementSibling && r.nextElementSibling.classList.contains('detail'));
+  if (!rows.length) return;
+  const items = rows.map((row) => {
+    const detail = row.nextElementSibling;
+    const th = row.querySelector('th');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'row-toggle';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', detail.id);
+    const label = document.createElement('span');
+    label.className = 'row-label';
+    while (th.firstChild) label.appendChild(th.firstChild);
+    btn.appendChild(label);
+    // "Why" cue under the name; its chevron flips when the row is open.
+    const cue = document.createElement('span');
+    cue.className = 'why-cue';
+    cue.setAttribute('aria-hidden', 'true');
+    cue.innerHTML = 'Why<svg class="chev" viewBox="0 0 16 16" width="11" height="11" focusable="false">' +
+      '<path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    btn.appendChild(cue);
+    th.appendChild(btn);
+    row.classList.add('expandable');
+    detail.hidden = true;
+    return { row, detail, btn };
+  });
+  function set(item, open) {
+    item.detail.hidden = !open;
+    item.row.classList.toggle('open', open);
+    item.btn.setAttribute('aria-expanded', String(open));
+  }
+  items.forEach((item) => item.row.addEventListener('click', () => {
+    const open = item.detail.hidden;
+    items.forEach((other) => set(other, false));
+    set(item, open);
+  }));
+})();
+
+// ---------- comparison table: rows whose cue links elsewhere (MinMax RNCs: "Why", to "Why MinMax works") ----------
+(function () {
+  document.querySelectorAll('table.compare tbody th > a.why-cue').forEach((link) => {
+    const row = link.closest('tr');
+    row.classList.add('linked');
+    row.addEventListener('click', (e) => { if (e.target !== link) link.click(); });
+  });
+})();
+
 // ---------- comparison table: equal row heights ----------
 (function () {
-  const rows = Array.from(document.querySelectorAll('table.compare tbody tr'));
+  const rows = Array.from(document.querySelectorAll('table.compare tbody tr:not(.detail)'));
   if (!rows.length) return;
   function equalise() {
     rows.forEach((r) => { r.style.height = ''; });

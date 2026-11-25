@@ -84,19 +84,23 @@
         <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
         <div class="cards">
           <div class="card">
-            <h3>Expressive, with long-term memory</h3>
+            <h3>High Expressivity</h3>
+            <p class="card-sub">with <b>long-term memory</b></p>
             <p>Remember what matters for as long as needed, and recognise rich temporal patterns: from simple ones, like &ldquo;B happened after A&rdquo;, up to everything a finite-memory system can recognise.</p>
           </div>
           <div class="card">
-            <h3>Efficient</h3>
+            <h3>Computational Efficiency</h3>
+            <p class="card-sub"><b>Subquadratic parallelism</b> &amp; <b>Constant cost per token</b></p>
             <p>Cost grows only linearly with length. Run it step by step, or in parallel with a number of sequential steps that grows only logarithmically.</p>
           </div>
           <div class="card">
-            <h3>Stable</h3>
+            <h3>Guaranteed Stability</h3>
+            <p class="card-sub"><b>Independent of sequence length</b></p>
             <p>Activations and gradients stay bounded, however long the sequence gets.</p>
           </div>
           <div class="card">
-            <h3>Long-range sensitive</h3>
+            <h3>Long-Range Sensitivity</h3>
+            <p class="card-sub"><b>Non-vanishing gradients</b></p>
             <p>Early inputs can still shape late outputs, so dependencies across very long distances can be learned.</p>
           </div>
         </div>
@@ -106,26 +110,43 @@
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
         <h2 id="tradeoffs-title">Today&rsquo;s architectures trade them off</h2>
-        <p class="lead">Each popular family gives up at least one of the four.</p>
+        <p class="lead verdict-lead">Each popular family gives up at least one of the four. MinMax RNCs have all four at once. <a href="#idea">See how &darr;</a></p>
         <div class="table-scroll">
           <table class="compare">
             <colgroup><col class="c-arch"><col><col><col><col></colgroup>
             <thead>
               <tr>
                 <th scope="col">Architecture</th>
-                <th scope="col">Expressive</th>
-                <th scope="col">Efficient</th>
-                <th scope="col">Stable</th>
-                <th scope="col">Long-range</th>
+                <th scope="col"><span>Expressivity</span></th>
+                <th scope="col"><span>Efficiency</span></th>
+                <th scope="col"><span>Stability</span></th>
+                <th scope="col"><span>Sensitivity</span></th>
               </tr>
             </thead>
             <tbody>
+              <tr class="ours">
+                <th scope="row">MinMax RNCs<a class="why-cue" href="#properties">Why<span class="arrow" aria-hidden="true">&darr;</span></a></th>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+              </tr>
               <tr>
                 <th scope="row">Transformers</th>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: cannot express some basic languages</span></td>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: quadratic work</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: limited-range sensitivity</span></td>
+              </tr>
+              <tr class="detail" id="why-transformers">
+                <td colspan="5">
+                  <ul class="why-list">
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>High Expressivity</b> They cannot express some basic regular languages, simple patterns that a finite-state machine recognises easily.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Computational Efficiency</b> Attention compares every token with every earlier one, so work grows quadratically with length.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Activations and gradients stay bounded as sequences grow.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> The influence of a single early input is diluted as the context grows, so sensitivity over long ranges is limited.</li>
+                  </ul>
+                </td>
               </tr>
               <tr>
                 <th scope="row">Contractive linear RNNs<span class="eg">Mamba, mLSTM, Gated DeltaNet</span></th>
@@ -134,6 +155,16 @@
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: limited-range sensitivity</span></td>
               </tr>
+              <tr class="detail" id="why-contractive">
+                <td colspan="5">
+                  <ul class="why-list">
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>High Expressivity</b> The state shrinks at every step, so old information fades: no long-term memory, and limited expressivity.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Computational Efficiency</b> Linear updates compose associatively, so they run step by step or in parallel with a scan.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Contraction keeps states and gradients bounded.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> Because each step shrinks the state, the effect of early inputs decays exponentially with distance.</li>
+                  </ul>
+                </td>
+              </tr>
               <tr>
                 <th scope="row">Non-expansive linear RNNs<span class="eg">DeltaNet, DeltaProduct</span></th>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
@@ -141,12 +172,32 @@
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: unstable</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
               </tr>
+              <tr class="detail" id="why-nonexpansive">
+                <td colspan="5">
+                  <ul class="why-list">
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>High Expressivity</b> Transitions that preserve the state&rsquo;s size, such as reflections, let them keep information and track state over long spans.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Computational Efficiency</b> Linear updates support both step-by-step and parallel evaluation.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Guaranteed Stability</b> Without contraction, contributions from new inputs can keep piling up, so states are not guaranteed to stay bounded on long sequences.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-Range Sensitivity</b> Information can be carried across long distances without fading.</li>
+                  </ul>
+                </td>
+              </tr>
               <tr>
                 <th scope="row">Nonlinear RNNs<span class="eg">Elman, LSTM, GRU, sLSTM</span></th>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: strictly sequential, cannot be parallelised over the sequence</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="no" aria-hidden="true">✗</span><span class="sr">No: gradients vanish over long distances</span></td>
+              </tr>
+              <tr class="detail" id="why-nonlinear">
+                <td colspan="5">
+                  <ul class="why-list">
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>High Expressivity</b> Nonlinear updates can implement finite-state machines, giving long-term memory and rich temporal patterns.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Computational Efficiency</b> Each update depends nonlinearly on the previous one, so steps run strictly one after another and cannot be parallelised over the sequence.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Squashing nonlinearities such as tanh and sigmoid keep activations bounded.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> Squashing nonlinearities shrink gradients at every step, so they vanish over long distances.</li>
+                  </ul>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -165,72 +216,106 @@
             <li><b>sLSTM</b> and <b>mLSTM</b>: <i>xLSTM: Extended Long Short-Term Memory</i>, Beck et al., NeurIPS 2024</li>
           </ul>
         </details>
-        <h3 class="verdict-title">MinMax RNCs don&rsquo;t trade them off</h3>
-        <div class="table-scroll">
-          <table class="compare ours">
-            <colgroup><col class="c-arch"><col><col><col><col></colgroup>
-            <thead>
-              <tr>
-                <th scope="col">Architecture</th>
-                <th scope="col">Expressive</th>
-                <th scope="col">Efficient</th>
-                <th scope="col">Stable</th>
-                <th scope="col">Long-range</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">MinMax RNCs</th>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-                <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="verdict-lead">They have all four at once. <a href="#idea">See how &darr;</a></p>
       </div>
     </section>
 
     <section id="idea" aria-labelledby="idea-title">
       <div class="wrap">
-        <h2 id="idea-title">The idea: swap + and × for max and min</h2>
+        <h2 id="idea-title">The idea: swap <math><mo lspace="0" rspace="0">+</mo></math> and <math><mo lspace="0" rspace="0">&times;</mo></math> for <math><mi>max</mi></math> and <math><mi>min</mi></math></h2>
         <p class="lead">Recurrent networks update their state with sums and products. MinMax RNCs use max and min instead.</p>
-        <p>Each neuron keeps a state <i>x</i> and, at every step, reads two numbers computed from the current input: a cap <i>R</i> and a floor <i>s</i>. It updates its state like this:</p>
-        <div class="formula" role="math" aria-label="x t equals max of min of R t and x t minus 1, and s t">
-          <i>x</i><sub><i>t</i></sub> = <b>max</b>( <b>min</b>( <i>R</i><sub><i>t</i></sub>, <i>x</i><sub><i>t</i>&minus;1</sub> ), <i>s</i><sub><i>t</i></sub> )
-        </div>
-        <p>In words: keep the old state, but no higher than the cap; then raise it to at least the floor. This is the familiar linear recurrence <i>x</i><sub><i>t</i></sub> = <i>R</i><sub><i>t</i></sub> &times; <i>x</i><sub><i>t</i>&minus;1</sub> + <i>s</i><sub><i>t</i></sub>, with &times; replaced by min and + by max.</p>
-
-        <div class="stepper" id="stepper">
-          <h3>Try it</h3>
-          <p class="note hint" hidden>Press <b>Step</b> to run the neuron one input at a time, starting from state 0. You can also edit the inputs.</p>
-          <table>
-            <thead>
-              <tr><th scope="col">Step</th><th scope="col">Cap <i>R</i></th><th scope="col">Floor <i>s</i></th><th scope="col">Update</th><th scope="col">State</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>1</td><td><input type="number" value="0" readonly aria-label="Cap R at step 1"></td><td><input type="number" value="2" readonly aria-label="Floor s at step 1"></td><td class="calc">max(min(0, 0), 2) = 2</td><td class="state">2</td></tr>
-              <tr><td>2</td><td><input type="number" value="7" readonly aria-label="Cap R at step 2"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 2"></td><td class="calc">max(min(7, 2), 0) = 2</td><td class="state">2</td></tr>
-              <tr><td>3</td><td><input type="number" value="5" readonly aria-label="Cap R at step 3"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 3"></td><td class="calc">max(min(5, 2), 0) = 2</td><td class="state">2</td></tr>
-              <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Cap R at step 4"></td><td><input type="number" value="1" readonly aria-label="Floor s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
-            </tbody>
-          </table>
-          <div class="controls">
-            <button type="button" class="primary" data-step>Step</button>
-            <button type="button" data-reset>Reset</button>
+        <div class="subsection-head">
+          <h3 class="subsection">MinMax Recurrent Neurons</h3>
+          <div class="tabs dim-tabs" role="group" aria-label="State dimension" hidden>
+            <button type="button" data-dim="scalar" aria-pressed="true">Scalar<span class="long"> state</span></button>
+            <button type="button" data-dim="general" aria-pressed="false" aria-label="Any dimension">Any <span class="long">dimension</span><span class="short"><math><mi>d</mi></math></span></button>
           </div>
         </div>
+        <div data-dim-panel="scalar">
+          <p>Each neuron keeps a state <math><mi>x</mi></math> and, at every step, reads two numbers computed from the current input: a cap <math><mi>R</mi></math> and a floor <math><mi>s</mi></math>. It updates its state like this:</p>
+          <div class="formula">
+            <div class="tabs notation-tabs" role="group" aria-label="Notation" hidden>
+              <button type="button" data-notation="minmax" aria-pressed="true"><math><mi>max</mi></math>, <math><mi>min</mi></math></button>
+              <button type="button" data-notation="algebra" aria-pressed="false"><math><mo lspace="0" rspace="0">&oplus;</mo></math>, <math><mo lspace="0" rspace="0">&otimes;</mo></math></button>
+            </div>
+            <div data-notation-panel="minmax">
+              <math display="block"><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>max</mi><mo stretchy="true" symmetric="true" minsize="1.25em" maxsize="1.25em">(</mo><mi>min</mi><mo>(</mo><msub><mi>R</mi><mi>t</mi></msub><mo separator="true">,</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo>)</mo><mo separator="true">,</mo><msub><mi>s</mi><mi>t</mi></msub><mo stretchy="true" symmetric="true" minsize="1.25em" maxsize="1.25em">)</mo></math>
+            </div>
+            <div data-notation-panel="algebra">
+              <math display="block"><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mo>(</mo><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo>)</mo><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><msub><mi>s</mi><mi>t</mi></msub></math>
+            </div>
+            <p class="formula-note">Two notations for the same update. In the MinMax algebra, <math><mo lspace="0" rspace="0">&oplus;</mo></math> and <math><mo lspace="0" rspace="0">&otimes;</mo></math> play the roles of sum and product: <math><mi>a</mi><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>max</mi><mo>(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo>)</mo></math> and <math><mi>a</mi><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>min</mi><mo>(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo>)</mo></math>.</p>
+          </div>
+          <p>In words: keep the old state, but no higher than the cap; then raise it to at least the floor. This is the familiar linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math>, with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>.</p>
 
-        <p>The state is written once (step 1), held unchanged while the caps stay above it (steps 2 and 3), and overwritten when a low cap resets it (step 4). This kind of exact, lossless holding is what lets the model remember over arbitrarily long spans.</p>
+          <div class="stepper" id="stepper">
+            <h4>Try it</h4>
+            <p class="note hint" hidden>Press <b>Step</b> to run the neuron one input at a time, starting from state 0. You can also edit the inputs.</p>
+            <table>
+              <thead>
+                <tr><th scope="col">Step</th><th scope="col">Cap <math><mi>R</mi></math></th><th scope="col">Floor <math><mi>s</mi></math></th><th scope="col">Update</th><th scope="col">State</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td><input type="number" value="0" readonly aria-label="Cap R at step 1"></td><td><input type="number" value="2" readonly aria-label="Floor s at step 1"></td><td class="calc">max(min(0, 0), 2) = 2</td><td class="state">2</td></tr>
+                <tr><td>2</td><td><input type="number" value="7" readonly aria-label="Cap R at step 2"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 2"></td><td class="calc">max(min(7, 2), 0) = 2</td><td class="state">2</td></tr>
+                <tr><td>3</td><td><input type="number" value="5" readonly aria-label="Cap R at step 3"></td><td><input type="number" value="0" readonly aria-label="Floor s at step 3"></td><td class="calc">max(min(5, 2), 0) = 2</td><td class="state">2</td></tr>
+                <tr><td>4</td><td><input type="number" value="0" readonly aria-label="Cap R at step 4"></td><td><input type="number" value="1" readonly aria-label="Floor s at step 4"></td><td class="calc">max(min(0, 2), 1) = 1</td><td class="state">1</td></tr>
+              </tbody>
+            </table>
+            <div class="controls">
+              <button type="button" class="primary" data-step>Step</button>
+              <button type="button" data-reset>Reset</button>
+            </div>
+          </div>
+
+          <p>The state is written once (step 1), held unchanged while the caps stay above it (steps 2 and 3), and overwritten when a low cap resets it (step 4). This kind of exact, lossless holding is what lets the model remember over arbitrarily long spans.</p>
+        </div>
+        <div data-dim-panel="general">
+          <p>In general, each neuron keeps a state <math><msub><mi>x</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries and, at every step, reads from the current input a <math><mi>d</mi><mo lspace="0.2222em" rspace="0.2222em">&times;</mo><mi>d</mi></math> cap matrix <math><msub><mi>R</mi><mi>t</mi></msub></math> and a floor vector <math><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mi>d</mi></math> entries. It updates its state like this:</p>
+          <div class="formula">
+            <div class="tabs notation-tabs" role="group" aria-label="Notation" hidden>
+              <button type="button" data-notation="minmax" aria-pressed="true"><math><mi>max</mi></math>, <math><mi>min</mi></math></button>
+              <button type="button" data-notation="algebra" aria-pressed="false"><math><mo lspace="0" rspace="0">&oplus;</mo></math>, <math><mo lspace="0" rspace="0">&otimes;</mo></math></button>
+            </div>
+            <div data-notation-panel="minmax">
+              <math display="block"><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0.1em">,</mo><mi>i</mi></mrow></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mi>max</mi><mrow><mo>(</mo><munder><mi>max</mi><mrow><mn>1</mn><mo>&le;</mo><mi>j</mi><mo>&le;</mo><mi>d</mi></mrow></munder><mrow><mi>min</mi><mo>(</mo><msub><mi>R</mi><mrow><mi>t</mi><mo lspace="0" rspace="0.1em">,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo separator="true">,</mo><msub><mi>x</mi><mrow><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow><mo lspace="0" rspace="0.1em">,</mo><mi>j</mi></mrow></msub><mo>)</mo></mrow><mo separator="true">,</mo><msub><mi>s</mi><mrow><mi>t</mi><mo lspace="0" rspace="0.1em">,</mo><mi>i</mi></mrow></msub><mo>)</mo></mrow></math>
+            </div>
+            <div data-notation-panel="algebra">
+              <math display="block"><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mo>(</mo><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo>)</mo><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><msub><mi>s</mi><mi>t</mi></msub></math>
+            </div>
+            <p class="formula-note">Two notations for the same update. In the MinMax algebra, <math><mo lspace="0" rspace="0">&oplus;</mo></math> is <math><mi>max</mi></math> and <math><mo lspace="0" rspace="0">&otimes;</mo></math> is <math><mi>min</mi></math>, so <math><msub><mi>R</mi><mi>t</mi></msub><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub></math> is the usual matrix&ndash;vector product with <math><mi>max</mi></math> in place of sums and <math><mi>min</mi></math> in place of products.</p>
+          </div>
+          <p>In words: entry <math><mi>i</mi></math> of the new state is the largest of the old entries, each first capped by its entry of <math><msub><mi>R</mi><mi>t</mi></msub></math>, and at least the floor. This is the linear recurrence <math><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><msub><mi>R</mi><mi>t</mi></msub><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo lspace="0.2222em" rspace="0.2222em">+</mo><msub><mi>s</mi><mi>t</mi></msub></math> with <math><mo lspace="0" rspace="0">&times;</mo></math> replaced by <math><mi>min</mi></math> and <math><mo lspace="0" rspace="0">+</mo></math> by <math><mi>max</mi></math>; with <math><mi>d</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mn>1</mn></math> it is the scalar update.</p>
+
+          <div class="stepper stepper-2d" id="stepper-2d">
+            <h4>Try it: a two-entry state that tracks parity</h4>
+            <p class="note">This neuron reads one number <math><mi>u</mi></math> per step, with cap <math><mi>R</mi><mo>(</mo><mi>u</mi><mo>)</mo><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd><mtd><mi>u</mi></mtd></mtr><mtr><mtd><mi>u</mi></mtd><mtd><mn>1</mn><mo>&minus;</mo><mi>u</mi></mtd></mtr></mtable><mo>)</mo></mrow></math> and floor <math><mi>s</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>, starting from state <math><msub><mi>x</mi><mn>0</mn></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math>. So <math><mi>R</mi><mo>(</mo><mn>0</mn><mo>)</mo></math> is the identity and <math><mi>R</mi><mo>(</mo><mn>1</mn><mo>)</mo></math> swaps the two entries.</p>
+            <p class="note hint" hidden>Press <b>Step</b> to run it one input at a time. You can also edit the inputs.</p>
+            <table>
+              <thead>
+                <tr><th scope="col">Step</th><th scope="col">Input <math><mi>u</mi></math></th><th scope="col">Update</th><th scope="col">State</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td><input type="number" value="1" step="1" readonly aria-label="Input u at step 1"></td><td class="calc"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td><td class="state"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
+                <tr><td>2</td><td><input type="number" value="0" step="1" readonly aria-label="Input u at step 2"></td><td class="calc"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td><td class="state"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
+                <tr><td>3</td><td><input type="number" value="1" step="1" readonly aria-label="Input u at step 3"></td><td class="calc"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo lspace="0.2778em" rspace="0.2778em">=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td><td class="state"><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
+              </tbody>
+            </table>
+            <div class="controls">
+              <button type="button" class="primary" data-step>Step</button>
+              <button type="button" data-reset>Reset</button>
+            </div>
+          </div>
+
+          <p>The neuron swaps its two state entries on input 1 and leaves them unchanged on input 0. Its state is <math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math> after an even number of 1s and <math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math> after an odd number: it implements parity. Swapping two entries needs a state of dimension two. In general, the state dimension of a neuron matches the degree of the permutations it can realise, and a single number already suffices for the star-free patterns.</p>
+        </div>
+        <h3 class="subsection">Architecture of MinMax RNCs</h3>
         <p>A <b>MinMax RNC</b> is a cascade of layers of such neurons, where each neuron&rsquo;s cap and floor are computed from the input by a small feedforward network.</p>
       </div>
     </section>
 
     <section id="properties" aria-labelledby="properties-title">
       <div class="wrap wide">
-        <h2 id="properties-title">Why it works</h2>
+        <h2 id="properties-title">Why MinMax works</h2>
         <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, with guarantees.</p>
         <div class="cards">
           <div class="card">
