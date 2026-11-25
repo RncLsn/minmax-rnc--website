@@ -177,7 +177,8 @@ function stepperState() {
   // cumulative token accuracy up to length 1,024,000, averaged over seeds, as for S₃). DeltaProduct throughput on
   // S₃/S₄: train-eval average of DeltaProduct/MinMax from the run logs (median steady-state epoch and 1024-token
   // chunk times); S₃ both on A100; S₄ DeltaProduct L4 timings converted to A100 (GPU factor from DeltaProduct's
-  // clean timings, n_h 3 vs 2 divided out), MinMax S₄ eval time estimated from S₃. est = estimate (see notes).
+  // clean timings, n_h 3 vs 2 divided out), MinMax S₄ eval time estimated from S₃. DeltaNet throughput on S₃/S₄:
+  // its mean over the other tasks. (A task's optional `est` list marks bars as estimates with stripes and *.)
   const TASKS = [
     { name: 'Latching', acc: { 'MinMax': 100, 'Mamba': 54, 'xLSTM-L': 8, 'mLSTM': 7, 'sLSTM': 28, 'DeltaNet': 8 },
       thr: { 'MinMax': 1, 'Mamba': 0.297, 'xLSTM-L': 1.090, 'mLSTM': 0.103, 'sLSTM': 0, 'DeltaNet': 0.615 } },
@@ -186,9 +187,9 @@ function stepperState() {
     { name: 'Induction heads', acc: { 'MinMax': 100, 'Mamba': 52, 'xLSTM-L': 5, 'mLSTM': 5, 'sLSTM': 4.5, 'DeltaNet': 4.5 },
       thr: { 'MinMax': 1, 'Mamba': 0.279, 'xLSTM-L': 1.210, 'mLSTM': 0.084, 'sLSTM': 0, 'DeltaNet': 1.157 } },
     { name: 'S₃ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 17.16, 'DeltaNet': 0 },
-      thr: { 'MinMax': 1, 'DeltaProduct': 1.32, 'DeltaNet': 0.987 }, est: ['DeltaProduct', 'DeltaNet'] },
+      thr: { 'MinMax': 1, 'DeltaProduct': 1.32, 'DeltaNet': 0.987 } },
     { name: 'S₄ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 4.33, 'DeltaNet': 0 },
-      thr: { 'MinMax': 1, 'DeltaProduct': 1.21, 'DeltaNet': 0.987 }, est: ['DeltaProduct', 'DeltaNet'] },
+      thr: { 'MinMax': 1, 'DeltaProduct': 1.21, 'DeltaNet': 0.987 } },
   ];
   const METRICS = {
     acc: { max: 100, fmt: (v) => `${+v.toFixed(1)}%` },
