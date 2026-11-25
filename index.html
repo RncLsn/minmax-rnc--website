@@ -53,7 +53,7 @@
   <script src="assets/tryit2d.js" defer></script>
 </head>
 <body>
-  <header class="hero">
+  <header class="hero" id="top">
     <div class="hero-inner">
       <h1>MinMax Recurrent Neural Cascades</h1>
       <p class="tagline">truly for long-sequence processing</p>
@@ -79,10 +79,24 @@
     </div>
   </header>
 
+  <nav class="storyline" aria-labelledby="storyline-title">
+    <div class="wrap wide">
+      <h2 id="storyline-title">Explore MinMax RNCs</h2>
+      <ol>
+        <li><a href="#why"><span class="step-n" aria-hidden="true">1</span><span class="step-t">The goal</span><span class="step-d">Long-sequence processing</span></a></li>
+        <li><a href="#tradeoffs"><span class="step-n" aria-hidden="true">2</span><span class="step-t">Existing architectures</span><span class="step-d">Where today&rsquo;s models fall short</span></a></li>
+        <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d">Swap + and &times; for max and min</span></a></li>
+        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">What it achieves</span><span class="step-d">Expressive, efficient, stable, long-range</span></a></li>
+        <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">Results</span><span class="step-d">Ahead of SOTA on long sequences</span></a></li>
+      </ol>
+      <a class="storyline-more" href="#why" aria-label="Start reading"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </nav>
+
   <main>
     <section id="why" aria-labelledby="why-title">
       <div class="wrap wide">
-        <h2 id="why-title">What long sequences demand</h2>
+        <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span>What long sequences demand</h2>
         <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
         <div class="cards">
           <div class="card">
@@ -131,8 +145,8 @@
 
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
-        <h2 id="tradeoffs-title">Today&rsquo;s architectures trade them off</h2>
-        <p class="lead verdict-lead">Each popular family gives up at least one of the four. MinMax RNCs have all four at once. <a href="#idea">See how &darr;</a></p>
+        <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span>Today&rsquo;s architectures trade them off</h2>
+        <p class="lead verdict-lead">Each popular family gives up at least one of the four<span class="sep" aria-hidden="true">&rarr;</span><strong class="punch">MinMax RNCs have all four <span class="nowrap">at once<svg class="ours-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M8 0C8.6 4.6 11.4 7.4 16 8C11.4 8.6 8.6 11.4 8 16C7.4 11.4 4.6 8.6 0 8C4.6 7.4 7.4 4.6 8 0Z"/></svg></span></strong></p>
         <div class="table-scroll">
           <table class="compare">
             <colgroup><col class="c-arch"><col><col><col><col></colgroup>
@@ -147,11 +161,24 @@
             </thead>
             <tbody>
               <tr class="ours">
-                <th scope="row">MinMax RNCs<a class="why-cue" href="#properties">Why<span class="arrow" aria-hidden="true">&darr;</span></a></th>
+                <th scope="row">MinMax <span class="nowrap">RNCs<svg class="ours-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M8 0C8.6 4.6 11.4 7.4 16 8C11.4 8.6 8.6 11.4 8 16C7.4 11.4 4.6 8.6 0 8C4.6 7.4 7.4 4.6 8 0Z"/></svg></span></th>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
                 <td><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes</span></td>
+              </tr>
+              <tr class="detail" id="why-minmax">
+                <td colspan="5">
+                  <ul class="why-list">
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Maximal expressivity</b> MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Neurons with a single number as their state already capture the star-free ones.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed stability</b> Max and min only ever select one of their inputs; they never amplify. States and activations stay bounded at every length, and so do the gradients used in training.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-range sensitivity</b> A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</li>
+                  </ul>
+                  <ul class="refs why-refs">
+                    <li><a href="#properties"><span>More in <b>What it achieves</b></span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M6 2.5v7M3 6.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                  </ul>
+                </td>
               </tr>
               <tr>
                 <th scope="row">Transformers</th>
@@ -163,10 +190,13 @@
               <tr class="detail" id="why-transformers">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>High Expressivity</b> They cannot express some basic regular languages, simple patterns that a finite-state machine recognises easily.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Computational Efficiency</b> Attention compares every token with every earlier one, so work grows quadratically with length.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Activations and gradients stay bounded as sequences grow.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> The influence of a single early input is diluted as the context grows, so sensitivity over long ranges is limited.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited expressivity</b> They cannot express some basic regular languages, simple patterns that a finite-state machine recognises easily.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Quadratic cost</b> Attention compares every token with every earlier one, so work grows quadratically with length.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Activations and gradients stay bounded as sequences grow.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited-range sensitivity</b> The influence of a single early input is diluted as the context grows, so sensitivity over long ranges is limited.</li>
+                  </ul>
+                  <ul class="refs why-refs" aria-label="References">
+                    <li><a href="https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html" target="_blank" rel="noopener" title="Attention is All you Need"><span><b>Transformers</b>: Vaswani et al., NeurIPS 2017</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
@@ -180,10 +210,15 @@
               <tr class="detail" id="why-contractive">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>High Expressivity</b> The state shrinks at every step, so old information fades: no long-term memory, and limited expressivity.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Computational Efficiency</b> Linear updates compose associatively, so they run step by step or in parallel with a scan.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Contraction keeps states and gradients bounded.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> Because each step shrinks the state, the effect of early inputs decays exponentially with distance.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited expressivity</b> The state shrinks at every step, so old information fades: no long-term memory, and limited expressivity.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Linear updates compose associatively, so they run step by step or in parallel with a scan.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Contraction keeps states and gradients bounded.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited-range sensitivity</b> Because each step shrinks the state, the effect of early inputs decays exponentially with distance.</li>
+                  </ul>
+                  <ul class="refs why-refs" aria-label="References">
+                    <li><a href="https://openreview.net/forum?id=tEYskw1VY2" target="_blank" rel="noopener" title="Mamba: Linear-Time Sequence Modeling with Selective State Spaces"><span><b>Mamba</b>: Gu and Dao, COLM 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://doi.org/10.52202/079017-3417" target="_blank" rel="noopener" title="xLSTM: Extended Long Short-Term Memory"><span><b>mLSTM</b>: Beck et al., NeurIPS 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://proceedings.iclr.cc/paper_files/paper/2025/hash/4904fad153f6434a7bcf04465d4be2cc-Abstract-Conference.html" target="_blank" rel="noopener" title="Gated Delta Networks: Improving Mamba2 with Delta Rule"><span><b>Gated DeltaNet</b>: Yang et al., ICLR 2025</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
@@ -197,10 +232,14 @@
               <tr class="detail" id="why-nonexpansive">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>High Expressivity</b> Transitions that preserve the state&rsquo;s size, such as reflections, let them keep information and track state over long spans.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Computational Efficiency</b> Linear updates support both step-by-step and parallel evaluation.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Guaranteed Stability</b> Without contraction, contributions from new inputs can keep piling up, so states are not guaranteed to stay bounded on long sequences.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-Range Sensitivity</b> Information can be carried across long distances without fading.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Strong expressivity</b> Transitions that preserve the state&rsquo;s size, such as reflections, let them keep information and track state over long spans.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Linear updates support both step-by-step and parallel evaluation.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Unstable</b> Gradients are not guaranteed to stay bounded: for DeltaNet, on some inputs, they grow at least linearly with the sequence length.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-range sensitivity</b> Information can be carried across long distances without fading.</li>
+                  </ul>
+                  <ul class="refs why-refs" aria-label="References">
+                    <li><a href="https://doi.org/10.52202/079017-3668" target="_blank" rel="noopener" title="Parallelizing Linear Transformers with the Delta Rule over Sequence Length"><span><b>DeltaNet</b>: Yang et al., NeurIPS 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://doi.org/10.52202/085713-5141" target="_blank" rel="noopener" title="DeltaProduct: Improving State-Tracking in Linear RNNs via Householder Products"><span><b>DeltaProduct</b>: Siems et al., NeurIPS 2025</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
@@ -214,36 +253,28 @@
               <tr class="detail" id="why-nonlinear">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>High Expressivity</b> Nonlinear updates can implement finite-state machines, giving long-term memory and rich temporal patterns.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Computational Efficiency</b> Each update depends nonlinearly on the previous one, so steps run strictly one after another and cannot be parallelised over the sequence.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed Stability</b> Squashing nonlinearities such as tanh and sigmoid keep activations bounded.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Long-Range Sensitivity</b> Squashing nonlinearities shrink gradients at every step, so they vanish over long distances.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Strong expressivity</b> Nonlinear updates can implement finite-state machines, giving long-term memory and rich temporal patterns.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Not parallelisable</b> Each update depends nonlinearly on the previous one, so steps run strictly one after another and cannot be parallelised over the sequence.</li>
+                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Squashing nonlinearities such as tanh and sigmoid keep activations bounded.</li>
+                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Vanishing gradients</b> Squashing nonlinearities shrink gradients at every step, so they vanish over long distances.</li>
+                  </ul>
+                  <ul class="refs why-refs" aria-label="References">
+                    <li><a href="https://doi.org/10.1207/s15516709cog1402_1" target="_blank" rel="noopener" title="Finding Structure in Time"><span><b>Elman</b>: Elman, Cognitive Science 1990</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://doi.org/10.1162/neco.1997.9.8.1735" target="_blank" rel="noopener" title="Long Short-Term Memory"><span><b>LSTM</b>: Hochreiter and Schmidhuber, Neural Computation 1997</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://doi.org/10.3115/v1/D14-1179" target="_blank" rel="noopener" title="Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation"><span><b>GRU</b>: Cho et al., EMNLP 2014</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="https://doi.org/10.52202/079017-3417" target="_blank" rel="noopener" title="xLSTM: Extended Long Short-Term Memory"><span><b>sLSTM</b>: Beck et al., NeurIPS 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <details>
-          <summary>References</summary>
-          <ul class="refs">
-            <li><b>Transformers</b>: <i>Attention is All you Need</i>, Vaswani et al., NeurIPS 2017</li>
-            <li><b>Mamba</b>: <i>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</i>, Gu and Dao, COLM 2024</li>
-            <li><b>DeltaNet</b>: <i>Parallelizing Linear Transformers with the Delta Rule over Sequence Length</i>, Yang et al., NeurIPS 2024</li>
-            <li><b>Gated DeltaNet</b>: <i>Gated Delta Networks: Improving Mamba2 with Delta Rule</i>, Yang, Kautz, and Hatamizadeh, ICLR 2025</li>
-            <li><b>DeltaProduct</b>: <i>DeltaProduct: Improving State-Tracking in Linear RNNs via Householder Products</i>, Siems et al., NeurIPS 2025</li>
-            <li><b>Elman</b>: <i>Finding Structure in Time</i>, Elman, Cognitive Science 1990</li>
-            <li><b>LSTM</b>: <i>Long Short-Term Memory</i>, Hochreiter and Schmidhuber, Neural Computation 1997</li>
-            <li><b>GRU</b>: <i>Learning Phrase Representations using RNN Encoder&ndash;Decoder for Statistical Machine Translation</i>, Cho et al., EMNLP 2014</li>
-            <li><b>sLSTM</b> and <b>mLSTM</b>: <i>xLSTM: Extended Long Short-Term Memory</i>, Beck et al., NeurIPS 2024</li>
-          </ul>
-        </details>
       </div>
     </section>
 
     <section id="idea" aria-labelledby="idea-title">
       <div class="wrap">
-        <h2 id="idea-title">The idea: swap <math><mo lspace="0" rspace="0">+</mo></math> and <math><mo lspace="0" rspace="0">&times;</mo></math> for <math><mi>max</mi></math> and <math><mi>min</mi></math></h2>
+        <h2 id="idea-title"><span class="sec-n" aria-hidden="true">3</span>The idea: swap <math><mo lspace="0" rspace="0">+</mo></math> and <math><mo lspace="0" rspace="0">&times;</mo></math> for <math><mi>max</mi></math> and <math><mi>min</mi></math></h2>
         <p class="lead">Recurrent networks update their state with sums and products. MinMax RNCs use max and min instead.</p>
         <div class="subsection-head">
           <h3 class="subsection">MinMax Recurrent Neurons</h3>
@@ -340,7 +371,7 @@
 
     <section id="properties" aria-labelledby="properties-title">
       <div class="wrap wide">
-        <h2 id="properties-title">Why MinMax works</h2>
+        <h2 id="properties-title"><span class="sec-n" aria-hidden="true">4</span>What it achieves</h2>
         <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, with guarantees.</p>
         <div class="cards">
           <div class="card">
@@ -378,7 +409,7 @@
 
     <section id="results" aria-labelledby="results-title">
       <div class="wrap wide">
-        <h2 id="results-title">Results</h2>
+        <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span>Results</h2>
         <p class="headline">Only <em>MinMax</em> solves every task: <em>100%</em>.</p>
         <p class="note">Synthetic tasks testing memory and state tracking, evaluated on sequences up to one million steps long. <span class="todo">TODO: one-line description of each task</span></p>
 

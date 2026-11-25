@@ -88,29 +88,61 @@ function stepperState() {
     btn.appendChild(cue);
     th.appendChild(btn);
     row.classList.add('expandable');
+    // Smooth opening: table rows cannot animate their height, so the panel's content goes in a
+    // clip box whose height is animated (td > .detail-clip > .detail-body).
+    const td = detail.querySelector('td');
+    const clip = document.createElement('div');
+    clip.className = 'detail-clip';
+    const body = document.createElement('div');
+    body.className = 'detail-body';
+    while (td.firstChild) body.appendChild(td.firstChild);
+    clip.appendChild(body);
+    td.appendChild(clip);
+    td.classList.add('animated');
     detail.hidden = true;
-    return { row, detail, btn };
+    return { row, detail, btn, clip, open: false, token: 0 };
   });
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const DURATION = 300; // ms, as in the CSS transition
   function set(item, open) {
-    item.detail.hidden = !open;
+    if (item.open === open) return;
+    item.open = open;
     item.row.classList.toggle('open', open);
     item.btn.setAttribute('aria-expanded', String(open));
+    const { detail, clip } = item;
+    const token = ++item.token; // a newer toggle cancels the end of an older animation
+    const done = () => {
+      if (token !== item.token) return;
+      clip.style.height = '';
+      clip.classList.remove('moving');
+      if (!open) detail.hidden = true;
+    };
+    if (reduceMotion.matches) { detail.hidden = !open; clip.style.height = ''; clip.classList.toggle('shut', !open); return; }
+    clip.classList.add('moving');
+    if (open) {
+      detail.hidden = false;
+      clip.classList.add('shut');
+      clip.style.height = '0px';
+      void clip.offsetHeight; // start from 0
+      clip.classList.remove('shut');
+      clip.style.height = `${clip.scrollHeight}px`;
+    } else {
+      clip.style.height = `${clip.scrollHeight}px`;
+      void clip.offsetHeight; // start from the current height
+      clip.classList.add('shut');
+      clip.style.height = '0px';
+    }
+    // end on transitionend, with a timer as a fallback (some browsers skip the event)
+    const end = (e) => { if (e.target === clip && e.propertyName === 'height') { clip.removeEventListener('transitionend', end); done(); } };
+    clip.addEventListener('transitionend', end);
+    setTimeout(() => { clip.removeEventListener('transitionend', end); done(); }, DURATION + 80);
   }
   items.forEach((item) => item.row.addEventListener('click', () => {
-    const open = item.detail.hidden;
-    items.forEach((other) => set(other, false));
+    const open = !item.open;
+    items.forEach((other) => { if (other !== item) set(other, false); });
     set(item, open);
   }));
 
-})();
-
-// ---------- comparison table: rows whose cue links elsewhere (MinMax RNCs: "Why", to "Why MinMax works") ----------
-(function () {
-  document.querySelectorAll('table.compare tbody th > a.why-cue').forEach((link) => {
-    const row = link.closest('tr');
-    row.classList.add('linked');
-    row.addEventListener('click', (e) => { if (e.target !== link) link.click(); });
-  });
 })();
 
 // ---------- comparison table: equal row heights ----------
