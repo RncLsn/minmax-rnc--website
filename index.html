@@ -86,8 +86,8 @@
         <li><a href="#why"><span class="step-n" aria-hidden="true">1</span><span class="step-t">The goal</span><span class="step-d">Long-sequence processing</span></a></li>
         <li><a href="#tradeoffs"><span class="step-n" aria-hidden="true">2</span><span class="step-t">Existing architectures</span><span class="step-d">Where today&rsquo;s models fall short</span></a></li>
         <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d">Swap + and &times; for max and min</span></a></li>
-        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">What it achieves</span><span class="step-d">Expressive, efficient, stable, long-range</span></a></li>
-        <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">Results</span><span class="step-d">Ahead of SOTA on long sequences</span></a></li>
+        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">Why it works</span><span class="step-d">Expressive, efficient, stable, long-range</span></a></li>
+        <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">Performance</span><span class="step-d">Ahead of SOTA on long sequences</span></a></li>
       </ol>
       <a class="storyline-more" href="#why" aria-label="Start reading"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
@@ -96,7 +96,7 @@
   <main>
     <section id="why" aria-labelledby="why-title">
       <div class="wrap wide">
-        <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span>What long sequences demand</h2>
+        <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span><span class="sec-t">What long sequences demand</span></h2>
         <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
         <div class="cards">
           <div class="card">
@@ -145,7 +145,7 @@
 
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
-        <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span>Today&rsquo;s architectures trade them off</h2>
+        <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span><span class="sec-t">Today&rsquo;s architectures trade them off</span></h2>
         <p class="lead verdict-lead">Each popular family gives up at least one of the four<span class="sep" aria-hidden="true">&rarr;</span><strong class="punch">MinMax RNCs have all four <span class="nowrap">at once<svg class="ours-mark" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M8 0C8.6 4.6 11.4 7.4 16 8C11.4 8.6 8.6 11.4 8 16C7.4 11.4 4.6 8.6 0 8C4.6 7.4 7.4 4.6 8 0Z"/></svg></span></strong></p>
         <div class="table-scroll">
           <table class="compare">
@@ -176,7 +176,7 @@
                     <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-range sensitivity</b> A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</li>
                   </ul>
                   <ul class="refs why-refs">
-                    <li><a href="#properties"><span>More in <b>What it achieves</b></span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M6 2.5v7M3 6.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="#properties"><span>More in <b>Why it works</b></span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M6 2.5v7M3 6.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
@@ -274,7 +274,7 @@
 
     <section id="idea" aria-labelledby="idea-title">
       <div class="wrap">
-        <h2 id="idea-title"><span class="sec-n" aria-hidden="true">3</span>The idea: swap <math><mo lspace="0" rspace="0">+</mo></math> and <math><mo lspace="0" rspace="0">&times;</mo></math> for <math><mi>max</mi></math> and <math><mi>min</mi></math></h2>
+        <h2 id="idea-title"><span class="sec-n" aria-hidden="true">3</span><span class="sec-t">The idea: swap <math><mo lspace="0" rspace="0">+</mo></math> and <math><mo lspace="0" rspace="0">&times;</mo></math> for <math><mi>max</mi></math> and <math><mi>min</mi></math></span></h2>
         <p class="lead">Recurrent networks update their state with sums and products. MinMax RNCs use max and min instead.</p>
         <div class="subsection-head">
           <h3 class="subsection">MinMax Recurrent Neurons</h3>
@@ -371,7 +371,7 @@
 
     <section id="properties" aria-labelledby="properties-title">
       <div class="wrap wide">
-        <h2 id="properties-title"><span class="sec-n" aria-hidden="true">4</span>What it achieves</h2>
+        <h2 id="properties-title"><span class="sec-n" aria-hidden="true">4</span><span class="sec-t">Why it works</span></h2>
         <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, with guarantees.</p>
         <div class="cards">
           <div class="card">
@@ -409,7 +409,7 @@
 
     <section id="results" aria-labelledby="results-title">
       <div class="wrap wide">
-        <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span>Results</h2>
+        <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span><span class="sec-t">Performance</span></h2>
         <p class="headline">Only <em>MinMax</em> solves every task: <em>100%</em>.</p>
         <p class="note">Synthetic tasks testing memory and state tracking, evaluated on sequences up to one million steps long. <span class="todo">TODO: one-line description of each task</span></p>
 
