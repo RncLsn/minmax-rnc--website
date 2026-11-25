@@ -163,16 +163,6 @@ h2 {
 h3 { margin: 0 0 0.35rem; font-size: 1.1rem; line-height: 1.3; }
 h3.subsection { margin: 2.25rem 0 0.75rem; font-size: 1.3rem; }
 .lead + h3.subsection { margin-top: 1.75rem; }
-.subsection-head { display: flex; align-items: center; gap: 0.6rem 1rem; margin: 2.25rem 0 1rem; }
-.subsection-head .dim-tabs { flex: none; }
-.dim-tabs .short { display: none; }
-@media (max-width: 30rem) { /* keep the toggle beside the title: shorter labels, title wraps */
-  .dim-tabs .long { display: none; }
-  .dim-tabs .short { display: inline; }
-}
-.subsection-head h3.subsection { margin: 0; }
-.subsection-head .dim-tabs { margin: 0; padding: 0.15rem; gap: 0.15rem; font-size: 0.8rem; line-height: 1.3; } /* about the height of the title line */
-.subsection-head .dim-tabs button { padding: 0.1rem 0.75rem; }
 .lead { margin: 0 0 2rem; font-size: 1.15rem; color: var(--muted); }
 p { margin: 0 0 1rem; }
 .note { font-size: 0.9rem; color: var(--muted); }
@@ -356,8 +346,6 @@ table.compare { table-layout: fixed; }
   font-size: clamp(1.2rem, 4.2vw, 1.65rem);
 }
 .formula [data-notation-panel], .formula math { overflow: visible; } /* no scrolling: the equations are sized to fit (see the phone rules below) */
-.dim-tabs { margin: 0 0 1.25rem; font-size: 0.9rem; }
-.dim-tabs button { white-space: nowrap; }
 .formula math[display="block"] + math[display="block"] { margin-top: 0.6rem; }
 .formula math.narrow-only { display: none; }
 @media (max-width: 30rem) {
@@ -365,6 +353,19 @@ table.compare { table-layout: fixed; }
   .formula math.wide-only { display: none; }
   .formula math.narrow-only { display: block math; }
 }
+details.more { margin: 0 0 1rem; }
+details.more summary { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; list-style: none; font-weight: 600; font-size: 0.95rem; color: var(--muted); }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::marker { content: ""; font-size: 0; }
+details.more summary:hover { color: var(--ink); }
+details.more summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+details.more .chev { flex: none; transition: transform 0.2s ease; }
+details.more[open] .chev { transform: rotate(90deg); }
+details.more .more-body { margin-top: 0.75rem; padding-left: 1.1rem; border-left: 2px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { details.more .chev { transition: none; } }
+.formula-pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.5rem, 2vw, 1rem); margin: 1.5rem 0; } /* two equation cards, always in one row */
+.formula-pair .formula { margin: 0; min-width: 0; padding: 0.7rem 0.75rem; display: flex; align-items: center; justify-content: center; container-type: inline-size; }
+.formula-pair .formula math { font-size: min(1.65rem, 10.6cqi); } /* as large as the card allows, up to the other equations' size */
 .formula.formula-sm { font-size: clamp(1rem, 3.6vw, 1.35rem); }
 .formula.formula-sm math[display="block"] + math[display="block"] { margin-top: 0.9rem; }
 @media (max-width: 22rem) { .formula.formula-sm { font-size: 0.94rem; } }
@@ -389,7 +390,9 @@ table.compare { table-layout: fixed; }
   color: var(--ink); background: var(--card); z-index: 1;
 }
 .notation-tabs math { font-size: 1.1em; }
-@media (max-width: 30rem) { [data-dim-panel="general"] .formula math[display="block"] { font-size: 0.76em; } }
+.formula .notation-tabs .tabs-label { align-self: center; margin: 0 0 1px 0.5rem; font-size: 0.95em; font-weight: 500; font-style: italic; color: var(--muted); white-space: nowrap; } /* says what the tabs choose */
+.formula .notation-tabs .tabs-label::before { content: "\2190\00a0"; font-style: normal; } /* ← pointing at the tabs */
+@media (max-width: 30rem) { .neurons-general .formula math[display="block"] { font-size: 0.76em; } }
 math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; }
 p math, h2 math { font-size: 1.08em; } /* maths fonts run small next to the sans-serif text */
 h2 math { font-weight: 400; }

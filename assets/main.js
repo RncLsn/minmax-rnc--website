@@ -2,7 +2,7 @@
 // The page reads fine without this script; it only adds interaction.
 
 // ---------- view state in the URL, so a link opens the same views ----------
-// Only the main view switches are kept: ?dim (state dimension), ?notation (max/min or oplus/otimes),
+// Only the main view switches are kept: ?notation (max/min or oplus/otimes),
 // ?metric (results), ?tryit and ?tryit2 (the two Try it views). Defaults are left out; switching replaces the history entry.
 const urlState = {
   get(key, allowed, fallback) {
@@ -17,7 +17,7 @@ const urlState = {
 };
 (function () { // drop keys that earlier versions stored (open rows, stepper inputs, ...) from old links
   const url = new URL(location.href);
-  const old = ['row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
+  const old = ['dim', 'row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
   if (old.some((k) => url.searchParams.has(k))) {
     old.forEach((k) => url.searchParams.delete(k));
     history.replaceState(history.state, '', url);
@@ -30,20 +30,6 @@ function stepperState() {
 
 // (the scalar neuron's "Try it" lives in tryit.js)
 
-// ---------- "The idea": scalar state / state of any dimension ----------
-(function () {
-  const tabs = document.querySelector('#idea .dim-tabs');
-  if (!tabs) return;
-  const buttons = Array.from(tabs.querySelectorAll('button'));
-  const panels = Array.from(document.querySelectorAll('#idea [data-dim-panel]'));
-  function show(dim) {
-    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dim === dim)));
-    panels.forEach((p) => { p.hidden = p.dataset.dimPanel !== dim; });
-  }
-  buttons.forEach((b) => b.addEventListener('click', () => { show(b.dataset.dim); urlState.set('dim', b.dataset.dim, 'scalar'); }));
-  tabs.hidden = false;
-  show(urlState.get('dim', ['scalar', 'general'], 'scalar'));
-})();
 
 // ---------- recurrence equations: max/min or ⊕/⊗ notation, kept in sync across cards ----------
 (function () {
