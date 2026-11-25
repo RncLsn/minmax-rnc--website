@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Long-Range Sensitivity">
+  <title>Long-Range Sensitivity</title>
+  <path d="M54 33 Q32 3 10 33 M10 23 V33 H20" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M13 43 H17 M47 43 H51" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
+  <g fill="#8b5cf6" fill-opacity=".25" stroke="#8b5cf6" stroke-width="2.5">
+    <circle cx="7" cy="43" r="5.5"/><circle cx="57" cy="43" r="5.5"/>
+  </g>
+  <g stroke="#8b5cf6" stroke-width="2" fill="none">
+    <circle cx="22" cy="43" r="4"/><circle cx="42" cy="43" r="4"/>
+  </g>
+  <g fill="#8b5cf6">
+    <circle cx="29" cy="43" r="1"/><circle cx="32" cy="43" r="1"/><circle cx="35" cy="43" r="1"/>
+  </g>
+</svg>

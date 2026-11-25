@@ -84,23 +84,43 @@
         <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
         <div class="cards">
           <div class="card">
-            <h3>High Expressivity</h3>
-            <p class="card-sub">with <b>long-term memory</b></p>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
+              <div>
+                <h3>High Expressivity</h3>
+                <p class="card-sub">with <b>long-term memory</b></p>
+              </div>
+            </div>
             <p>Remember what matters for as long as needed, and recognise rich temporal patterns: from simple ones, like &ldquo;B happened after A&rdquo;, up to everything a finite-memory system can recognise.</p>
           </div>
           <div class="card">
-            <h3>Computational Efficiency</h3>
-            <p class="card-sub"><b>Subquadratic parallelism</b> &amp; <b>Constant cost per token</b></p>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64">
+              <div>
+                <h3>Computational Efficiency</h3>
+                <p class="card-sub"><b>Subquadratic parallelism</b> &amp; <b>Constant cost per token</b></p>
+              </div>
+            </div>
             <p>Cost grows only linearly with length. Run it step by step, or in parallel with a number of sequential steps that grows only logarithmically.</p>
           </div>
           <div class="card">
-            <h3>Guaranteed Stability</h3>
-            <p class="card-sub"><b>Independent of sequence length</b></p>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/stability.svg" alt="" width="64" height="64">
+              <div>
+                <h3>Guaranteed Stability</h3>
+                <p class="card-sub"><b>Independent of sequence length</b></p>
+              </div>
+            </div>
             <p>Activations and gradients stay bounded, however long the sequence gets.</p>
           </div>
           <div class="card">
-            <h3>Long-Range Sensitivity</h3>
-            <p class="card-sub"><b>Non-vanishing gradients</b></p>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64">
+              <div>
+                <h3>Long-Range Sensitivity</h3>
+                <p class="card-sub"><b>Non-vanishing gradients</b></p>
+              </div>
+            </div>
             <p>Early inputs can still shape late outputs, so dependencies across very long distances can be learned.</p>
           </div>
         </div>
@@ -117,10 +137,10 @@
             <thead>
               <tr>
                 <th scope="col">Architecture</th>
-                <th scope="col"><span>Expressivity</span></th>
-                <th scope="col"><span>Efficiency</span></th>
-                <th scope="col"><span>Stability</span></th>
-                <th scope="col"><span>Sensitivity</span></th>
+                <th scope="col"><img class="th-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64"><span>Expressivity</span></th>
+                <th scope="col"><img class="th-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64"><span>Efficiency</span></th>
+                <th scope="col"><img class="th-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span>Stability</span></th>
+                <th scope="col"><img class="th-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64"><span>Sensitivity</span></th>
               </tr>
             </thead>
             <tbody>
@@ -319,19 +339,31 @@
         <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, with guarantees.</p>
         <div class="cards">
           <div class="card">
-            <h3>✓ Maximal expressivity</h3>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
+              <h3>Maximal expressivity</h3>
+            </div>
             <p>MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Neurons with a single number as their state already capture the star-free ones.</p>
           </div>
           <div class="card">
-            <h3>✓ Efficient, step by step or in parallel</h3>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64">
+              <h3>Efficient, step by step or in parallel</h3>
+            </div>
             <p>Updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</p>
           </div>
           <div class="card">
-            <h3>✓ Guaranteed stability</h3>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/stability.svg" alt="" width="64" height="64">
+              <h3>Guaranteed stability</h3>
+            </div>
             <p>Max and min only ever select one of their inputs; they never amplify. States and activations stay bounded at every length, and so do the gradients used in training.</p>
           </div>
           <div class="card">
-            <h3>✓ Long-range sensitivity</h3>
+            <div class="card-head">
+              <img class="property-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64">
+              <h3>Long-range sensitivity</h3>
+            </div>
             <p>A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</p>
           </div>
         </div>
