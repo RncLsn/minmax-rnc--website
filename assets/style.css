@@ -273,7 +273,7 @@ table.compare { table-layout: fixed; }
   .compare td { padding-left: 0; padding-right: 0; }
 }
 /* the lead, then an arrow, then the statement: bold, in full ink */
-.verdict-lead .sep { margin: 0 0.45em; color: var(--link-accent); font-weight: 800; }
+.verdict-lead .sep { margin: 0 0.45em 0 0; color: var(--link-accent); font-weight: 800; } /* starts the second line */
 .verdict-lead .punch { color: var(--ink); font-weight: 800; }
 @media (min-width: 30.01rem) { .compare tbody tr:not(.detail) { height: 4.45rem; } } /* fallback; main.js equalises */
 .compare tbody tr:last-child > *,
