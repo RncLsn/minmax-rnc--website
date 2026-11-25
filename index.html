@@ -49,6 +49,7 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/main.js" defer></script>
+  <script src="assets/gradients.js" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -335,6 +336,21 @@
             <p>A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</p>
           </div>
         </div>
+        <div class="gradviz" id="gradviz">
+          <h3>See it: gradients over long distances</h3>
+          <p class="note">How strongly can the output at one step still respond to an input many steps earlier? Training needs this gradient to stay usable: not vanishing towards 0, not exploding.</p>
+          <div class="gv-chart"></div>
+          <div class="gv-controls" hidden>
+            <label>Distance: <b data-out="dist"></b> steps <input type="range" id="gv-dist" min="0" max="6" step="0.01" aria-label="Distance, on a logarithmic scale from 1 to a million steps"></label>
+            <label>Contractive factor <math><mi>&alpha;</mi></math> = <b data-out="alpha"></b> <input type="range" id="gv-alpha" min="0" max="5" step="1" aria-label="Per-step contraction factor alpha of the contractive linear RNN"></label>
+          </div>
+          <ul class="gv-readout" aria-live="polite"></ul>
+          <ul class="gv-notes">
+            <li><b>MinMax RNCs:</b> when a neuron holds or permutes its state, the derivative of the state with respect to a much earlier state has norm exactly 1, at every distance.</li>
+            <li><b>Contractive linear RNNs</b> (Mamba, mLSTM, Gated DeltaNet): every step shrinks the state by a factor of at most <math><mi>&alpha;</mi><mo>&lt;</mo><mn>1</mn></math>, so the same derivative is at most <math><msup><mi>&alpha;</mi><mi>T</mi></msup></math> and vanishes.</li>
+            <li><b>DeltaNet:</b> on some inputs, already with two symbols, the loss gradient grows at least linearly with the sequence length <math><mi>T</mi></math> (drawn with constant 1).</li>
+            <li><b>Transformers</b> (illustration, not a result of the paper): with attention spread evenly over <math><mi>T</mi></math> earlier tokens, one token&rsquo;s share of the output is about <math><mn>1</mn><mo>/</mo><mi>T</mi></math>.</li>
+          </ul>
       </div>
     </section>
 

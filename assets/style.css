@@ -348,6 +348,32 @@ h2 math { font-weight: 400; }
 .stepper input[readonly] { border-color: transparent; background: transparent; }
 .stepper tr.pending td.calc, .stepper tr.pending td.state { opacity: 0.25; }
 .stepper tr.current { background: var(--card-head); }
+/* "See it": gradients over long distances */
+.gradviz { margin-top: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem; }
+.gradviz h3 { margin: 0 0 0.25rem; }
+.gv-chart svg { display: block; width: 100%; height: auto; margin-top: 0.5rem; touch-action: none; cursor: ew-resize; }
+.gv-grid { stroke: var(--line); }
+.gv-grid.one { stroke: var(--muted); stroke-dasharray: 3 3; }
+.gv-axis { fill: var(--muted); font-size: 12px; }
+.gv-zone { fill: var(--page); }
+.gv-zone-label { fill: var(--muted); font-size: 12px; font-style: italic; }
+.gv-line { fill: none; stroke-width: 3; stroke-linecap: round; }
+.gv-line.transformer { stroke: var(--muted); }
+.gv-cursor { stroke: var(--ink); stroke-width: 1.5; }
+.gv-dot { stroke: var(--card); stroke-width: 2; }
+.gv-controls[hidden] { display: none; }
+.gv-controls { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0.6rem 0 0.2rem; font-size: 0.9rem; }
+.gv-controls label { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.gv-controls input[type="range"] { width: 11rem; accent-color: var(--ink); }
+.gv-readout { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.3rem 1.5rem; font-size: 0.9rem; }
+.gv-readout li { display: flex; align-items: center; gap: 0.5rem; }
+.gv-key { flex: none; width: 1.6rem; border-top-width: 3px; }
+.gv-name { color: var(--muted); }
+.gv-val { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.gv-notes { margin: 0.9rem 0 0; padding-left: 1.1rem; font-size: 0.85rem; color: var(--muted); }
+.gv-notes li { margin-bottom: 0.3rem; }
+.gv-notes b { color: var(--ink); }
+
 /* two-entry stepper: updates and states are small matrices */
 .stepper-2d td.calc { font-family: inherit; font-size: 1.3rem; text-align: center; }
 .stepper-2d td.state { font-weight: 400; font-size: 1.3rem; }
