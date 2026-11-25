@@ -355,12 +355,19 @@ table.compare { table-layout: fixed; }
   text-align: center;
   font-size: clamp(1.2rem, 4.2vw, 1.65rem);
 }
-.formula [data-notation-panel] { overflow-x: auto; } /* wide formulas scroll; the card itself must not clip its tab */
+.formula [data-notation-panel], .formula math { overflow: visible; } /* no scrolling: the equations are sized to fit (see the phone rules below) */
 .dim-tabs { margin: 0 0 1.25rem; font-size: 0.9rem; }
 .dim-tabs button { white-space: nowrap; }
 .formula math[display="block"] + math[display="block"] { margin-top: 0.6rem; }
+.formula math.narrow-only { display: none; }
+@media (max-width: 30rem) {
+  .formula { padding-inline: 0.6rem; } /* phones: more room for the equations, which never scroll */
+  .formula math.wide-only { display: none; }
+  .formula math.narrow-only { display: block math; }
+}
 .formula.formula-sm { font-size: clamp(1rem, 3.6vw, 1.35rem); }
 .formula.formula-sm math[display="block"] + math[display="block"] { margin-top: 0.9rem; }
+@media (max-width: 22rem) { .formula.formula-sm { font-size: 0.94rem; } }
 .formula-note { max-width: 34rem; margin: 0.8rem auto 0; font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
 /* notation toggle: file-folder tabs on the card's top edge. The selected tab is joined to the
    card (same face, no border between them), as if pulled to the front; the other sits behind. */
