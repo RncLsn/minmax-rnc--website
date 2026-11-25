@@ -18,6 +18,7 @@
   --row-hover: #fff8e6;
   --ours-bar: #ffc13b;
   --recess: rgba(60, 40, 0, 0.22); /* inner shadow of expanded table panels */
+  --classic-op: #5b7fa6; /* chips of the usual operators + and × */
   --link-accent: #8f5c00; /* dark amber for small link arrows: readable on cream and white */
   --ours-mark: #f5ab00; /* bright amber, a touch deeper than #ffc13b so it holds up on white */
 }
@@ -41,6 +42,7 @@
     --row-hover: #28220f;
     --ours-bar: #d9a031;
     --recess: rgba(0, 0, 0, 0.6);
+    --classic-op: #8fb3dc;
     --link-accent: #ffc13b;
     --ours-mark: #ffc13b;
   }
@@ -121,18 +123,18 @@ h2:has(> .sec-n) { position: relative; padding-left: 1.48em; text-wrap: balance;
 .sec-n { position: absolute; left: 0; top: 0.2em; display: grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--ours-bar); color: #1a1609; font-size: 0.55em; font-weight: 800; line-height: 1; letter-spacing: 0; }
 /* "Explore MinMax RNCs": the page's storyline under the hero, numbered steps joined by a line */
 .storyline { padding: 2.2rem 1rem 2.4rem; background: var(--page); border-bottom: 1px solid var(--line); }
-.storyline .wrap.wide { max-width: 64rem; } /* the storyline may use more width than the reading column */
+.storyline .wrap.wide { max-width: 76rem; } /* the storyline may use more width than the reading column */
 .storyline h2 { margin: 0 0 1.2rem; font-size: 1.05rem; font-weight: 800; color: var(--ink); } /* normal case: keeps the casing of "MinMax RNCs" */
-.storyline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 0.75rem; position: relative; }
+.storyline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 0.4rem; position: relative; }
 .storyline ol::before { content: ""; position: absolute; top: 1.05rem; left: calc(100% / 10); right: calc(100% / 10); height: 2px; background: var(--ours-bar); } /* the line joining the steps */
 .storyline a { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; color: inherit; text-decoration: none; padding: 0 0.2rem; }
 .storyline .step-n { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ours-bar); color: #1a1609; font-weight: 800; font-size: 0.95rem; box-shadow: 0 0 0 4px var(--page); transition: transform 0.15s; }
 .storyline .step-t { font-weight: 800; color: var(--ink); line-height: 1.25; margin-top: 0.2rem; }
-.storyline .step-d { font-size: 0.82rem; line-height: 1.35; color: var(--muted); }
+.storyline .step-d { font-size: 0.8rem; line-height: 1.35; color: var(--muted); }
 .storyline a:hover .step-n { transform: scale(1.1); }
 .storyline a:hover .step-t { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 0.18em; }
 .storyline a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
-@media (max-width: 44rem) { /* phones and small tablets: a vertical timeline */
+@media (max-width: 68.5rem) { /* below this, five columns get too narrow for two-line blurbs: a vertical timeline */
   .storyline ol { grid-template-columns: 1fr; gap: 0.9rem; }
   .storyline ol::before { top: 0.5rem; bottom: 0.5rem; left: 1.0rem; right: auto; width: 2px; height: auto; }
   .storyline a { display: grid; grid-template-columns: 2.1rem 1fr; column-gap: 0.85rem; align-items: start; text-align: left; }
@@ -381,9 +383,10 @@ math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; 
 p math, h2 math { font-size: 1.08em; } /* maths fonts run small next to the sans-serif text */
 h2 math { font-weight: 400; }
 /* operator chips: + × ⊕ ⊗ max min, shown as objects worth attention, in text and in equations.
-   Each is an <mpadded class="op" height="0.8em" depth="0.26em">: a fixed box on the baseline, so every chip has the
+   Each is an <mpadded class="op" height="0.88em" depth="0.32em">: a fixed box on the baseline, so every chip has the
    same height and alignment whatever its glyph. */
 mpadded.op { padding: 0.07em 0.34em; margin-inline: 0.1em; border-radius: 0.38em; background: color-mix(in srgb, var(--ours-bar) 24%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ours-bar) 75%, transparent); color: var(--ink); }
+mpadded.op.classic { background: color-mix(in srgb, var(--classic-op) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--classic-op) 55%, transparent); } /* the usual + and ×: cool slate, vs amber for MinMax's max and min */
 .formula mpadded.op, .stepper mpadded.op { margin-inline: 0.06em; } /* inside equations: a little tighter */
 h2 mpadded.op { padding-inline: 0.24em; margin-inline: 0.06em; } /* compact in headings, so they stay on one line */
 h2 math:has(mpadded.op) { font-size: 0.88em; vertical-align: 0.02em; }
