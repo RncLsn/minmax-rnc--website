@@ -41,45 +41,7 @@ function stepperState(rows, stepKey, inputKeys) {
   };
 }
 
-// ---------- MinMax neuron stepper ----------
-(function () {
-  const root = document.getElementById('stepper');
-  if (!root) return;
-  const rows = Array.from(root.querySelectorAll('tbody tr'));
-  const stepBtn = root.querySelector('[data-step]');
-  const resetBtn = root.querySelector('[data-reset]');
-  const state = stepperState(rows, 'step', ['caps', 'floors']);
-  let shown = state.shown;
-
-  rows.forEach((row) => row.querySelectorAll('input').forEach((input) => {
-    input.readOnly = false;
-    input.addEventListener('input', () => { render(); state.save(shown); });
-  }));
-  root.querySelector('.hint').hidden = false;
-
-  function num(input) {
-    const v = parseFloat(input.value);
-    return Number.isFinite(v) ? v : 0;
-  }
-  function render() {
-    let x = 0;
-    rows.forEach((row, i) => {
-      const [rIn, sIn] = row.querySelectorAll('input');
-      const r = num(rIn), s = num(sIn);
-      const kept = Math.min(r, x);
-      const next = Math.max(kept, s);
-      row.querySelector('.calc').textContent = `max(min(${r}, ${x}), ${s}) = ${next}`;
-      row.querySelector('.state').textContent = next;
-      row.classList.toggle('pending', i >= shown);
-      row.classList.toggle('current', i === shown - 1);
-      x = next;
-    });
-    stepBtn.disabled = shown >= rows.length;
-  }
-  stepBtn.addEventListener('click', () => { shown = Math.min(shown + 1, rows.length); render(); state.save(shown); });
-  resetBtn.addEventListener('click', () => { shown = 0; render(); state.save(shown); });
-  render();
-})();
+// (the scalar neuron's "Try it" lives in tryit.js)
 
 // ---------- "The idea": scalar state / state of any dimension ----------
 (function () {

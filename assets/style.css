@@ -348,6 +348,76 @@ h2 math { font-weight: 400; }
 .stepper input[readonly] { border-color: transparent; background: transparent; }
 .stepper tr.pending td.calc, .stepper tr.pending td.state { opacity: 0.25; }
 .stepper tr.current { background: var(--card-head); }
+/* scalar "Try it": three views (timeline, gauge, memory) */
+[hidden] { display: none !important; } /* hidden always wins over layout rules */
+.tl-start { cursor: ns-resize; outline: none; }
+.tl-start .hit { fill: transparent; }
+.tl-start:hover .tl-dot, .tl-start.dragging .tl-dot { stroke-width: 4; }
+.tl-start:focus-visible .hit { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.tl-start.current .tl-dot { fill: var(--ink); }
+.tryit-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.tryit-head h4 { margin: 0; }
+.stepper .tryit-tabs { margin: 0; padding: 0.15rem; gap: 0.15rem; font-size: 0.8rem; line-height: 1.3; }
+.stepper .tryit-tabs button { padding: 0.1rem 0.75rem; }
+.tryit-hint { margin: 0.5rem 0 0.25rem; }
+.tryit-view svg { display: block; width: 100%; height: auto; margin-top: 0.5rem; touch-action: none; }
+.tryit-say { min-height: 3em; margin: 0.4rem 0 0.8rem; font-size: 0.95rem; }
+.tryit-view .grid { stroke: var(--line); stroke-width: 1; }
+.tryit-view .axis { fill: var(--muted); font-size: 12px; }
+@media (max-width: 30rem) { .tryit-view .axis { font-size: 15px; } .memory .cell text { font-size: 15px; } }
+/* timeline */
+.tl-path { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.tl-path.draw { stroke-dasharray: 1; animation: tl-draw 1s ease-in-out both; }
+@keyframes tl-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.tl-dot { fill: var(--card); stroke: var(--ink); stroke-width: 2.5; }
+.tl-dot.current { fill: var(--ink); }
+.tl-dot.pop { animation: tl-pop 0.25s 0.95s ease-out both; }
+@keyframes tl-pop { from { r: 0; } to { r: 6; } }
+.tl-marker { cursor: ns-resize; outline: none; }
+.tl-marker .hit { fill: transparent; }
+.tl-marker .bar { stroke-width: 3; stroke-linecap: round; }
+.tl-marker.cap .bar, .tl-marker.cap .tri { stroke: var(--no); fill: var(--no); }
+.tl-marker.floor .bar, .tl-marker.floor .tri { stroke: var(--yes); fill: var(--yes); }
+.tl-marker.future { opacity: 0.4; }
+.tl-marker:hover .bar, .tl-marker.dragging .bar { stroke-width: 5; }
+.tl-marker:focus-visible .hit { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; rx: 6; }
+/* gauge */
+.tryit-view.gauge svg { max-width: 24rem; margin-left: auto; margin-right: auto; }
+.gauge .tube-bg { fill: var(--page); }
+.gauge .tube { fill: none; stroke: var(--line); stroke-width: 2; }
+.gauge .level { fill: var(--ours-bar); transition: transform 0.7s ease-in-out; }
+.gauge .level-val { font-size: 18px; font-weight: 800; fill: var(--ink); transition: transform 0.7s ease-in-out; }
+.gauge .tick { stroke: var(--muted); }
+.gauge .g-marker { transition: transform 0.7s ease-in-out; }
+.gauge .g-marker text { font-size: 14px; font-weight: 700; }
+.gauge .g-marker.cap .bar, .gauge .g-marker.cap .tri { fill: var(--no); }
+.gauge .g-marker.cap text { fill: var(--no); }
+.gauge .g-marker.floor .bar, .gauge .g-marker.floor .tri { fill: var(--yes); }
+.gauge .g-marker.floor text { fill: var(--yes); }
+.gauge.idle .g-marker { opacity: 0.35; }
+.gauge .ghost line { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.gauge .ghost text { fill: var(--muted); font-size: 12px; }
+.gauge.instant .level, .gauge.instant .level-val, .gauge.instant .g-marker { transition: none; }
+.gauge-hist { text-align: center; margin: 0.4rem 0 0; font-size: 0.95rem; color: var(--muted); }
+.gauge-hist b { color: var(--muted); font-weight: 600; }
+.gauge-hist b.cur { color: var(--ink); font-weight: 800; }
+/* memory */
+.memory .cell { cursor: pointer; outline: none; }
+.memory .cell rect { fill: var(--page); stroke: var(--line); }
+.memory .cell text { font-size: 13px; font-weight: 700; fill: var(--muted); pointer-events: none; }
+.memory .cell.w rect { fill: var(--yes); stroke: var(--yes); }
+.memory .cell.w text { fill: var(--card); }
+.memory .cell.r rect { fill: var(--no); stroke: var(--no); }
+.memory .cell.r text { fill: var(--card); }
+.memory .cell:hover rect, .memory .cell:focus-visible rect { stroke: var(--ink); stroke-width: 2; }
+.memory .trace { fill: none; stroke-width: 2.5; stroke-linejoin: round; }
+.memory .trace.minmax { stroke: var(--ink); }
+.memory .trace.linear { stroke: var(--muted); stroke-dasharray: 6 4; }
+.mem-legend { margin: 0.3rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.mem-legend .key { display: inline-block; width: 1.6rem; height: 0; vertical-align: middle; border-top: 2.5px solid var(--ink); }
+.mem-legend .key.linear { border-top: 2.5px dashed var(--muted); }
+@media (prefers-reduced-motion: reduce) { .gauge .level, .gauge .level-val, .gauge .g-marker { transition: none; } }
+
 /* two-entry stepper: updates and states are small matrices */
 .stepper-2d td.calc { font-family: inherit; font-size: 1.3rem; text-align: center; }
 .stepper-2d td.state { font-weight: 400; font-size: 1.3rem; }
