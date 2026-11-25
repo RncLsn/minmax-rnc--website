@@ -401,6 +401,7 @@ mpadded.op.classic { background: color-mix(in srgb, var(--classic-op) 16%, trans
 .formula mpadded.op, .stepper mpadded.op { margin-inline: 0.06em; } /* inside equations: a little tighter */
 h2 mpadded.op { padding-inline: 0.24em; margin-inline: 0.06em; } /* compact in headings, so they stay on one line */
 h2 math:has(mpadded.op) { font-size: 0.88em; vertical-align: 0.02em; }
+h2 .sec-sub { display: block; margin: 0.4rem 0 0.5rem; font-size: max(0.66em, 1.3rem); font-weight: 600; line-height: 1.35; color: var(--muted); } /* a heading's second line, in the storyline's words */
 
 .stepper {
   margin: 1.5rem 0;
