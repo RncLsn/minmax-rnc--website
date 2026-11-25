@@ -2,7 +2,7 @@
 //   timeline: one column per step, draggable reset values R and set values s, the state's path drawn step by step;
 //   gauge:    one neuron as a tube, R resetting the level down, then s setting it up (off for now);
 //   memory:   an input strip (hold / set / reset), MinMax next to a contractive linear RNN.
-// Needs urlState and stepperState from main.js. Without JavaScript the static table stays.
+// Needs urlState and stepperState from main.js (only the view choice is kept in the URL). Without JavaScript the static table stays.
 (function () {
   const root = document.getElementById('stepper');
   if (!root || typeof urlState === 'undefined') return;
@@ -10,14 +10,14 @@
   const rows = Array.from(table.querySelectorAll('tbody tr'));
   const capInputs = rows.map((r) => r.querySelectorAll('input')[0]);
   const floorInputs = rows.map((r) => r.querySelectorAll('input')[1]);
-  const url = stepperState(rows, 'step', ['caps', 'floors']); // restores caps/floors from the URL
+  const url = stepperState();
   const N = rows.length;
   const VMAX = 8; // values are whole numbers 0..VMAX
   const clampV = (v) => Math.max(0, Math.min(VMAX, Math.round(v)));
   const caps = capInputs.map((i) => clampV(+i.value));
   const floors = floorInputs.map((i) => clampV(+i.value));
   let shown = url.shown;
-  let x0 = Number(urlState.get('x0', Array.from({ length: VMAX + 1 }, (_, v) => String(v)), '0')); // initial state
+  let x0 = 0; // initial state
 
   const SVG = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, attrs, parent) => {
@@ -35,24 +35,34 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // the recurrence: kept = min(R, x) (reset), next = max(kept, s) (set)
+  // and the pseudo-derivative of each step, d next / d x: a min or max passes the gradient to the
+  // argument it picks (split evenly on a tie) and none to the other
   function run() {
-    const xs = [x0], kept = [];
+    const xs = [x0], kept = [], fac = [];
     for (let k = 0; k < N; k++) {
-      kept.push(Math.min(caps[k], xs[k]));
-      xs.push(Math.max(kept[k], floors[k]));
+      const x = xs[k], m = Math.min(caps[k], x);
+      kept.push(m);
+      xs.push(Math.max(m, floors[k]));
+      const a = caps[k] === x ? 0.5 : x < caps[k] ? 1 : 0;   // min(R, x) with respect to x
+      const b = floors[k] === m ? 0.5 : m > floors[k] ? 1 : 0; // max(m, s) with respect to m
+      fac.push(a * b);
     }
-    return { xs, kept };
+    return { xs, kept, fac };
   }
-  function narrate(k) { // step k (1-based)
-    const { xs, kept } = run();
-    const x = xs[k - 1], r = caps[k - 1], s = floors[k - 1], m = kept[k - 1], y = xs[k];
+  const frac = (v) => (v === 1 ? '1' : v === 0 ? '0' : v === 0.5 ? '½' : v === 0.25 ? '¼' : v === 0.125 ? '⅛' : `1/${Math.round(1 / v)}`);
+  function narrate(k, withGrad) { // step k (1-based)
+    const { xs, kept, fac } = run();
+    const x = xs[k - 1], r = caps[k - 1], s = floors[k - 1], m = kept[k - 1], y = xs[k], f = fac[k - 1];
     const resetPart = r >= x
       ? `R = ${r} is not below the state ${x}, so the state is kept`
       : `R = ${r} is below the state ${x}, so it resets the state to ${r}`;
     const setPart = s <= m
       ? `s = ${s} is not above ${m}, so nothing more changes`
       : `s = ${s} is above ${m}, so it sets the state to ${s}`;
-    return `Step ${k}: ${resetPart}; ${setPart}. New state: ${y}.`;
+    const gradPart = f === 1 ? 'the gradient passes back through this step unchanged (×1)'
+      : f === 0 ? 'this step cuts the gradient to earlier states (×0)'
+        : `a tie splits the gradient (×${frac(f)})`;
+    return showGrad ? `Step ${k}: ${resetPart}; ${setPart}. New state: ${y}; ${gradPart}.` : `Step ${k}: ${resetPart}; ${setPart}. New state: ${y}.`;
   }
 
   // ---------- shell: view tabs, views, narration, controls ----------
@@ -88,11 +98,27 @@
     memory: 'Click a cell to cycle hold · / set S / reset R. MinMax keeps what was set, however long; a contractive linear RNN slowly forgets it.',
   };
 
+  const GRAD_HINTS = {
+    timeline: ' The green trail and the numbers above the states show how much the current state responds to each earlier state, its gradient. Each min or max passes the gradient to the argument it picks and none to the other (a tie splits it), so it stays exactly 1 while the state is held and is cut to 0 where R resets or s sets it.',
+    memory: ' The green lines show the gradient of the state at a picked step with respect to each earlier state; click the chart to pick the step.',
+  };
+  // "Show gradients": an option of the Timeline and Memory views, kept in the URL (?grad=1)
+  let showGrad = urlState.get('grad', ['0', '1'], '0') === '1';
+  const gradOpt = html('label', { class: 'tryit-opt' }, head);
+  const gradBox = html('input', { type: 'checkbox' }, gradOpt);
+  gradOpt.append(' Show gradients');
+  gradBox.checked = showGrad;
+  gradBox.addEventListener('change', () => {
+    showGrad = gradBox.checked;
+    urlState.set('grad', showGrad ? '1' : '0', '0');
+    timeline.rebuild(); memory.rebuild();
+    showView(view);
+  });
+
   function save() {
     caps.forEach((v, i) => { capInputs[i].value = v; });
     floors.forEach((v, i) => { floorInputs[i].value = v; });
     url.save(shown);
-    urlState.set('x0', String(x0), '0');
   }
 
   // ---------- view 1: timeline ----------
@@ -117,9 +143,9 @@
       g.addEventListener('pointerup', () => { g.removeEventListener('pointermove', move); g.classList.remove('dragging'); }, { once: true });
     });
   }
-  const timeline = (function () {
+  const timeline = (function () { // the state chart; with the gradient panel below when gradients are shown
     const el = html('div', { class: 'tryit-view tl' });
-    let X, Y, svg, paths, dots, markers, start;
+    let X, Y, svg, paths, dots, markers, start, trails, gvals;
     function build() {
       const narrow = narrowMQ.matches;
       const W = narrow ? 310 : 640, H = narrow ? 300 : 290, L = narrow ? 24 : 44, R = narrow ? 28 : 34, T = 18, B = 40;
@@ -136,6 +162,10 @@
       for (let k = 0; k <= N; k++) {
         svgEl('text', { x: X(k), y: H - B + 24, class: 'axis', 'text-anchor': 'middle' }, svg).textContent = k === 0 ? 'start' : narrow ? k : `step ${k}`;
       }
+      // gradients: a green trail under the state path, as strong as the current state's gradient
+      // with respect to the state where each segment starts; values next to the dots
+      trails = []; gvals = [];
+      for (let k = 1; k <= N; k++) trails.push(svgEl('path', { class: 'tl-trail' }, svg));
       paths = []; dots = []; markers = [];
       for (let k = 1; k <= N; k++) paths.push(svgEl('path', { class: 'tl-path', pathLength: 1 }, svg));
       // reset values R (pull down) and set values s (push up), labelled beside the column so they never hide the state
@@ -167,9 +197,23 @@
         if (v !== x0) { x0 = v; save(); renderAll(false); }
       });
       for (let k = 1; k <= N; k++) dots.push(svgEl('circle', { r: 6, class: 'tl-dot' }, svg));
+      for (let k = 0; k <= N; k++) gvals.push(svgEl('text', { class: 'tl-gval', 'text-anchor': 'middle' }, svg));
     }
     function render(animate) {
-      const { xs } = run();
+      const { xs, fac } = run();
+      // gradient of the current state x_shown with respect to x_k: the product of the step factors in between
+      const gs = Array(N + 1).fill(null);
+      if (showGrad) { let g = 1; for (let k = shown; k >= 0; k--) { gs[k] = g; if (k > 0) g *= fac[k - 1]; } }
+      trails.forEach((p, i) => {
+        const k = i + 1, v = k <= shown ? gs[k - 1] : null; // segment from state k-1 to state k (reached steps only)
+        p.setAttribute('d', `M${X(k - 1)},${Y(xs[k - 1])} H${X(k)} V${Y(xs[k])}`);
+        p.style.display = v ? '' : 'none';
+        p.style.opacity = v || 0;
+      });
+      gvals.forEach((t, k) => {
+        t.setAttribute('x', X(k)); t.setAttribute('y', Y(xs[k]) - 14);
+        t.textContent = gs[k] === null ? '' : frac(gs[k]);
+      });
       start.setAttribute('transform', `translate(${X(0)},${Y(x0)})`);
       start.setAttribute('aria-valuenow', x0);
       start.classList.toggle('current', shown === 0);
@@ -206,7 +250,7 @@
     }
     build();
     narrowMQ.addEventListener('change', () => { build(); render(false); });
-    return { el, render };
+    return { el, render, rebuild: () => { build(); render(false); } };
   })();
 
   // ---------- view 2: gauge ----------
@@ -290,17 +334,21 @@
   const memory = (function () {
     const T = 12, DEF = '.S.......R..'; // hold / Set / Reset
     const A = 0.7; // the linear RNN keeps 70% per step while holding
-    const saved = urlState.raw('mem');
-    const pat = (saved && saved.length === T && /^[.SWR]+$/.test(saved) ? saved.replace(/W/g, 'S') : DEF).split('');
+    // MinMax inputs (R, s) for each symbol, chosen away from the states 0 and 1 so that min and max
+    // never tie while the value is held (as in the paper's constructions): the gradient passes exactly
+    const RS = { '.': [2, -1], S: [2, 1], R: [0, -1] };
+    const pat = DEF.split('');
+    let cursor = null; // the step whose state the gradients are taken of (null: just before the first reset)
     const el = html('div', { class: 'tryit-view memory' });
     const legend = html('p', { class: 'mem-legend' });
     legend.innerHTML = '<span class="key minmax"></span> MinMax neuron &nbsp; <span class="key linear"></span> contractive linear RNN (keeps 70% per step)';
-    let cells, mm, lin, pathOf;
+    let cells, mm, lin, pathOf, xAt, cur, gmm, glin, Yv;
     function build() {
       const narrow = narrowMQ.matches;
-      const W = narrow ? 310 : 640, H = narrow ? 250 : 230, L = narrow ? 14 : 50, R = 8, CT = 8, CH = narrow ? 36 : 32, PT = CT + CH + 30, PB = H - 30;
+      const W = narrow ? 310 : 640, H = narrow ? 250 : 230, L = narrow ? 22 : 50, R = 8, CT = 8, CH = narrow ? 36 : 32, PT = CT + CH + 30, PB = H - 30;
       const cw = (W - L - R) / T;
-      const Yv = (v) => PB - v * (PB - PT);
+      Yv = (v) => PB - v * (PB - PT);
+      xAt = (t) => L + t * cw;
       el.textContent = '';
       const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'group', 'aria-label': 'Input sequence and state traces' }, el);
       if (!narrow) svgEl('text', { x: L - 8, y: CT + CH / 2 + 4, class: 'axis', 'text-anchor': 'end' }, svg).textContent = 'input';
@@ -308,7 +356,7 @@
         const g = svgEl('g', { class: 'cell', tabindex: 0, role: 'button' }, svg);
         svgEl('rect', { x: L + t * cw + 1, y: CT, width: cw - 2, height: CH, rx: 3 }, g);
         svgEl('text', { x: L + t * cw + cw / 2, y: CT + CH / 2 + 4, 'text-anchor': 'middle' }, g);
-        const cycle = () => { pat[t] = { '.': 'S', S: 'R', R: '.' }[pat[t]]; urlState.set('mem', pat.join(''), DEF); render(); };
+        const cycle = () => { pat[t] = { '.': 'S', S: 'R', R: '.' }[pat[t]]; render(); };
         g.addEventListener('click', cycle);
         g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycle(); } });
         return g;
@@ -317,22 +365,41 @@
         svgEl('line', { x1: L, x2: W - R, y1: Yv(v), y2: Yv(v), class: 'grid' }, svg);
         svgEl('text', { x: L - 4, y: Yv(v) + 4, class: 'axis', 'text-anchor': 'end' }, svg).textContent = v;
       });
+      // gradient lines go under the state traces, so a gradient of 1 never hides a state of 1
+      gmm = showGrad ? svgEl('path', { class: 'gtrace minmax' }, svg) : null;
+      glin = showGrad ? svgEl('path', { class: 'gtrace linear' }, svg) : null;
       lin = svgEl('path', { class: 'trace linear' }, svg);
       mm = svgEl('path', { class: 'trace minmax' }, svg);
-      svgEl('text', { x: L, y: H - 8, class: 'axis' }, svg).textContent = 'time →';
-      pathOf = (v) => v.map((y, t) => `${t ? 'L' : 'M'}${L + t * cw},${Yv(y)}`).join(' ');
+      svgEl('text', { x: L, y: H - 8, class: 'axis' }, svg).textContent = showGrad ? 'time → (click to pick a step)' : 'time →';
+      pathOf = (v) => v.map((y, t) => `${t ? 'L' : 'M'}${xAt(t)},${Yv(y)}`).join(' ');
+      cur = null;
+      if (showGrad) {
+        cur = svgEl('line', { class: 'mem-cursor', y1: PT - 12, y2: PB }, svg);
+        // clicking the traces picks the step
+        svg.addEventListener('click', (e) => {
+          const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+          const q = p.matrixTransform(svg.getScreenCTM().inverse());
+          if (q.y < PT - 14) return; // the input cells handle their own clicks
+          cursor = Math.max(1, Math.min(T, Math.round((q.x - L) / cw)));
+          render();
+        });
+      }
+      legend.innerHTML = '<span class="key minmax"></span> MinMax neuron &nbsp; <span class="key linear"></span> contractive linear RNN (keeps 70% per step)' +
+        (showGrad ? '<br><span class="key gminmax"></span> MinMax gradient &nbsp; <span class="key glinear"></span> linear RNN gradient (of the picked state, with respect to each earlier one)' : '');
       el.appendChild(legend);
     }
     function traces() {
-      const m = [0], l = [0];
+      const m = [0], l = [0], fm = [], fl = [];
       pat.forEach((c) => {
         const x = m[m.length - 1], z = l[l.length - 1];
-        // MinMax: set = (R 1, s 1); reset = (R 0, s 0); hold = (R 1, s 0), the state kept as is
-        m.push(c === 'S' ? Math.max(Math.min(1, x), 1) : c === 'R' ? Math.max(Math.min(0, x), 0) : Math.max(Math.min(1, x), 0));
-        // linear: set gives 1, reset gives 0, hold multiplies by A
+        const [r, s] = RS[c], k = Math.min(r, x);
+        m.push(Math.max(k, s));
+        fm.push((r === x ? 0.5 : x < r ? 1 : 0) * (s === k ? 0.5 : k > s ? 1 : 0)); // pseudo-derivative of the step
+        // linear: set gives 1, reset gives 0 (both forget the past), hold multiplies by A
         l.push(c === 'S' ? 1 : c === 'R' ? 0 : A * z);
+        fl.push(c === '.' ? A : 0);
       });
-      return { m, l };
+      return { m, l, fm, fl };
     }
     function render() {
       pat.forEach((c, t) => {
@@ -340,9 +407,31 @@
         cells[t].querySelector('text').textContent = c === '.' ? '·' : c;
         cells[t].setAttribute('aria-label', `Step ${t + 1}: ${c === 'S' ? 'set' : c === 'R' ? 'reset' : 'hold'}`);
       });
-      const { m, l } = traces();
+      const { m, l, fm, fl } = traces();
       mm.setAttribute('d', pathOf(m));
       lin.setAttribute('d', pathOf(l));
+      if (showGrad) {
+        const firstR = pat.indexOf('R');
+        const t = cursor !== null ? cursor : firstR > 0 ? firstR : T; // default: the last step before the first reset
+        cur.setAttribute('x1', xAt(t)); cur.setAttribute('x2', xAt(t));
+        const gm = [], gl = [];
+        let a = 1, b = 1, back = t;
+        for (let k = t; k >= 0; k--) {
+          gm[k] = a; gl[k] = b;
+          if (a > 0) back = k;
+          if (k > 0) { a *= fm[k - 1]; b *= fl[k - 1]; }
+        }
+        const line = (v) => v.map((y, k) => `${k ? 'L' : 'M'}${xAt(k)},${Yv(y)}`).join(' ');
+        gmm.setAttribute('d', line(gm));
+        glin.setAttribute('d', line(gl));
+        // the gradient over the longest reach: back to step `back`
+        let g2 = 1, l2 = 1;
+        for (let k = t - 1; k >= back; k--) { g2 *= fm[k]; l2 *= fl[k]; }
+        say.textContent = back === t
+          ? `The state at step ${t} was just set or reset, so it does not depend on earlier states: every gradient back is 0.`
+          : `Gradient of the state at step ${t}: for MinMax it is ${frac(g2)} all the way back to step ${back}, ${t - back} steps earlier; for the linear RNN it has shrunk to ${l2 < 0.005 ? l2.toExponential(1) : l2.toFixed(2)} over the same distance.`;
+        return;
+      }
       // narration: the longest hold after a set
       let best = null;
       for (let t = 0; t < T; t++) {
@@ -360,17 +449,18 @@
     }
     build();
     narrowMQ.addEventListener('change', () => { build(); render(); });
-    return { el, render };
+    return { el, render, rebuild: () => { build(); render(); } };
   })();
 
-  const viewEls = GAUGE ? { timeline: timeline.el, gauge: gauge.el, memory: memory.el } : { timeline: timeline.el, memory: memory.el };
+  const viewEls = { timeline: timeline.el, memory: memory.el };
+  if (GAUGE) viewEls.gauge = gauge.el;
   stage.append(...Object.values(viewEls));
   let view = 'timeline';
 
   function renderAll(animate) {
     if (view === 'memory') { memory.render(); return; }
-    (view === 'timeline' ? timeline : gauge).render(animate);
-    say.textContent = shown === 0 ? `Start: the state is ${x0}.` : narrate(shown);
+    ({ timeline, gauge })[view].render(animate);
+    say.textContent = shown === 0 ? `Start: the state is ${x0}.` : narrate(shown, showGrad);
     stepBtn.disabled = shown >= N;
     backBtn.disabled = shown <= 0;
   }
@@ -379,7 +469,7 @@
     tabButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === key)));
     Object.entries(viewEls).forEach(([k, e]) => { e.hidden = k !== key; });
     controls.hidden = key === 'memory';
-    hint.textContent = HINTS[key];
+    hint.textContent = HINTS[key] + (showGrad ? GRAD_HINTS[key] || '' : '');
     renderAll(false);
   }
   stepBtn.addEventListener('click', () => { if (shown < N) { shown++; save(); renderAll(true); } });

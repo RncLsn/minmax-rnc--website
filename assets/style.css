@@ -422,6 +422,19 @@ h2 math { font-weight: 400; }
 .mem-legend .key.linear { border-top: 2.5px dashed var(--muted); }
 @media (prefers-reduced-motion: reduce) { .gauge .level, .gauge .level-val, .gauge .g-marker { transition: none; } }
 
+/* Try it: "Show gradients" */
+.tryit-opt { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+.tryit-opt input { accent-color: var(--ink); width: 1rem; height: 1rem; margin: 0; }
+.mem-cursor { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.tl-trail { fill: none; stroke: var(--yes); stroke-width: 11; stroke-linejoin: round; stroke-linecap: round; }
+.tl-gval { font-size: 13px; font-weight: 800; fill: var(--yes); }
+.memory .gtrace { fill: none; stroke: var(--yes); stroke-linejoin: round; stroke-linecap: round; }
+.memory .gtrace.minmax { stroke-width: 9; opacity: 0.45; }
+.memory .gtrace.linear { stroke-width: 2.5; stroke-dasharray: 6 4; }
+.mem-legend .key.gminmax { border-top: 7px solid var(--yes); opacity: 0.45; }
+.mem-legend .key.glinear { border-top: 2.5px dashed var(--yes); }
+@media (max-width: 30rem) { .tl-gval { font-size: 15px; } }
+
 /* two-entry stepper: updates and states are small matrices */
 .stepper-2d td.calc { font-family: inherit; font-size: 1.3rem; text-align: center; }
 .stepper-2d td.state { font-weight: 400; font-size: 1.3rem; }
