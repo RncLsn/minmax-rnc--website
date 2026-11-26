@@ -295,3 +295,74 @@ function stepperState() {
   else window.addEventListener('resize', check);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
 })();
+
+// Sticky storyline: once the storyline under the hero has scrolled away, a slim bar with the
+// same five steps slides in at the top, highlighting the section being read.
+(function () {
+  const story = document.querySelector('nav.storyline');
+  if (!story) return;
+  const links = [...story.querySelectorAll('ol a')];
+  const bar = document.createElement('nav');
+  bar.className = 'stickybar';
+  bar.setAttribute('aria-label', 'Sections');
+  bar.inert = true;
+  const ol = document.createElement('ol');
+  const items = links.map((a) => {
+    const li = document.createElement('li');
+    const b = document.createElement('a');
+    b.href = a.getAttribute('href');
+    b.innerHTML = '<span class="sb-n" aria-hidden="true">' + a.querySelector('.step-n').textContent +
+      '</span><span class="sb-t">' + a.querySelector('.step-t').textContent + '</span>';
+    li.appendChild(b);
+    ol.appendChild(li);
+    return { link: b, section: document.querySelector(b.getAttribute('href')) };
+  }).filter((it) => it.section);
+  bar.appendChild(ol);
+  document.body.appendChild(bar);
+
+  let shown = false;
+  function update() {
+    const show = story.getBoundingClientRect().bottom < 0;
+    if (show !== shown) {
+      shown = show;
+      bar.classList.toggle('show', show);
+      bar.inert = !show;
+    }
+    // current section: the last one whose top has passed a line a little below the bar
+    const line = bar.offsetHeight + window.innerHeight * 0.25;
+    let current = null;
+    items.forEach((it) => { if (it.section.getBoundingClientRect().top <= line) current = it; });
+    // past the last step's section (e.g. Cite): nothing highlighted
+    if (current && current.section.getBoundingClientRect().bottom < bar.offsetHeight) current = null;
+    items.forEach((it) => {
+      const on = it === current;
+      it.link.classList.toggle('current', on);
+      if (on) it.link.setAttribute('aria-current', 'location'); else it.link.removeAttribute('aria-current');
+    });
+  }
+  let queued = false;
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
+})();
+
+// Section headings with a subheader: mark when the subheader fits on the title's line, so the
+// stylesheet can add the separator between them (and drop it when the subheader wraps below).
+(function () {
+  document.querySelectorAll('h2 .sec-sub').forEach((sub) => {
+    const h2 = sub.closest('h2');
+    const t = sub.parentElement;
+    function check() {
+      h2.classList.add('sub-inline'); // measure with the separator in place
+      // on the title's line, the subheader's top sits well within the first line's height
+      const fs = parseFloat(getComputedStyle(h2).fontSize);
+      const inline = sub.getBoundingClientRect().top - t.getBoundingClientRect().top < fs * 0.9;
+      h2.classList.toggle('sub-inline', inline);
+    }
+    check();
+    if (window.ResizeObserver) new ResizeObserver(check).observe(h2);
+    else window.addEventListener('resize', check);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
+  });
+})();
