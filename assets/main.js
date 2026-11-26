@@ -2,7 +2,7 @@
 // The page reads fine without this script; it only adds interaction.
 
 // ---------- view state in the URL, so a link opens the same views ----------
-// Only the main view switches are kept: ?notation (max/min or oplus/otimes),
+// Only the main view switches are kept: ?dim (scalar or general neurons), ?notation (max/min or oplus/otimes),
 // ?metric (results), ?tryit and ?tryit2 (the two Try it views). Defaults are left out; switching replaces the history entry.
 const urlState = {
   get(key, allowed, fallback) {
@@ -17,7 +17,7 @@ const urlState = {
 };
 (function () { // drop keys that earlier versions stored (open rows, stepper inputs, ...) from old links
   const url = new URL(location.href);
-  const old = ['dim', 'row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
+  const old = ['row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
   if (old.some((k) => url.searchParams.has(k))) {
     old.forEach((k) => url.searchParams.delete(k));
     history.replaceState(history.state, '', url);
@@ -29,6 +29,38 @@ function stepperState() {
 }
 
 // (the scalar neuron's "Try it" lives in tryit.js)
+
+// ---------- section 3: scalar or general state, chosen by either toggle (kept in sync) ----------
+// Everything in #idea marked data-dim-panel follows the choice: the recurrence cards, the MinMax
+// operations paragraph and its "See more" panel, and the neuron. Without JS the toggles stay hidden,
+// the general variants show, and both neurons show one after the other.
+(function () {
+  const groups = Array.from(document.querySelectorAll('#idea .dim-tabs'));
+  if (!groups.length) return;
+  const buttons = groups.flatMap((g) => Array.from(g.querySelectorAll('button')));
+  const panels = Array.from(document.querySelectorAll('#idea [data-dim-panel]'));
+  function show(dim) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dim === dim)));
+    panels.forEach((p) => p.toggleAttribute('hidden', p.dataset.dimPanel !== dim)); // attribute, not .hidden: <math> has no .hidden
+  }
+  // switching closes any open "See more" panel in the section (its content depends on the choice)
+  function choose(dim) {
+    document.querySelectorAll('#idea .see-more[aria-expanded="true"]').forEach((b) => {
+      b.setAttribute('aria-expanded', 'false');
+      const p = document.getElementById(b.getAttribute('aria-controls'));
+      if (p) { p.getAnimations().forEach((a) => a.cancel()); p.style.overflow = ''; p.hidden = true; }
+    });
+    show(dim);
+    urlState.set('dim', dim, 'scalar');
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => choose(b.dataset.dim)));
+  groups.forEach((g) => { g.hidden = false; });
+  document.querySelectorAll('#idea .dim-label').forEach((l) => { l.hidden = false; });
+  // a link to one of the neurons (#scalar-neurons, #general-neurons) selects it
+  const fromHash = () => { const p = panels.find((q) => q.id && '#' + q.id === location.hash); return p && p.dataset.dimPanel; };
+  show(fromHash() || urlState.get('dim', ['scalar', 'general'], 'scalar'));
+  addEventListener('hashchange', () => { const d = fromHash(); if (d) show(d); });
+})();
 
 
 // ---------- recurrence equations: max/min or ⊕/⊗ notation, kept in sync across cards ----------
@@ -267,12 +299,39 @@ function stepperState() {
   });
 })();
 
-// ---------- collapsed subsections: open one when a link points to it ----------
+// ---------- "See more" toggles: a button at the end of a paragraph shows the panel below ----------
+// Without JS both stay as authored: the button hidden, the panel shown.
 (function () {
+  const pairs = [...document.querySelectorAll('.see-more[aria-controls]')].map((btn) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if (!panel) return null;
+    function set(open) { btn.setAttribute('aria-expanded', String(open)); panel.hidden = !open; }
+    // animated open/close: height (with its vertical padding) and opacity, unless reduced motion is asked for
+    let anim = null;
+    function toggle() {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches || !panel.animate;
+      if (anim) { anim.cancel(); anim = null; }
+      btn.setAttribute('aria-expanded', String(open));
+      if (still) { panel.hidden = !open; return; }
+      panel.hidden = false;
+      const cs = getComputedStyle(panel);
+      const full = { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginBottom: cs.marginBottom, opacity: 1 };
+      const none = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginBottom: '0px', opacity: 0 };
+      panel.style.overflow = 'hidden';
+      anim = panel.animate(open ? [none, full] : [full, none], { duration: 260, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+      anim.onfinish = () => { panel.style.overflow = ''; if (!open) panel.hidden = true; anim = null; };
+    }
+    btn.hidden = false;
+    set(false);
+    btn.addEventListener('click', toggle);
+    return { btn, panel, set };
+  }).filter(Boolean);
+  // a link into a panel (or to the paragraph holding its button) opens it
   function openTarget() {
     const el = location.hash && document.getElementById(location.hash.slice(1));
-    const d = el && (el.closest('details.fold') || (el.nextElementSibling && el.nextElementSibling.matches('details.fold') && el.nextElementSibling));
-    if (d) d.open = true;
+    if (!el) return;
+    pairs.forEach((p) => { if (p.panel.contains(el) || el.contains(p.btn)) p.set(true); });
   }
   addEventListener('hashchange', openTarget);
   openTarget();
