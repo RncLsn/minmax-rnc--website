@@ -846,7 +846,8 @@ b.run-in { margin-right: 0.2em; }
 /* Temporarily hidden: the "Linear recurrence -> MinMax recurrence" cards in section 3. To show them
    again, remove data-hide-flow from <html> in index.html (nothing is deleted). */
 [data-hide-flow] .formula-flow { display: none !important; }
-.lead .see-more { font-size: 0.87em; } /* inside the larger lead text: back to body size */
 .dim-switch + h3.subsection { margin-top: 0.4rem; } /* the first subsection, right under the section heading */
 .dim-switch .dim-switch-label { display: inline-flex; flex-direction: column; align-items: center; gap: 0.12rem; line-height: 1.15; } /* two lines: "Choose" over "State dimension" */
 .dim-switch .dsl-1 { font-weight: 600; letter-spacing: 0.04em; text-transform: none; font-style: italic; }
+.see-more-line { margin: -0.15rem 0 1.5rem; } /* "See more on the MinMax algebra", under the recurrence cards */
+.see-more-line + .more-body { margin-top: -0.9rem; }
