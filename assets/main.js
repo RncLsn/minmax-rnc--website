@@ -65,11 +65,11 @@ function stepperState() {
     label.className = 'row-label';
     while (th.firstChild) label.appendChild(th.firstChild);
     btn.appendChild(label);
-    // "Why" cue under the name; its chevron flips when the row is open.
+    // "Details" cue under the name; its chevron flips when the row is open.
     const cue = document.createElement('span');
     cue.className = 'why-cue';
     cue.setAttribute('aria-hidden', 'true');
-    cue.innerHTML = 'Why<svg class="chev" viewBox="0 0 16 16" width="11" height="11" focusable="false">' +
+    cue.innerHTML = 'Details<svg class="chev" viewBox="0 0 16 16" width="11" height="11" focusable="false">' +
       '<path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     btn.appendChild(cue);
     th.appendChild(btn);
@@ -276,4 +276,22 @@ function stepperState() {
   }
   addEventListener('hashchange', openTarget);
   openTarget();
+})();
+
+// Section 2 lead: mark when "→ MinMax RNCs have them all at once" has moved to a line of
+// its own, so the stylesheet can hang the arrow in the margin.
+(function () {
+  var p = document.querySelector('.verdict-lead');
+  var unit = p && p.querySelector('.punch-wrap');
+  if (!unit) return;
+  function check() {
+    p.classList.remove('wrapped');
+    // wrapped = the unit starts a line of its own (not merely sits on a later line)
+    var wrapped = unit.getClientRects()[0].left - p.getBoundingClientRect().left < 2;
+    p.classList.toggle('wrapped', wrapped);
+  }
+  check();
+  if (window.ResizeObserver) new ResizeObserver(check).observe(p);
+  else window.addEventListener('resize', check);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
 })();

@@ -176,10 +176,24 @@ p { margin: 0 0 1rem; }
 }
 
 /* property cards */
+main section { container-type: inline-size; } /* lets .cards size against the section, not the reading column */
+/* cards may be wider than the reading column, so the longest subtitle
+   ("Subquadratic in parallel & Constant per token") stays on one line;
+   two columns only where each card is wide enough for it */
 .cards {
+  --cards-w: min(55rem, 100cqw);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26.5rem), 1fr));
   gap: 1rem;
+  margin-inline: calc((100% - var(--cards-w)) / 2);
+}
+/* centred over the cards, with a bracket below spanning the whole grid: ┌──┐ */
+#why .lead { margin-right: calc((100% - min(55rem, 100cqw)) / 2); } /* the lead may run on to the right edge of the cards */
+h3.cards-title { position: relative; text-align: center; margin-bottom: 1rem; margin-inline: calc((100% - var(--cards-w, min(55rem, 100cqw))) / 2); padding-bottom: 1.05rem; }
+h3.cards-title::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.55rem; border: 2px solid color-mix(in srgb, var(--ours-bar) 75%, transparent); border-bottom: 0; border-radius: 8px 8px 0 0; }
+@container (max-width: 53.99rem) { /* one column: a plain, left-aligned title, no bracket (two columns need 2 × 26.5rem + 1rem) */
+  h3.cards-title { text-align: left; padding-bottom: 0; margin-bottom: 0.75rem; }
+  h3.cards-title::after { content: none; }
 }
 .card {
   background: var(--card);
@@ -194,7 +208,7 @@ p { margin: 0 0 1rem; }
 .property-icon { flex: none; width: 2.75rem; height: 2.75rem; }
 .card-head h3 { margin: 0; }
 .compare thead .th-icon { display: block; width: 1.75rem; height: 1.75rem; margin: 0 auto 0.3rem; }
-@media (max-width: 34.5rem) { /* rotated headers: icons pinned to a common top line */
+@media (max-width: 44rem) { /* rotated headers: icons pinned to a common top line */
   table.compare thead th:not(:first-child) { position: relative; padding-top: 2.6rem; } /* table.: outranks the rotated-header padding rule */
   .compare thead .th-icon { position: absolute; top: 0.55rem; left: 50%; transform: translateX(-50%); width: 1.5rem; height: 1.5rem; margin: 0; }
 }
@@ -220,23 +234,26 @@ table.compare {
   vertical-align: middle;
 }
 .compare th:first-child, .compare td:first-child { text-align: left; }
+.compare thead th:first-child, .compare tbody tr:not(.detail) > :first-child { background: color-mix(in srgb, var(--card-head) 40%, var(--card)); } /* the row-name column: a soft amber tint */
 .compare thead > tr { background: var(--card); } /* light header, so the property icons need no badge */
 .compare thead th { padding-top: 0.7rem; padding-bottom: 0.5rem; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); border-bottom: 3px solid var(--ours-bar); vertical-align: bottom; } /* bottom: header labels share a line under the icons */
 .compare thead th:first-child { font-size: 0.95rem; vertical-align: middle; } /* the row-name column: larger, centred */
+.compare thead th:not(:first-child) { font-size: 0.74rem; letter-spacing: 0.05em; } /* property headers: compact, so each sits clear of its column edges */
 /* Headers never break inside a word: the type shrinks with the viewport, down to
    0.7rem, so the longest (EXPRESSIVITY) fits its column; below that the table scrolls sideways. */
 .compare thead th:not(:first-child) { padding-left: 0.3rem; padding-right: 0.3rem; overflow-wrap: normal; hyphens: none; }
 @media (max-width: 62rem) {
   .compare thead th { font-size: clamp(0.7rem, calc(1.7vw - 2px), 0.8rem); letter-spacing: 0.04em; }
+  .compare thead th:not(:first-child) { font-size: clamp(0.66rem, calc(1.55vw - 2px), 0.74rem); }
   .compare thead th:first-child { font-size: clamp(0.8rem, calc(1.9vw - 2px), 0.95rem); }
 }
-.compare tbody th { font-weight: 700; }
+.compare tbody th { font-weight: 700; white-space: nowrap; } /* names and their examples never wrap; the column sizes below leave room */
 .compare .eg { display: block; font-weight: 400; font-size: 0.85rem; color: var(--muted); }
 /* comparison table: fixed columns */
-/* Wide screens: names get 28%. Narrower: the property columns get just what their
+/* Wide screens: names get 15rem. Narrower: the property columns get just what their
    headers need and the names take the rest, down to 8.75rem; below that the table scrolls. */
 table.compare { table-layout: fixed; }
-.compare col.c-arch { width: 28%; }
+.compare col.c-arch { width: 15rem; } /* each line of a row name fits on one line */
 @media (max-width: 62rem) {
   .compare col.c-arch { width: auto; }
   .compare col:not(.c-arch) { width: 6.6rem; }
@@ -248,18 +265,28 @@ table.compare { table-layout: fixed; }
 }
 /* Phones: property headers turn sideways (read bottom to top), so their columns only
    need to fit a mark and the whole table fits common phone widths without scrolling. */
-@media (max-width: 34.5rem) {
+@media (max-width: 44rem) {
   table.compare { min-width: calc(4 * 2.4rem + 7.5rem); }
   /* names get about their one-line width; the mark columns share what is left */
   .compare col.c-arch { width: 17.5rem; }
   .compare col:not(.c-arch) { width: auto; }
+}
+@media (min-width: 44.01rem) { /* above phones: names get the 15rem they need on one line, the four property columns share the rest equally */
+  .compare col.c-arch { width: 15rem; }
+  .compare col:not(.c-arch) { width: auto; }
+  table.compare { min-width: 0; }
 }
 @media (max-width: 30rem) { .compare col.c-arch { width: 15rem; } } /* smaller type below 30rem */
 @media (max-width: 26.6rem) { /* too narrow for that: marks get just their width, names the rest */
   .compare col.c-arch { width: auto; }
   .compare col:not(.c-arch) { width: 2.4rem; }
 }
-@media (max-width: 34.5rem) {
+@media (max-width: 24.3rem) { /* smallest phones: slimmer mark columns, and row names scaled so each line still fits */
+  .compare col:not(.c-arch) { width: 2rem; }
+  .compare tbody th { font-size: min(0.85rem, calc((100vw - 2rem - 8rem - 0.9rem) / 13.6)); }
+  .compare tbody th .eg { font-size: 0.88em; }
+}
+@media (max-width: 44rem) {
   .compare thead th { vertical-align: bottom; }
   .compare thead th:first-child { font-size: 0.8rem; vertical-align: middle; }
   .compare thead th { font-size: 0.7rem; letter-spacing: 0.04em; } /* all headers alike */
@@ -268,8 +295,13 @@ table.compare { table-layout: fixed; }
   .compare td { padding-left: 0; padding-right: 0; }
 }
 /* the lead, then an arrow, then the statement: bold, in full ink */
-.verdict-lead .sep { margin: 0 0.45em 0 0; color: var(--link-accent); font-weight: 800; } /* starts the second line */
+.verdict-lead .sep { margin: 0 0.4em 0 0.15em; color: var(--link-accent); font-weight: 800; }
 .verdict-lead .punch { color: var(--ink); font-weight: 800; }
+@media (min-width: 30.01rem) { .verdict-lead .punch-wrap { white-space: nowrap; } } /* the arrow and its statement move to the next line together */
+/* on a line of its own (main.js sets .wrapped): a little extra space above it, and where the
+   page margin has room, the arrow hangs in it, so "MinMax RNCs" lines up with the line above */
+.verdict-lead.wrapped .punch-wrap { display: block; margin-top: 0.3em; }
+@media (min-width: 49rem) { .verdict-lead.wrapped .sep { display: inline-block; width: 1.25em; margin: 0 0 0 -1.25em; } }
 @media (min-width: 30.01rem) { .compare tbody tr:not(.detail) { height: 4.45rem; } } /* fallback; main.js equalises */
 .compare tbody tr:last-child > *,
 .compare tbody tr:nth-last-child(2):has(+ tr.detail[hidden]) > * { border-bottom: 0; }
@@ -284,7 +316,7 @@ table.compare { table-layout: fixed; }
 }
 .compare .row-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
 .compare .why-cue {
-  display: flex; width: fit-content; align-items: center; gap: 0.25rem; margin-top: 0.3rem;
+  display: flex; width: fit-content; align-items: center; gap: 0.25rem; margin-top: 0.1rem;
   font-size: 0.8rem; font-weight: 600; color: var(--muted);
   text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px;
 }
@@ -307,7 +339,12 @@ table.compare { table-layout: fixed; }
 }
 .why-list b { color: var(--ink); margin-right: 0.2rem; }
 .why-list b::after { content: ":"; } /* separator between label and text */
-.why-list .yes, .why-list .no { font-size: 1rem; margin-right: 0.3rem; }
+.why-list .why-icon { width: 1.35em; height: 1.35em; margin-right: 0; vertical-align: -0.35em; } /* the property icon when satisfied, its broken variant when not */
+/* the drawings reach different distances from the right edge of their 64-unit box
+   (expressivity and efficiency leave 10 units, stability 6, sensitivity almost 0):
+   pad the last two so every icon sits the same visual distance from its label */
+.why-list .why-icon[src*="stability"] { margin-right: calc(1.35em * 4 / 64); }
+.why-list .why-icon[src*="sensitivity"] { margin-right: calc(1.35em * 9.75 / 64); }
 .why-list { max-width: calc(100vw - 4rem); } /* stay within view when the table scrolls */
 @media (max-width: 30rem) { .why-list { grid-template-columns: 1fr; } }
 .yes, .no { font-size: 1.15rem; font-weight: 700; }
@@ -317,9 +354,10 @@ table.compare { table-layout: fixed; }
 
 /* references: styled like the News list on ronca.me (whole item is the link, arrow on hover);
    they sit as footnotes at the bottom of each Why panel */
-.refs.why-refs { display: flex; flex-wrap: wrap; gap: 0.15rem 1.1rem; margin: 0.75rem 0 0; padding-top: 0.45rem; border-top: 1px solid var(--rule); font-size: 0.75rem; }
+.refs.why-refs { display: grid; grid-template-columns: repeat(2, auto); justify-content: start; gap: 0.15rem 2rem; align-items: start; margin: 0.75rem 0 0; padding-top: 0.45rem; border-top: 1px solid var(--rule); font-size: 0.75rem; }
 .refs.why-refs li { padding: 0.1rem 0; border-radius: 0; }
 .refs.why-refs li:hover { background: none; }
+@media (max-width: 34rem) { .refs.why-refs { grid-template-columns: 1fr; } } /* columns sized to their entries; one column on phones */
 .refs { list-style: none; margin: 0; padding: 0; font-size: 0.9rem; color: var(--muted); }
 .refs li { position: relative; margin: 0; padding: 0.4rem 0.6rem; border-radius: 8px; transition: background 0.15s; }
 .refs li b { color: var(--ink); }
@@ -717,3 +755,6 @@ footer.byline { padding: 2rem 1rem; background: var(--band); }
   .compare th:first-child, .compare td:first-child { padding-left: 0.6rem; }
   .compare .eg { font-size: 0.75rem; }
 }
+
+/* Marker-style highlight in running text */
+u.em { text-decoration: none; background: linear-gradient(var(--ours-bar), var(--ours-bar)) no-repeat left bottom / 100% 0.2em; padding: 0 0.08em 0.14em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }

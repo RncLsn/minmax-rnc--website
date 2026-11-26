@@ -68,8 +68,8 @@
         <a href="https://neurips.cc/virtual/2026/loc/sydney/poster/155043" target="_blank" rel="noopener">NeurIPS 2026 paper</a>
         <a href="https://arxiv.org/abs/2605.06384" target="_blank" rel="noopener">Extended arXiv version</a>
         <a href="resources/PS-155043--RGB.pdf" target="_blank" rel="noopener">Poster</a>
-        <a href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener">Code</a>
         <a href="https://pypi.org/project/minmaxrnc/" target="_blank" rel="noopener">Python package</a>
+        <a href="https://github.com/minmaxrnc/model" target="_blank" rel="noopener">Code</a>
       </nav>
       <p class="byline hero-byline">
         <span class="item"><span class="label">Author</span> <a class="name" href="https://ronca.me" target="_blank" rel="noopener">Alessandro Ronca</a></span>
@@ -85,8 +85,8 @@
       <ol>
         <li><a href="#why"><span class="step-n" aria-hidden="true">1</span><span class="step-t">The goal</span><span class="step-d"><span class="ph">Processing long sequences</span></span></a></li>
         <li><a href="#tradeoffs"><span class="step-n" aria-hidden="true">2</span><span class="step-t">Existing architectures</span><span class="step-d"><span class="ph">Where today&rsquo;s models</span> <span class="ph">fall short</span></span></a></li>
-        <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d"><span class="ph">Linear recurrence with <math><mpadded class="op" height="0.88em" depth="0.32em"><mrow><mi>max</mi><mo lspace="0" rspace="0.2em">,</mo><mi>min</mi></mrow></mpadded></math></span> <span class="ph">in place of <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math></span></span></a></li>
-        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">Why it works</span><span class="step-d"><span class="ph">Expressive, efficient,</span> <span class="ph">stable, long-range sensitive</span></span></a></li>
+        <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d"><span class="ph">Reinterpret linear recurrence</span> <span class="ph">swapping <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> for <math><mpadded class="op" height="0.88em" depth="0.32em"><mrow><mi>max</mi><mo lspace="0" rspace="0.2em">,</mo><mi>min</mi></mrow></mpadded></math></span></span></a></li>
+        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">Why it works</span><span class="step-d"><span class="ph">Expressive, efficient,</span> <span class="ph">stable, long-range</span></span></a></li>
         <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">Performance</span><span class="step-d"><span class="ph">Ahead of SOTA</span> <span class="ph">on long sequences</span></span></a></li>
       </ol>
       <a class="storyline-more" href="#why" aria-label="Start reading"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -97,8 +97,9 @@
     <section id="why" aria-labelledby="why-title">
       <div class="wrap wide">
         <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span><span class="sec-t">What long sequences demand</span></h2>
-        <p class="lead">To process truly long sequences, a model needs four properties at once, and getting all four together is hard.</p>
-        <div class="cards">
+        <p class="lead">To process truly long sequences, a model needs <u class="em">four properties at once</u>, and getting all four together is hard.</p>
+        <h3 class="subsection cards-title" id="four-properties">Four key properties</h3>
+        <div class="cards" aria-labelledby="four-properties">
           <div class="card">
             <div class="card-head">
               <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
@@ -114,10 +115,10 @@
               <img class="property-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64">
               <div>
                 <h3>Computational Efficiency</h3>
-                <p class="card-sub"><b>Subquadratic parallelism</b> &amp; <b>Constant cost per token</b></p>
+                <p class="card-sub"><span class="nowrap"><b>Subquadratic in parallel</b></span> <span class="nowrap">&amp; <b>Constant per token</b></span></p>
               </div>
             </div>
-            <p>Cost grows only linearly with length. Run it step by step, or in parallel with a number of sequential steps that grows only logarithmically.</p>
+            <p>Subquadratic cost for processing an entire sequence in parallel, and constant cost for each additional token.</p>
           </div>
           <div class="card">
             <div class="card-head">
@@ -127,7 +128,7 @@
                 <p class="card-sub"><b>Independent of sequence length</b></p>
               </div>
             </div>
-            <p>Activations and gradients stay bounded, however long the sequence gets.</p>
+            <p>Activations and gradients stay bounded, no matter how long the sequence gets.</p>
           </div>
           <div class="card">
             <div class="card-head">
@@ -146,7 +147,7 @@
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
         <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span><span class="sec-t">Today&rsquo;s architectures trade them off</span></h2>
-        <p class="lead verdict-lead">Each popular family gives up at least one of the four<br><span class="sep" aria-hidden="true">&rarr;</span><strong class="punch">MinMax RNCs have all four at once</strong></p>
+        <p class="lead verdict-lead">Each popular family gives up at least one of the four properties <span class="punch-wrap"><span class="sep" aria-hidden="true">&rarr;</span><strong class="punch">MinMax RNCs have them all at once</strong></span></p>
         <div class="table-scroll">
           <table class="compare">
             <colgroup><col class="c-arch"><col><col><col><col></colgroup>
@@ -170,13 +171,13 @@
               <tr class="detail" id="why-minmax">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Maximal expressivity</b> MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Neurons with a single number as their state already capture the star-free ones.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Guaranteed stability</b> Max and min only ever select one of their inputs; they never amplify. States and activations stay bounded at every length, and so do the gradients used in training.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-range sensitivity</b> A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</li>
+                    <li><img class="why-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Maximal expressivity</b> MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Scalar-state neurons already suffice to capture the star-free languages.</li>
+                    <li><img class="why-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Efficient</b> Updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</li>
+                    <li><img class="why-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Guaranteed stability</b> Max and min only ever select one of their inputs; they never amplify. States and activations stay bounded at every length, and so do the gradients used in training.</li>
+                    <li><img class="why-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Long-range sensitivity</b> A neuron can carry its state unchanged, or permuted, across any number of steps. Gradients between distant states can then keep full strength, instead of vanishing.</li>
                   </ul>
                   <ul class="refs why-refs">
-                    <li><a href="#properties"><span>More in <b>Why it works</b></span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M6 2.5v7M3 6.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+                    <li><a href="#idea"><span>See more below</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M6 2.5v7M3 6.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                   </ul>
                 </td>
               </tr>
@@ -190,10 +191,10 @@
               <tr class="detail" id="why-transformers">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited expressivity</b> They cannot express some basic regular languages, simple patterns that a finite-state machine recognises easily.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Quadratic cost</b> Attention compares every token with every earlier one, so work grows quadratically with length.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Activations and gradients stay bounded as sequences grow.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited-range sensitivity</b> The influence of a single early input is diluted as the context grows, so sensitivity over long ranges is limited.</li>
+                    <li><img class="why-icon" src="assets/icons/expressivity-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Limited expressivity</b> They cannot express simple common patterns that a finite-state machine recognises easily.</li>
+                    <li><img class="why-icon" src="assets/icons/efficiency-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Quadratic cost</b> Attention compares every token with every earlier one, so work grows quadratically with sequence length.</li>
+                    <li><img class="why-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Stable</b> Activations and gradients stay bounded as sequences grow.</li>
+                    <li><img class="why-icon" src="assets/icons/sensitivity-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Limited-range sensitivity</b> The influence of a single early input is diluted as the context grows, so sensitivity over long ranges is limited.</li>
                   </ul>
                   <ul class="refs why-refs" aria-label="References">
                     <li><a href="https://papers.nips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html" target="_blank" rel="noopener" title="Attention is All you Need"><span><b>Transformers</b>: Vaswani et al., NeurIPS 2017</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
@@ -210,10 +211,10 @@
               <tr class="detail" id="why-contractive">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited expressivity</b> The state shrinks at every step, so old information fades: no long-term memory, and limited expressivity.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Linear updates compose associatively, so they run step by step or in parallel with a scan.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Contraction keeps states and gradients bounded.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Limited-range sensitivity</b> Because each step shrinks the state, the effect of early inputs decays exponentially with distance.</li>
+                    <li><img class="why-icon" src="assets/icons/expressivity-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Limited expressivity</b> The state shrinks at every step, so old information fades: no long-term memory, and hence limited expressivity.</li>
+                    <li><img class="why-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Efficient</b> Linear updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</li>
+                    <li><img class="why-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Stable</b> Contraction keeps states and gradients bounded.</li>
+                    <li><img class="why-icon" src="assets/icons/sensitivity-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Limited-range sensitivity</b> Because each step shrinks the state, the effect of early inputs decays exponentially with distance.</li>
                   </ul>
                   <ul class="refs why-refs" aria-label="References">
                     <li><a href="https://openreview.net/forum?id=tEYskw1VY2" target="_blank" rel="noopener" title="Mamba: Linear-Time Sequence Modeling with Selective State Spaces"><span><b>Mamba</b>: Gu and Dao, COLM 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
@@ -232,10 +233,10 @@
               <tr class="detail" id="why-nonexpansive">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Strong expressivity</b> Transitions that preserve the state&rsquo;s size, such as reflections, let them keep information and track state over long spans.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Efficient</b> Linear updates support both step-by-step and parallel evaluation.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Unstable</b> Gradients are not guaranteed to stay bounded: for DeltaNet, on some inputs, they grow at least linearly with the sequence length.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Long-range sensitivity</b> Information can be carried across long distances without fading.</li>
+                    <li><img class="why-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Strong expressivity</b> Transitions that preserve the state&rsquo;s size, such as reflections, let them keep information and track state over long spans.</li>
+                    <li><img class="why-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Efficient</b> Linear updates can be run one step at a time, like any recurrent network. They also compose associatively, so a whole sequence can be processed with a parallel scan.</li>
+                    <li><img class="why-icon" src="assets/icons/stability-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Unstable</b> Gradients can diverge: for DeltaNet, on some inputs, they grow at least linearly with the sequence length.</li>
+                    <li><img class="why-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Long-range sensitivity</b> Information can be carried across long distances without fading.</li>
                   </ul>
                   <ul class="refs why-refs" aria-label="References">
                     <li><a href="https://doi.org/10.52202/079017-3668" target="_blank" rel="noopener" title="Parallelizing Linear Transformers with the Delta Rule over Sequence Length"><span><b>DeltaNet</b>: Yang et al., NeurIPS 2024</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
@@ -253,10 +254,10 @@
               <tr class="detail" id="why-nonlinear">
                 <td colspan="5">
                   <ul class="why-list">
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Strong expressivity</b> Nonlinear updates can implement finite-state machines, giving long-term memory and rich temporal patterns.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Not parallelisable</b> Each update depends nonlinearly on the previous one, so steps run strictly one after another and cannot be parallelised over the sequence.</li>
-                    <li><span class="yes" aria-hidden="true">✓</span><span class="sr">Yes.</span> <b>Stable</b> Squashing nonlinearities such as tanh and sigmoid keep activations bounded.</li>
-                    <li><span class="no" aria-hidden="true">✗</span><span class="sr">No.</span> <b>Vanishing gradients</b> Squashing nonlinearities shrink gradients at every step, so they vanish over long distances.</li>
+                    <li><img class="why-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Strong expressivity</b> Nonlinear updates can implement finite-state machines, giving long-term memory and rich temporal patterns.</li>
+                    <li><img class="why-icon" src="assets/icons/efficiency-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Not parallelisable</b> Each update depends nonlinearly on the previous one, preventing parallelisation.</li>
+                    <li><img class="why-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span class="sr">Yes.</span> <b>Stable</b> Squashing nonlinearities such as tanh and sigmoid keep activations bounded.</li>
+                    <li><img class="why-icon" src="assets/icons/sensitivity-no.svg" alt="" width="64" height="64"><span class="sr">No.</span> <b>Vanishing gradients</b> Squashing nonlinearities suffer from vanishing state gradients, so the error signal fails to propagate back to distant inputs.</li>
                   </ul>
                   <ul class="refs why-refs" aria-label="References">
                     <li><a href="https://doi.org/10.1207/s15516709cog1402_1" target="_blank" rel="noopener" title="Finding Structure in Time"><span><b>Elman</b>: Elman, Cognitive Science 1990</span><svg class="arrow" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
@@ -397,7 +398,7 @@
               <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
               <h3>Maximal expressivity</h3>
             </div>
-            <p>MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Neurons with a single number as their state already capture the star-free ones.</p>
+            <p>MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Scalar-state neurons already suffice to capture the star-free languages.</p>
           </div>
           <div class="card">
             <div class="card-head">
