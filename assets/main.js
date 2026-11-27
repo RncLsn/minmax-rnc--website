@@ -480,6 +480,8 @@ function stepperState() {
     'linear-recurrence': { def: 'The update of Linear RNNs: the new state is a matrix times the old state, plus an input term' },
     'minmax-rncs': { def: 'MinMax Recurrent Neural Cascades: cascades of layers of MinMax recurrent neurons' },
     'minmax-algebra': { def: 'Max and min, written ⊕ and ⊗, used as the addition and multiplication of an algebra on numbers, vectors and matrices', target: '#algebra-more', targetLabel: 'More on the MinMax algebra' },
+    'scalar-neurons': { def: 'MinMax recurrent neurons whose state is a single number', target: '#scalar-neurons', targetLabel: 'Go to scalar neurons' },
+    'general-neurons': { def: 'MinMax recurrent neurons whose state is a vector of any dimension d', target: '#general-neurons', targetLabel: 'Go to general neurons' },
     'nonlinear-rnns': { def: 'Recurrent networks with a nonlinear state update, such as LSTMs and GRUs', target: '#arch-nonlinear', targetLabel: 'More on nonlinear RNNs' },
     'transformers': { def: 'Models built on attention, which lets each token look at all earlier tokens', target: '#arch-transformers', targetLabel: 'More on Transformers' },
     'linear-rnns': { def: 'Recurrent networks with a linear state update, such as Mamba and DeltaNet; it can be computed in parallel with a scan', target: '#arch-linear', targetLabel: 'More on Linear RNNs' },
@@ -586,4 +588,27 @@ function stepperState() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && current) hide(); });
   addEventListener('scroll', () => { if (current) { if (lastPointer === 'mouse') place(); else hide(); } }, { passive: true });
   addEventListener('resize', () => { if (current) place(); });
+})();
+
+// Technical boxes: a Short / Full switch in the header, driving the box's (hidden) "See more" toggle,
+// so the animation and link handling stay in one place.
+(function () {
+  document.querySelectorAll('.technical').forEach((box) => {
+    const tabs = box.querySelector('.version-tabs');
+    const driver = box.querySelector('.see-more-driver');
+    if (!tabs || !driver) return;
+    const buttons = Array.from(tabs.querySelectorAll('button'));
+    const sync = () => {
+      const full = driver.getAttribute('aria-expanded') === 'true';
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.version === 'full') === full)));
+    };
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      const wantFull = b.dataset.version === 'full';
+      if ((driver.getAttribute('aria-expanded') === 'true') !== wantFull) driver.click();
+      sync();
+    }));
+    new MutationObserver(sync).observe(driver, { attributes: true, attributeFilter: ['aria-expanded'] });
+    tabs.hidden = false;
+    sync();
+  });
 })();

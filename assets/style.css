@@ -22,7 +22,10 @@
   --link-accent: #8f5c00; /* dark amber for small link arrows: readable on cream and white */
   --concept-props: #a65300; /* storyline concept colours: a warm amber-orange, 5.1:1 on cream; slate-blue 7.9:1 */
   --concept-linrec: #2c4f78;
-  --concept-ours: #66309a; /* MinMax RNCs: violet, about 8:1 on cream */
+  --concept-ours: #66309a; /* (unused) violet */
+  --prop-c: #14a39a; /* the four properties: teal (underlines, bars) */
+  --prop-t: #0d6b64; /* teal text, about 6:1 on cream */
+  --minmax-t: #8f5c00; /* MinMax text: dark amber */
   --ours-mark: #f5ab00; /* bright amber, a touch deeper than #ffc13b so it holds up on white */
 }
 @media (prefers-color-scheme: dark) {
@@ -50,6 +53,9 @@
     --concept-props: #ffc13b;
     --concept-linrec: #b5d0ee;
     --concept-ours: #c9a7f0;
+    --prop-c: #2dd4bf;
+    --prop-t: #5eead4;
+    --minmax-t: #ffc13b;
     --ours-mark: #ffc13b;
   }
 }
@@ -893,7 +899,7 @@ h2 .sec-sub .ph { display: inline-block; } /* subheader phrases (from the storyl
 .card p.list-intro { margin-top: 0.6rem; }
 .card-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
 .card-list li { margin: 0.15rem 0; }
-.card-list li::marker { color: var(--concept-props); }
+.card-list li::marker { color: var(--prop-c); }
 .card-list li > b:first-child { color: var(--muted); font-weight: 700; } /* item headers styled like the card's subtitle */
 /* "See more" inside a property card */
 .card .card-more-line { margin: 0.7rem 0 0; font-size: 0.92rem; }
@@ -906,7 +912,7 @@ h2 .sec-sub .ph { display: inline-block; } /* subheader phrases (from the storyl
 .display-list .dl-icon { width: 1.35em; height: 1.35em; flex: none; }
 .display-list .dl-name { font-weight: 600; color: var(--ink); } /* semibold: on cream inside an outline, bold reads heavier than the card titles on white */
 a.dl-item { color: inherit; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s; } /* each chip jumps to its card */
-a.dl-item:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ours-bar) 60%, var(--line)); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 6px 14px -6px rgba(0, 0, 0, 0.18); }
+a.dl-item:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--prop-c) 60%, var(--line)); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 6px 14px -6px rgba(0, 0, 0, 0.18); }
 a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .card[id] { scroll-margin-top: 7rem; } /* lands below the top bar and the property bar */
 @media (prefers-reduced-motion: reduce) { a.dl-item { transition: none; } }
@@ -917,7 +923,7 @@ a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .prop-nav.stuck { background: var(--page); box-shadow: 0 0 0 100vmax var(--page), 0 7px 10px -9px rgba(0, 0, 0, 0.35); clip-path: inset(0 -100vmax -12px); } /* a full-width band (the shadow paints the page colour out to the edges) */
 .prop-nav.stuck::after { content: ""; position: absolute; left: -100vmax; right: -100vmax; bottom: 0; height: 1px; background: var(--line); }
 #why .lead-after { margin-top: 0.2rem; }
-.prop-nav a.dl-item.current { border-color: var(--ours-bar); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ours-bar) 45%, transparent), 0 2px 6px -2px rgba(0, 0, 0, 0.08); }
+.prop-nav a.dl-item.current { border-color: var(--prop-c); box-shadow: 0 0 0 2px color-mix(in srgb, var(--prop-c) 40%, transparent), 0 2px 6px -2px rgba(0, 0, 0, 0.08); }
 /* phones, once stuck: icons only, plus the name of the current card, so the bar stays one row */
 @media (max-width: 40rem) {
   .prop-nav.stuck { flex-wrap: nowrap; gap: 0.4em; }
@@ -944,17 +950,15 @@ a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .card-list li > b .term { font-weight: 500; } /* list items' term headers: lighter than bold */
 /* Tags: each names a concept (data-concept), so different phrasings of one concept look the same.
    Colour groups below; definitions and link targets live in the concept registry in main.js. */
-.term[data-concept="four-properties"], .term[data-concept="long-term-memory"], .term[data-concept="state-tracking"],
-.term[data-concept="parallel-processing"], .term[data-concept="sequential-processing"],
-.term[data-concept="subquadratic-parallel"], .term[data-concept="constant-per-token"], .term[data-concept="minmax-algebra"] { --term-c: var(--ours-mark); --term-t: var(--concept-props); }
-.term[data-concept="linear-recurrence"],
-.term[data-concept="nonlinear-rnns"], .term[data-concept="transformers"], .term[data-concept="linear-rnns"] { --term-c: var(--classic-op); --term-t: var(--concept-linrec); } /* slate: the standard approaches */
-.term[data-concept="minmax-rncs"] { --term-c: var(--concept-ours); --term-t: var(--concept-ours); }
+.term[data-concept="four-properties"], .term[data-concept="long-term-memory"], .term[data-concept="state-tracking"], .term[data-concept="parallel-processing"], .term[data-concept="sequential-processing"], .term[data-concept="subquadratic-parallel"], .term[data-concept="constant-per-token"] { --term-c: var(--prop-c); --term-t: var(--prop-t); } /* the four properties and their parts: teal */
+.term[data-concept="linear-recurrence"], .term[data-concept="nonlinear-rnns"], .term[data-concept="transformers"], .term[data-concept="linear-rnns"] { --term-c: var(--classic-op); --term-t: var(--concept-linrec); } /* slate: the standard approaches */
+.term[data-concept="minmax-algebra"], .term[data-concept="minmax-rncs"], .term[data-concept="scalar-neurons"], .term[data-concept="general-neurons"] { --term-c: var(--ours-mark); --term-t: var(--minmax-t); } /* MinMax: amber */
 .aside { font-style: italic; } /* parenthetical examples, e.g. "(say during training)": one class to restyle them all */
 .lead.lead-intro { margin-bottom: 0.7rem; } /* a short context sentence before a section's main lead */
 /* a "statement" environment: a key claim set apart, like a theorem in a paper */
 .statement { margin: 1.2rem 0 1.4rem; padding: 0.7rem 1.1rem; border-left: 3px solid var(--ours-bar); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--ours-bar) 14%, var(--card)); font-size: 1.15rem; font-weight: 600; line-height: 1.45; color: var(--ink); }
-.statement-ours { border-left-color: var(--concept-ours); background: color-mix(in srgb, var(--concept-ours) 7%, var(--card)); } /* about MinMax RNCs: their violet */
+.statement-ours { border-left-color: var(--ours-mark); background: color-mix(in srgb, var(--ours-mark) 14%, var(--card)); }
+.statement-props { border-left-color: var(--prop-c); background: color-mix(in srgb, var(--prop-c) 8%, var(--card)); } /* about the four properties: teal */ /* about MinMax RNCs: their violet */
 .statement + .lead { margin-top: -0.3rem; }
 .more-body [id] { scroll-margin-top: 4rem; } /* jump targets inside a "See more" land below the top bar */
 /* a small "References" header above a reference list in a "See more" panel */
@@ -973,3 +977,30 @@ a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .lead-list .li-head { font-weight: 600; color: var(--ink); } /* item headers in a lead list */
 .lead .lead-head { color: var(--ink); font-weight: 700; } /* a run-in paragraph header inside lead text */
 .lead.lead-spaced { margin-top: 2.2rem; } /* a new topic within the section: extra space above */
+/* a "technical aside": material some readers may want to skip, set apart like a statement but quieter
+   (slate, smaller type, a small label) */
+.technical { position: relative; margin: 0.4rem 0 1.6rem; padding: 0.8rem 1.1rem 0.9rem; border-left: 3px solid var(--ours-mark); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--ours-mark) 18%, var(--card)); font-size: 1rem; color: var(--ink); }
+.technical > p { margin: 0 0 0.4rem; }
+.technical-label { display: block; margin-bottom: 0.45rem; font-size: 1rem; font-weight: 500; color: var(--link-accent); } /* as large as the text below */
+.technical .see-more-line { margin: 0.2rem 0 0; }
+.technical .more-body { margin-bottom: 0.2rem; }
+.technical-label .technical-topic { font-weight: 700; } /* the topic in normal case */
+.technical .more-body { margin-left: 0; padding-left: 0; border-left: 0; } /* inside a technical box: the expanded text continues the box, not a nested panel */
+.technical-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.4rem 1rem; flex-wrap: wrap; margin-bottom: 0.45rem; } /* label on the left, the full-version toggle on the right */
+.technical-head .technical-label { margin-bottom: 0; }
+.technical-head .see-more { font-size: 0.9rem; color: var(--link-accent); }
+.technical-head .see-more .sm-labels { justify-items: end; } /* right-aligned in the header: the chevron hugs the text */
+/* the technical box's Short / Full switch (main.js); it drives a hidden "See more" toggle */
+.see-more.see-more-driver { display: none !important; }
+.version-tabs { margin: 0; padding: 0.15rem; gap: 0.15rem; font-size: 0.82rem; line-height: 1.3; }
+.version-tabs[hidden] { display: none; }
+.version-tabs button { padding: 0.1rem 0.7rem; }
+/* the Short / Full switch in the box's amber */
+.version-tabs { border-color: color-mix(in srgb, var(--ours-mark) 55%, transparent); background: var(--card); }
+.version-tabs button { color: var(--link-accent); }
+.version-tabs button[aria-pressed="true"] { background: var(--ours-mark); color: #1a1609; }
+.version-tabs button:focus-visible { outline: 2px solid var(--link-accent); outline-offset: 1px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .version-tabs button[aria-pressed="true"] { color: #1a1609; } }
+/* subsections nested under a paragraph (the two kinds of neurons): a vertical line on their left */
+.nested-group { margin: 0.4rem 0 0 0.36rem; padding-left: 1.2rem; border-left: 2px solid color-mix(in srgb, var(--ours-mark) 55%, transparent); }
+.nested-group > h3.subsection:first-child { margin-top: 0.2rem; }
