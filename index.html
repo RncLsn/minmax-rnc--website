@@ -89,13 +89,13 @@
 
   <nav class="storyline" aria-labelledby="storyline-title">
     <div class="wrap wide">
-      <h2 id="storyline-title">Explore MinMax RNCs</h2>
+      <h2 id="storyline-title">Explore <span class="concept c-ours">MinMax RNCs</span></h2>
       <ol>
-        <li><a href="#why"><span class="step-n" aria-hidden="true">1</span><span class="step-t">The goal</span><span class="step-d"><span class="ph">Processing long sequences</span></span></a></li>
-        <li><a href="#tradeoffs"><span class="step-n" aria-hidden="true">2</span><span class="step-t">Existing architectures</span><span class="step-d"><span class="ph">Where today&rsquo;s models</span> <span class="ph">fall short</span></span></a></li>
-        <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d"><span class="ph">Reinterpret linear recurrence</span> <span class="ph">swapping <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> for <math><mpadded class="op" height="0.88em" depth="0.32em"><mrow><mi>max</mi><mo lspace="0" rspace="0.2em">,</mo><mi>min</mi></mrow></mpadded></math></span></span></a></li>
-        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">Why it works</span><span class="step-d"><span class="ph">Expressive, efficient,</span> <span class="ph">stable, long-range</span></span></a></li>
-        <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">Performance</span><span class="step-d"><span class="ph">Ahead of SOTA</span> <span class="ph">on long sequences</span></span></a></li>
+        <li><a href="#why"><span class="step-n" aria-hidden="true">1</span><span class="step-t">The goal</span><span class="step-d"><span class="ph">Ensure the <span class="concept c-props">four properties</span></span> <span class="ph">for truly long-sequence processing</span></span></a></li>
+        <li><a href="#tradeoffs"><span class="step-n" aria-hidden="true">2</span><span class="step-t">The gap</span><span class="step-d"><span class="ph">Today&rsquo;s architectures</span> <span class="ph">trade the <span class="concept c-props">four properties</span> off</span></span></a></li>
+        <li><a href="#idea"><span class="step-n" aria-hidden="true">3</span><span class="step-t">The idea</span><span class="step-d"><span class="ph">Reinterpret <span class="concept c-linrec">linear recurrence</span>:</span> <span class="ph">Standard <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> &rarr; MinMax <math><mpadded class="op pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math></span></span></a></li>
+        <li><a href="#properties"><span class="step-n" aria-hidden="true">4</span><span class="step-t">Why it works</span><span class="step-d"><span class="ph">All <span class="concept c-props">four properties</span> guaranteed:</span> <span class="ph"><em>expressive, efficient, stable, long-range</em></span></span></a></li>
+        <li><a href="#results"><span class="step-n" aria-hidden="true">5</span><span class="step-t">The evidence</span><span class="step-d"><span class="ph">Only <span class="concept c-ours">MinMax RNCs</span> score <span class="good">100%</span></span> <span class="ph">on core long-sequence tasks</span></span></a></li>
       </ol>
       <a class="storyline-more" href="#why" aria-label="Start reading"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
@@ -104,21 +104,35 @@
   <main>
     <section id="why" aria-labelledby="why-title">
       <div class="wrap wide">
-        <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span><span class="sec-t">What long sequences demand</span></h2>
-        <p class="lead">To process truly long sequences, a model needs <u class="em">four properties at once</u>, and getting all four together is hard.</p>
-        <h3 class="subsection cards-title" id="four-properties">Four key properties</h3>
-        <div class="cards" aria-labelledby="four-properties">
-          <div class="card">
+        <h2 id="why-title"><span class="sec-n" aria-hidden="true">1</span><span class="sec-t">The goal<span class="sec-sub"><span class="ph">Ensure the <span class="concept c-props">four properties</span></span> <span class="ph">for truly <span class="nowrap">long-sequence</span> processing</span></span></span></h2>
+        <p class="lead"><span class="unit">To process truly long sequences,</span> <span class="unit">a model needs <span class="concept c-props">four properties</span>:</span><span class="display-list"><a class="dl-item" href="#prop-expressivity"><img class="dl-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64"><span class="dl-name">Expressivity</span></a> <a class="dl-item" href="#prop-efficiency"><img class="dl-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64"><span class="dl-name">Efficiency</span></a> <a class="dl-item" href="#prop-stability"><img class="dl-icon" src="assets/icons/stability.svg" alt="" width="64" height="64"><span class="dl-name">Stability</span></a> <a class="dl-item" href="#prop-sensitivity"><img class="dl-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64"><span class="dl-name">Long-Range Sensitivity</span></a></span><span class="unit">Ensuring the <span class="concept c-props">four properties</span> <u class="em">at once</u> is hard.</span></p>
+        <div class="cards">
+          <div class="card" id="prop-expressivity">
             <div class="card-head">
               <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
               <div>
                 <h3>High Expressivity</h3>
-                <p class="card-sub">with <b>long-term memory</b></p>
+                <p class="card-sub"><span class="nowrap"><b>Long-term memory</b></span> <span class="nowrap">&amp; <b>state tracking</b></span></p>
               </div>
             </div>
-            <p>Remember what matters for as long as needed, and recognise rich temporal patterns: from simple ones, like &ldquo;B happened after A&rdquo;, up to everything a finite-memory system can recognise.</p>
+            <p>Recognise rich temporal patterns: from simple ones, like <span class="pattern">&ldquo;<i>B</i> happened after <i>A</i>&rdquo;</span>, up to everything a finite-memory system can recognise. The two key abilities are:</p>
+            <ul class="card-list">
+              <li><b>Long-term memory:</b> storing information reliably as long as needed;</li>
+              <li><b>State tracking:</b> manipulating such information in rich ways.</li>
+            </ul>
+            <p class="see-more-line card-more-line"><button type="button" class="see-more" aria-expanded="false" aria-controls="expressivity-more" hidden><span class="sm-labels"><span class="when-closed">See more</span><span class="when-open">See less</span></span><svg class="chev" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+            <div class="more-body card-more" id="expressivity-more">
+              <p><b class="run-in">More examples.</b></p>
+              <ul class="card-list">
+                <li><b>Sequence matching:</b> follow patterns of several events that must occur in a given order, starting over whenever a reset event appears; the evidence is scattered across the whole sequence.</li>
+                <li><b>Recall:</b> return the very first token of the sequence or, at the second occurrence of a marker, the token that came right after its first occurrence, however far back.</li>
+                <li><b>State tracking:</b> follow a sequence of rearrangements of 3 or 4 objects (the word problems of the groups S<sub>3</sub> and S<sub>4</sub>); the current arrangement depends on every step and on their order.</li>
+              </ul>
+              <p><b class="run-in">The automata view.</b> The patterns a finite-memory system can recognise are the <em>regular languages</em>, the ones recognised by finite automata. By the Krohn&ndash;Rhodes theorem, every automaton can be simulated by a cascade of two kinds of building blocks: <em>identity-reset</em> blocks, which store a value and keep it unchanged until it is overwritten (long-term memory), and <em>permutation</em> blocks, which rearrange information reversibly (state tracking).</p>
+              <p>The patterns that need only the first kind are the <em>star-free languages</em>. Sequence matching and recall are of this kind, while S<sub>3</sub> and S<sub>4</sub> also need permutations.</p>
+            </div>
           </div>
-          <div class="card">
+          <div class="card" id="prop-efficiency">
             <div class="card-head">
               <img class="property-icon" src="assets/icons/efficiency.svg" alt="" width="64" height="64">
               <div>
@@ -126,9 +140,23 @@
                 <p class="card-sub"><span class="nowrap"><b>Subquadratic in parallel</b></span> <span class="nowrap">&amp; <b>Constant per token</b></span></p>
               </div>
             </div>
-            <p>Subquadratic cost for processing an entire sequence in parallel, and constant cost for each additional token.</p>
+            <p>Process long sequences efficiently in both of the ways models use them: whole sequences at once during training, and one token at a time when reading a stream or generating text. The two key requirements are:</p>
+            <ul class="card-list">
+              <li><b>Subquadratic in parallel:</b> processing an entire sequence costs less than quadratic time in its length, with only a short chain of steps that must wait for one another, so the work spreads across many processors;</li>
+              <li><b>Constant per token:</b> each additional token costs a fixed amount of time and memory, however long the history.</li>
+            </ul>
+            <p class="see-more-line card-more-line"><button type="button" class="see-more" aria-expanded="false" aria-controls="efficiency-more" hidden><span class="sm-labels"><span class="when-closed">See more</span><span class="when-open">See less</span></span><svg class="chev" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+            <div class="more-body card-more" id="efficiency-more">
+              <p><b class="run-in">Examples.</b></p>
+              <ul class="card-list">
+                <li><b>Long documents:</b> full self-attention compares every token with every other, so doubling the length roughly quadruples the cost.</li>
+                <li><b>Streaming and generation:</b> a model reading a live stream or writing text token by token should not slow down, or need more memory, as the history grows.</li>
+                <li><b>Training on long sequences:</b> GPUs need work they can spread across the whole sequence, which a strictly step-by-step recurrence cannot offer.</li>
+              </ul>
+              <p><b class="run-in">The precise notion.</b> Two measures matter in parallel. <em>Work</em> is the total number of operations. <em>Depth</em> is the longest chain of steps that must wait for one another, which sets the running time when there are enough processors. For a sequence of length <i>T</i>, we want work that grows less than quadratically (ideally linearly) in <i>T</i> and depth far below <i>T</i>, for example logarithmic. In recurrent form, each new token should cost a fixed amount of time and memory, however many tokens came before it.</p>
+            </div>
           </div>
-          <div class="card">
+          <div class="card" id="prop-stability">
             <div class="card-head">
               <img class="property-icon" src="assets/icons/stability.svg" alt="" width="64" height="64">
               <div>
@@ -136,9 +164,19 @@
                 <p class="card-sub"><b>Independent of sequence length</b></p>
               </div>
             </div>
-            <p>Activations and gradients stay bounded, no matter how long the sequence gets.</p>
+            <p>As long as every input value and every parameter stays within a fixed range, activations and gradients admit a bound that does not depend on the length of input sequences.</p>
+            <p class="see-more-line card-more-line"><button type="button" class="see-more" aria-expanded="false" aria-controls="stability-more" hidden><span class="sm-labels"><span class="when-closed">See more</span><span class="when-open">See less</span></span><svg class="chev" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+            <div class="more-body card-more" id="stability-more">
+              <p><b class="run-in">Examples.</b></p>
+              <ul class="card-list">
+                <li><b>Amplification:</b> if each update can enlarge the state even a little, the state can grow without limit over a long sequence.</li>
+                <li><b>Accumulation:</b> even without amplification, inputs that are added at every step can pile up. States then drift away, and gradients grow with sequence length.</li>
+                <li><b>Train short, run long:</b> a model trained on thousands of tokens and used on millions would meet activation sizes it has never seen if those sizes depended on length.</li>
+              </ul>
+              <p><b class="run-in">The precise notion.</b> <em>Bounded input, bounded state:</em> for any bound on the size of inputs and parameters, there is a single constant that bounds every state and output at every timestep, for sequences of any length. The same requirement applies to training: the gradient of the loss with respect to the parameters must stay below a constant that does not depend on sequence length.</p>
+            </div>
           </div>
-          <div class="card">
+          <div class="card" id="prop-sensitivity">
             <div class="card-head">
               <img class="property-icon" src="assets/icons/sensitivity.svg" alt="" width="64" height="64">
               <div>
@@ -147,6 +185,16 @@
               </div>
             </div>
             <p>Early inputs can still shape late outputs, so dependencies across very long distances can be learned.</p>
+            <p class="see-more-line card-more-line"><button type="button" class="see-more" aria-expanded="false" aria-controls="sensitivity-more" hidden><span class="sm-labels"><span class="when-closed">See more</span><span class="when-open">See less</span></span><svg class="chev" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></p>
+            <div class="more-body card-more" id="sensitivity-more">
+              <p><b class="run-in">Examples.</b></p>
+              <ul class="card-list">
+                <li><b>A switch set early:</b> a flag turned on at the first token must still decide the output a million tokens later.</li>
+                <li><b>Tracking a state:</b> following parity, or a shuffle of items, means every input up to the end can change the answer.</li>
+                <li><b>Fading memory:</b> in contractive models, a long enough stretch of recent input wipes out the influence of earlier input.</li>
+              </ul>
+              <p><b class="run-in">The precise notion.</b> The <em>state-to-state derivative</em> measures how much the state at time <i>t</i> responds to a small change in an earlier state. It is a product of one Jacobian per step. If every factor shrinks, the product <em>vanishes</em> over long distances, so errors at late outputs send no learning signal back to early inputs. <em>Non-vanishing</em> means that there are inputs for which this derivative keeps norm one at every timestep, however far apart the two times are. Together with bounded gradients, this means the derivative neither explodes nor fades.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -154,7 +202,7 @@
 
     <section id="tradeoffs" aria-labelledby="tradeoffs-title">
       <div class="wrap wide">
-        <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span><span class="sec-t">Existing architectures</span></h2>
+        <h2 id="tradeoffs-title"><span class="sec-n" aria-hidden="true">2</span><span class="sec-t">The gap<span class="sec-sub"><span class="ph">Today&rsquo;s architectures</span> <span class="ph">trade the <span class="concept c-props">four properties</span> off</span></span></span></h2>
         <p class="lead verdict-lead">Each popular family gives up at least one of the four properties <span class="punch-wrap"><span class="sep" aria-hidden="true">&rarr;</span><strong class="punch">MinMax RNCs have all four properties at once</strong></span></p>
         <div class="table-scroll">
           <table class="compare">
@@ -283,7 +331,7 @@
 
     <section id="idea" aria-labelledby="idea-title">
       <div class="wrap wide">
-        <h2 id="idea-title"><span class="sec-n" aria-hidden="true">3</span><span class="sec-t">The idea</span></h2>
+        <h2 id="idea-title"><span class="sec-n" aria-hidden="true">3</span><span class="sec-t">The idea<span class="sec-sub"><span class="ph">Reinterpret <span class="concept c-linrec">linear recurrence</span>:</span> <span class="ph">Standard <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> &rarr; MinMax <math><mpadded class="op pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math></span></span></span></h2>
         <div class="dim-scope"> <!-- the Scalar / General switch sticks only within this block -->
         <div class="dim-switch">
           <div class="tabs dim-tabs" role="group" aria-labelledby="dim-label" hidden>
@@ -293,7 +341,7 @@
           </div>
         </div>
         <h3 class="subsection" id="minmax-algebra">Linear recurrence in the MinMax algebra</h3>
-        <p class="lead" id="algebra">Reinterpret linear recurrence replacing ordinary arithmetic operations <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> with their MinMax counterparts <math><mpadded class="op" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math><span data-dim-panel="scalar" hidden>, which are</span><span data-dim-panel="general">. On scalars, they are</span> <math><mi>a</mi><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo></mpadded><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mpadded class="op" height="0.88em" depth="0.32em"><mi>max</mi></mpadded><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo></math> and <span class="nowrap"><math><mi>a</mi><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo></mpadded><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mpadded class="op" height="0.88em" depth="0.32em"><mi>min</mi></mpadded><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo></math><span data-dim-panel="general" class="wrap">, and then they apply to vectors and matrices analogously to <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math></span><span data-dim-panel="scalar" hidden class="wrap"> in the scalar case</span>.</span></p>
+        <p class="lead" id="algebra">Reinterpret linear recurrence replacing ordinary arithmetic operations <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math> with their MinMax counterparts <math><mpadded class="op pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math><span data-dim-panel="scalar" hidden>, which are</span><span data-dim-panel="general">. On scalars, they are</span> <math><mi>a</mi><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&oplus;</mo></mpadded><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mpadded class="op" height="0.88em" depth="0.32em"><mi>max</mi></mpadded><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo></math> and <span class="nowrap"><math><mi>a</mi><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo></mpadded><mi>b</mi><mo lspace="0.2778em" rspace="0.2778em">=</mo><mpadded class="op" height="0.88em" depth="0.32em"><mi>min</mi></mpadded><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo></math><span data-dim-panel="general" class="wrap">, and then they apply to vectors and matrices analogously to <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math></span><span data-dim-panel="scalar" hidden class="wrap"> in the scalar case</span>.</span></p>
         <div class="formula-flow" role="group" aria-label="From the linear recurrence to the MinMax recurrence">
           <span class="card-t ft1">Linear recurrence</span>
           <div class="formula fc1"><math data-dim-panel="scalar" hidden displaystyle="true"><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mo stretchy="false">(</mo><msub><mi>a</mi><mi>t</mi></msub><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&times;</mo></mpadded><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">+</mo></mpadded><msub><mi>b</mi><mi>t</mi></msub></math><math data-dim-panel="general" displaystyle="true"><msub><mi>x</mi><mi>t</mi></msub><mo lspace="0.2778em" rspace="0.2778em">=</mo><mo stretchy="false">(</mo><msub><mi>A</mi><mi>t</mi></msub><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&times;</mo></mpadded><msub><mi>x</mi><mrow><mi>t</mi><mo lspace="0" rspace="0">&minus;</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">+</mo></mpadded><msub><mi>b</mi><mi>t</mi></msub></math></div>
@@ -315,8 +363,8 @@
             <math display="block" class="narrow-only"><mtable columnalign="right left" columnspacing="0" rowspacing="0.5em"><mtr><mtd><msub><mrow><mo stretchy="false">(</mo><mi>A</mi><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo></mpadded><mi>B</mi><mo stretchy="false">)</mo></mrow><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd><mrow><mo lspace="0.2778em" rspace="0.2778em">=</mo><munder><mpadded class="op big" height="1.16em" depth="0.58em"><mo lspace="0" rspace="0">&bigoplus;</mo></mpadded><mi>k</mi></munder><mo stretchy="false">(</mo><msub><mi>A</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0.2222em" rspace="0.2222em">&otimes;</mo></mpadded><msub><mi>B</mi><mrow><mi>k</mi><mi>j</mi></mrow></msub><mo stretchy="false">)</mo></mrow></mtd></mtr><mtr><mtd></mtd><mtd><mrow><mo lspace="0.2778em" rspace="0.2778em">=</mo><munder><mpadded class="op" height="0.88em" depth="0.32em"><mi>max</mi></mpadded><mi>k</mi></munder><mpadded class="op" height="0.88em" depth="0.32em"><mi>min</mi></mpadded><mo stretchy="false">(</mo><msub><mi>A</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo separator="true">,</mo><msub><mi>B</mi><mrow><mi>k</mi><mi>j</mi></mrow></msub><mo stretchy="false">)</mo></mrow></mtd></mtr></mtable></math>
           </div>
           </div>
-          <p><b class="run-in">Associativity, commutativity, distributivity.</b> Like <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math>, both <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&oplus;</mo></mpadded></math> and <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&otimes;</mo></mpadded></math> are associative and commutative, and <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&otimes;</mo></mpadded></math> distributes over <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&oplus;</mo></mpadded></math>, just as <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&times;</mo></mpadded></math> distributes over <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">+</mo></mpadded></math>. These properties are what let a whole sequence be processed with a parallel scan (see <a href="#properties">Why it works</a>).</p>
-          <p><b class="run-in">Selectivity.</b> Unlike <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math>, the operations <math><mpadded class="op" height="0.88em" depth="0.32em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math> never create new values: they only pick one of their arguments. This is what keeps MinMax RNCs stable however long the sequence (see <a href="#properties">Why it works</a>).</p>
+          <p><b class="run-in">Associativity, commutativity, distributivity.</b> Like <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math>, both <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&oplus;</mo></mpadded></math> and <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&otimes;</mo></mpadded></math> are associative and commutative, and <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&otimes;</mo></mpadded></math> distributes over <math><mpadded class="op" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&oplus;</mo></mpadded></math>, just as <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">&times;</mo></mpadded></math> distributes over <math><mpadded class="op classic" height="0.88em" depth="0.32em"><mo lspace="0" rspace="0">+</mo></mpadded></math>. These properties are what let a whole sequence be processed with a parallel scan (see <a href="#properties">Why it works</a>).</p>
+          <p><b class="run-in">Selectivity.</b> Unlike <math><mpadded class="op classic pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">+</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&times;</mo></mrow></mpadded></math>, the operations <math><mpadded class="op pair" height="0.8em" depth="0.24em"><mrow><mo lspace="0" rspace="0">&oplus;</mo><mo lspace="0" rspace="0.2em">,</mo><mo lspace="0" rspace="0">&otimes;</mo></mrow></mpadded></math> never create new values: they only pick one of their arguments. This is what keeps MinMax RNCs stable however long the sequence (see <a href="#properties">Why it works</a>).</p>
         </div>
         <h3 class="subsection" id="neurons">MinMax Recurrent Neurons</h3>
         <div class="neurons-scalar" id="scalar-neurons" data-dim-panel="scalar">
@@ -408,7 +456,7 @@
 
     <section id="properties" aria-labelledby="properties-title">
       <div class="wrap wide">
-        <h2 id="properties-title"><span class="sec-n" aria-hidden="true">4</span><span class="sec-t">Why it works</span></h2>
+        <h2 id="properties-title"><span class="sec-n" aria-hidden="true">4</span><span class="sec-t">Why it works<span class="sec-sub"><span class="ph">All <span class="concept c-props">four properties</span> guaranteed:</span> <span class="ph"><em>expressive, efficient, stable, long-range</em></span></span></span></h2>
         <p class="lead">Max and min are simple, but they give MinMax RNCs all four properties, provably.</p>
         <div class="cards">
           <div class="card">
@@ -416,7 +464,7 @@
               <img class="property-icon" src="assets/icons/expressivity.svg" alt="" width="64" height="64">
               <div>
                 <h3>High Expressivity</h3>
-                <p class="card-sub">with <b>long-term memory</b></p>
+                <p class="card-sub"><span class="nowrap"><b>Long-term memory</b></span> <span class="nowrap">&amp; <b>state tracking</b></span></p>
               </div>
             </div>
             <p>MinMax neurons can implement all the basic building blocks of finite-state machines, so MinMax RNCs capture all regular languages. Scalar-state neurons already suffice to capture the star-free languages.</p>
@@ -457,7 +505,7 @@
 
     <section id="results" aria-labelledby="results-title">
       <div class="wrap wide">
-        <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span><span class="sec-t">Performance</span></h2>
+        <h2 id="results-title"><span class="sec-n" aria-hidden="true">5</span><span class="sec-t">The evidence<span class="sec-sub"><span class="ph">Only <span class="concept c-ours">MinMax RNCs</span> score <span class="good">100%</span></span> <span class="ph">on core <span class="nowrap">long-sequence</span> tasks</span></span></span></h2>
         <p class="headline">Only <em>MinMax</em> solves all considered tasks: <em>100%</em>.</p>
         <p class="note">Long-sequence tasks, evaluated on sequences up to one million steps long: <b>Latching</b> tests memory, <b>Sequences</b> tests sequential pattern matching, <b>Induction Heads</b> tests recall, and <b>S₃</b> and <b>S₄</b> test state tracking.</p>
 

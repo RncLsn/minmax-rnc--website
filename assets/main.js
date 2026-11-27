@@ -1,5 +1,6 @@
 // minmaxrnc.org: worked-example stepper, results charts, BibTeX copy.
 // The page reads fine without this script; it only adds interaction.
+document.documentElement.classList.add('js');
 
 // ---------- view state in the URL, so a link opens the same views ----------
 // Only the main view switches are kept: ?dim (scalar or general neurons), ?notation (max/min or oplus/otimes),
@@ -424,4 +425,20 @@ function stepperState() {
     else window.addEventListener('resize', check);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
   });
+})();
+
+// Storyline: side by side when the five steps fit with every line unbroken, otherwise a vertical
+// timeline. Measured, not guessed from the window width, so it holds for any font.
+(function () {
+  const story = document.querySelector('nav.storyline');
+  const ol = story && story.querySelector('ol');
+  if (!ol) return;
+  function check() {
+    story.classList.remove('is-vertical');
+    if (ol.scrollWidth > ol.clientWidth + 1) story.classList.add('is-vertical');
+  }
+  check();
+  if (window.ResizeObserver) new ResizeObserver(check).observe(story);
+  else window.addEventListener('resize', check);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
 })();

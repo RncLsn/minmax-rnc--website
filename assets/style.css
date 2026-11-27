@@ -20,6 +20,9 @@
   --recess: rgba(60, 40, 0, 0.22); /* inner shadow of expanded table panels */
   --classic-op: #5b7fa6; /* chips of the usual operators + and × */
   --link-accent: #8f5c00; /* dark amber for small link arrows: readable on cream and white */
+  --concept-props: #a65300; /* storyline concept colours: a warm amber-orange, 5.1:1 on cream; slate-blue 7.9:1 */
+  --concept-linrec: #2c4f78;
+  --concept-ours: #66309a; /* MinMax RNCs: violet, about 8:1 on cream */
   --ours-mark: #f5ab00; /* bright amber, a touch deeper than #ffc13b so it holds up on white */
 }
 @media (prefers-color-scheme: dark) {
@@ -44,6 +47,9 @@
     --recess: rgba(0, 0, 0, 0.6);
     --classic-op: #8fb3dc;
     --link-accent: #ffc13b;
+    --concept-props: #ffc13b;
+    --concept-linrec: #b5d0ee;
+    --concept-ours: #c9a7f0;
     --ours-mark: #ffc13b;
   }
 }
@@ -124,9 +130,9 @@ h2:has(> .sec-n) { position: relative; padding-left: 1.48em; text-wrap: balance;
 /* "Explore MinMax RNCs": the page's storyline under the hero, numbered steps joined by a line */
 .storyline { padding: 2.2rem 1rem 2.4rem; background: var(--page); border-bottom: 1px solid var(--line); }
 .storyline .wrap.wide { max-width: 76rem; } /* the storyline may use more width than the reading column */
-.storyline h2 { margin: 0 0 1.2rem; font-size: 1.05rem; font-weight: 800; color: var(--ink); } /* normal case: keeps the casing of "MinMax RNCs" */
-.storyline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 0.4rem; position: relative; }
-.storyline ol::before { content: ""; position: absolute; top: 1.05rem; left: calc(100% / 10); right: calc(100% / 10); height: 2px; background: var(--ours-bar); } /* the line joining the steps */
+.storyline h2 { margin: 0 0 1.2rem; font-size: 1.3rem; font-weight: 800; color: var(--ink); } /* normal case: keeps the casing of "MinMax RNCs" */
+.storyline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0 0.4rem; position: relative; } /* the middle step is as wide as its lines need */
+.storyline ol::before { content: ""; position: absolute; top: 1.05rem; left: calc((100% - 21.5rem - 1.6rem) / 8); right: calc((100% - 21.5rem - 1.6rem) / 8); height: 2px; background: var(--ours-bar); } /* the line joining the steps */
 .storyline a { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; color: inherit; text-decoration: none; padding: 0 0.2rem; }
 .storyline .step-n { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ours-bar); color: #1a1609; font-weight: 800; font-size: 0.95rem; box-shadow: 0 0 0 4px var(--page); transition: transform 0.15s; }
 .storyline .step-t { font-weight: 800; color: var(--ink); line-height: 1.25; margin-top: 0.2rem; }
@@ -135,12 +141,19 @@ h2:has(> .sec-n) { position: relative; padding-left: 1.48em; text-wrap: balance;
 .storyline a:hover .step-n { transform: scale(1.1); }
 .storyline a:hover .step-t { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 0.18em; }
 .storyline a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 6px; }
-@media (max-width: 68.5rem) { /* below this, five columns get too narrow for two-line blurbs: a vertical timeline */
-  .storyline ol { grid-template-columns: 1fr; gap: 0.9rem; }
-  .storyline ol::before { top: 0.5rem; bottom: 0.5rem; left: 1.0rem; right: auto; width: 2px; height: auto; }
-  .storyline a { display: grid; grid-template-columns: 2.1rem 1fr; column-gap: 0.85rem; align-items: start; text-align: left; }
-  .storyline .step-n { grid-row: 1 / span 2; }
-  .storyline .step-t { margin-top: 0.15rem; }
+/* vertical timeline: when the five steps do not fit side by side (main.js measures it and sets .is-vertical);
+   without JS, below 73rem */
+.storyline.is-vertical ol { grid-template-columns: 1fr; gap: 0.9rem; }
+.storyline.is-vertical ol::before { top: 0.5rem; bottom: 0.5rem; left: 1.0rem; right: auto; width: 2px; height: auto; }
+.storyline.is-vertical a { display: grid; grid-template-columns: 2.1rem 1fr; column-gap: 0.85rem; align-items: start; text-align: left; }
+.storyline.is-vertical .step-n { grid-row: 1 / span 2; }
+.storyline.is-vertical .step-t { margin-top: 0.15rem; }
+@media (max-width: 73rem) {
+  html:not(.js) .storyline ol { grid-template-columns: 1fr; gap: 0.9rem; }
+  html:not(.js) .storyline ol::before { top: 0.5rem; bottom: 0.5rem; left: 1.0rem; right: auto; width: 2px; height: auto; }
+  html:not(.js) .storyline a { display: grid; grid-template-columns: 2.1rem 1fr; column-gap: 0.85rem; align-items: start; text-align: left; }
+  html:not(.js) .storyline .step-n { grid-row: 1 / span 2; }
+  html:not(.js) .storyline .step-t { margin-top: 0.15rem; }
 }
 /* chevron under the steps: the page goes on below */
 .storyline-more { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; margin: 1.4rem auto 0; border-radius: 50%; color: var(--ink); animation: nudge 2.2s ease-in-out infinite; }
@@ -182,7 +195,7 @@ main section { container-type: inline-size; } /* lets the cards' title react to 
    (the efficiency subtitle then breaks before "&" when needed) */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  grid-template-columns: 1fr; /* one card per row */
   gap: 1rem;
 }
 /* centred over the cards, with a bracket below spanning the whole grid: ┌──┐ */
@@ -831,7 +844,7 @@ b.run-in { margin-right: 0.2em; }
 .dim-switch .dim-tabs { margin: 0; font-size: 0.9rem; align-items: center; border: 1.5px solid var(--ours-bar); background: var(--card); box-shadow: 0 3px 14px -6px rgba(0, 0, 0, 0.35); }
 .dim-switch .dim-switch-label { padding: 0 0.6rem 0 0.75rem; margin-right: 0.15rem; border-right: 1px solid var(--line); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; } /* says what the switch is for */
 .dim-switch .dim-tabs button { padding: 0.3rem 0.95rem; white-space: nowrap; }
-@media (min-width: 30.01rem) { .dim-switch { margin-top: calc(-0.75rem - 2.45rem); margin-bottom: 1.4rem; } } /* pulled up beside "The idea" */
+/* the heading now has a subheader: the switch sits under it, on the right */
 @media (max-width: 30rem) { .dim-switch { margin-left: 0; } } /* phones: under the heading, on the left */
 #idea [data-dim-panel][hidden] { display: none !important; } /* also for the <math> variants */
 .nowrap .wrap { white-space: normal; } /* a stretch that may wrap inside a no-wrap group */
@@ -851,3 +864,49 @@ b.run-in { margin-right: 0.2em; }
 .dim-switch .dsl-1 { font-weight: 600; letter-spacing: 0.04em; text-transform: none; font-style: italic; }
 .see-more-line { margin: -0.15rem 0 1.5rem; } /* "See more on the MinMax algebra", under the recurrence cards */
 .see-more-line + .more-body { margin-top: -0.9rem; }
+.storyline mpadded.op { padding-inline: 0.2em; margin-inline: 0.03em; } /* compact chips in the storyline blurbs */
+.storyline .step-d math { font-size: 0.95em; }
+html.js .storyline:not(.is-vertical) h2 { text-align: center; font-size: 1.35rem; margin-bottom: 1.5rem; } /* horizontal storyline: a centred, larger title */
+@media (max-width: 73rem) { html:not(.js) .storyline h2 { text-align: left; font-size: 1.3rem; margin-bottom: 1.2rem; } }
+/* horizontal storyline: each step draws its own piece of the joining line (to the middle of the gaps
+   on either side), so the line follows the circles whatever the column widths */
+html.js .storyline:not(.is-vertical) ol { grid-template-columns: repeat(5, minmax(max-content, 1fr)); } /* every column at least as wide as its unbroken lines */
+html.js .storyline:not(.is-vertical) ol::before { content: none; }
+html.js .storyline:not(.is-vertical) li { position: relative; }
+html.js .storyline:not(.is-vertical) li::before { content: ""; position: absolute; top: 1.05rem; left: -0.2rem; right: -0.2rem; height: 2px; background: var(--ours-bar); }
+html.js .storyline:not(.is-vertical) li:first-child::before { left: 50%; }
+html.js .storyline:not(.is-vertical) li:last-child::before { right: 50%; }
+html.js .storyline:not(.is-vertical) .step-d .ph, html.js .storyline:not(.is-vertical) .step-t { display: block; white-space: nowrap; } /* each phrase on a line of its own, never wrapped */
+.good { color: var(--yes); font-weight: 700; } /* the 100% result, in the results' green */
+/* storyline concepts, colour-coded the same way wherever they appear: the four properties (amber, the goal)
+   and linear recurrence (slate, like the standard +, x chips) */
+.concept { font-weight: 700; white-space: nowrap; }
+.concept.c-props { color: var(--concept-props); }
+.concept.c-linrec { color: var(--concept-linrec); }
+.concept.c-ours { color: var(--concept-ours); }
+h2 .sec-sub .ph { display: inline-block; } /* subheader phrases (from the storyline) break between phrases */
+.unit { display: inline-block; } /* a phrase kept on one line when it fits: lines break between units */
+/* an example temporal pattern in running text: italic, with its events as maths-style letters */
+.pattern { font-style: italic; color: var(--ink); white-space: nowrap; }
+.pattern i { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif; font-size: 1.08em; line-height: 0; padding-inline: 0.03em; }
+/* a short list inside a property card */
+.card p.list-intro { margin-top: 0.6rem; }
+.card-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+.card-list li { margin: 0.15rem 0; }
+.card-list li::marker { color: var(--concept-props); }
+.card-list li > b:first-child { color: var(--muted); font-weight: 700; } /* item headers styled like the card's subtitle */
+/* "See more" inside a property card */
+.card .card-more-line { margin: 0.7rem 0 0; font-size: 0.92rem; }
+.card .more-body.card-more { margin: 0.6rem 0 0 0.1rem; font-size: 0.92rem; }
+.card .more-body.card-more p { margin: 0 0 0.6rem; }
+.card .more-body.card-more p:last-child { margin-bottom: 0; }
+.card .more-body.card-more .card-list { margin: 0 0 0.7rem; }
+.display-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6em 0.9em; margin: 1em 0; font-size: 1.1rem; } /* same size as the card titles */ /* the four properties on their own centred line, like a displayed equation */
+.display-list .dl-item { display: inline-flex; align-items: center; gap: 0.4em; white-space: nowrap; padding: 0.3em 0.7em 0.3em 0.55em; border: 1.5px solid color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 8px; background: none; } /* outlined chips, no fill: rounded rectangles */
+.display-list .dl-icon { width: 1.35em; height: 1.35em; flex: none; }
+.display-list .dl-name { font-weight: 600; color: var(--ink); } /* semibold: on cream inside an outline, bold reads heavier than the card titles on white */
+a.dl-item { color: inherit; text-decoration: none; transition: border-color 0.15s, background 0.15s; } /* each chip jumps to its card */
+a.dl-item:hover { border-color: color-mix(in srgb, var(--ink) 55%, transparent); background: color-mix(in srgb, var(--card) 70%, transparent); }
+a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.card[id] { scroll-margin-top: 4rem; } /* lands below the sticky bar */
+@media (prefers-reduced-motion: reduce) { a.dl-item { transition: none; } }
