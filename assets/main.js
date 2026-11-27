@@ -479,6 +479,7 @@ function stepperState() {
     'four-properties': { def: 'Expressivity, efficiency, stability and long-range sensitivity' },
     'linear-recurrence': { def: 'The update of Linear RNNs: the new state is a matrix times the old state, plus an input term' },
     'minmax-rncs': { def: 'MinMax Recurrent Neural Cascades: cascades of layers of MinMax recurrent neurons' },
+    'minmax-algebra': { def: 'Max and min, written ⊕ and ⊗, used as the addition and multiplication of an algebra on numbers, vectors and matrices', target: '#algebra-more', targetLabel: 'More on the MinMax algebra' },
     'nonlinear-rnns': { def: 'Recurrent networks with a nonlinear state update, such as LSTMs and GRUs', target: '#arch-nonlinear', targetLabel: 'More on nonlinear RNNs' },
     'transformers': { def: 'Models built on attention, which lets each token look at all earlier tokens', target: '#arch-transformers', targetLabel: 'More on Transformers' },
     'linear-rnns': { def: 'Recurrent networks with a linear state update, such as Mamba and DeltaNet; it can be computed in parallel with a scan', target: '#arch-linear', targetLabel: 'More on Linear RNNs' },

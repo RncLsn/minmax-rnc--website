@@ -946,7 +946,7 @@ a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
    Colour groups below; definitions and link targets live in the concept registry in main.js. */
 .term[data-concept="four-properties"], .term[data-concept="long-term-memory"], .term[data-concept="state-tracking"],
 .term[data-concept="parallel-processing"], .term[data-concept="sequential-processing"],
-.term[data-concept="subquadratic-parallel"], .term[data-concept="constant-per-token"] { --term-c: var(--ours-mark); --term-t: var(--concept-props); }
+.term[data-concept="subquadratic-parallel"], .term[data-concept="constant-per-token"], .term[data-concept="minmax-algebra"] { --term-c: var(--ours-mark); --term-t: var(--concept-props); }
 .term[data-concept="linear-recurrence"],
 .term[data-concept="nonlinear-rnns"], .term[data-concept="transformers"], .term[data-concept="linear-rnns"] { --term-c: var(--classic-op); --term-t: var(--concept-linrec); } /* slate: the standard approaches */
 .term[data-concept="minmax-rncs"] { --term-c: var(--concept-ours); --term-t: var(--concept-ours); }
@@ -960,3 +960,16 @@ a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* a small "References" header above a reference list in a "See more" panel */
 .refs-title { margin: 1rem 0 0.35rem; padding-top: 0.6rem; border-top: 1px solid var(--rule); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
 .refs-title + .refs.why-refs { margin-top: 0; padding-top: 0; border-top: 0; }
+
+#idea .lead:has(+ .lead) { margin-bottom: 0.8rem; } /* consecutive lead paragraphs: a normal paragraph gap, not a section gap */
+#idea .lead:has(+ .see-more-line) { margin-bottom: 0.5rem; } /* "See more" sits close under its paragraph */
+#idea .lead + .see-more-line { margin-top: 0; }
+/* a list in lead type (section 3 opening) */
+.lead-list { margin: 0 0 0.5rem; padding-left: 1.3rem; font-size: 1.15rem; color: var(--muted); }
+.lead-list li { margin: 0.35rem 0; }
+.lead-list li::marker { color: var(--ours-bar); }
+#idea .lead:has(+ .lead-list) { margin-bottom: 0.6rem; }
+.lead-list + .see-more-line { margin-top: 0; }
+.lead-list .li-head { font-weight: 600; color: var(--ink); } /* item headers in a lead list */
+.lead .lead-head { color: var(--ink); font-weight: 700; } /* a run-in paragraph header inside lead text */
+.lead.lead-spaced { margin-top: 2.2rem; } /* a new topic within the section: extra space above */
