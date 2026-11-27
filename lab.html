@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neuron lab · MinMax RNCs</title>
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/neuron-lab.css">
+  <script src="assets/neuron-lab.js" defer></script>
+</head>
+<body>
+  <main>
+    <section id="lab" aria-labelledby="lab-title">
+      <div class="wrap wide">
+        <h2 id="lab-title">Neuron lab</h2>
+        <p class="lead">Pick a fundamental semiautomaton, see the MinMax neuron that realises it, run it on your own inputs, and watch its gradients.</p>
+        <div class="neuron-lab" data-neuron-lab>
+          <p class="note">This interactive lab needs JavaScript.</p>
+        </div>
+        <script>/* preview only: lab.html?start=s3 opens the lab on that entry */
+          (function () { var m = /[?&]start=([\w-]+)/.exec(location.search); if (m) document.querySelector('[data-neuron-lab]').dataset.start = m[1]; })();</script>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

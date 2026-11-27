@@ -293,7 +293,7 @@ table.compare { table-layout: fixed; }
 }
 @media (max-width: 24.3rem) { /* smallest phones: slimmer mark columns, and row names scaled so each line still fits */
   .compare col:not(.c-arch) { width: 2rem; }
-  .compare tbody th { font-size: min(0.85rem, calc((100vw - 2rem - 8rem - 0.9rem) / 13.6)); }
+  .compare tbody th { font-size: min(0.85rem, calc((100vw - 2rem - 8rem - 0.9rem) / 13.9)); }
   .compare tbody th .eg { font-size: 0.88em; }
 }
 @media (max-width: 44rem) {
@@ -351,10 +351,10 @@ table.compare { table-layout: fixed; }
 .why-list b::after { content: ":"; } /* separator between label and text */
 .why-list .why-icon { width: 1.35em; height: 1.35em; margin-right: 0; vertical-align: -0.35em; } /* the property icon when satisfied, its broken variant when not */
 /* the drawings reach different distances from the right edge of their 64-unit box
-   (expressivity and efficiency leave 10 units, stability 6, sensitivity almost 0):
+   (expressivity and efficiency leave 10 units, stability and sensitivity 4 to 6):
    pad the last two so every icon sits the same visual distance from its label */
 .why-list .why-icon[src*="stability"] { margin-right: calc(1.35em * 4 / 64); }
-.why-list .why-icon[src*="sensitivity"] { margin-right: calc(1.35em * 9.75 / 64); }
+.why-list .why-icon[src*="sensitivity"] { margin-right: calc(1.35em * 6 / 64); }
 .why-list { max-width: calc(100vw - 4rem); } /* stay within view when the table scrolls */
 @media (max-width: 30rem) { .why-list { grid-template-columns: 1fr; } }
 .yes, .no { font-size: 1.15rem; font-weight: 700; }
@@ -902,11 +902,61 @@ h2 .sec-sub .ph { display: inline-block; } /* subheader phrases (from the storyl
 .card .more-body.card-more p:last-child { margin-bottom: 0; }
 .card .more-body.card-more .card-list { margin: 0 0 0.7rem; }
 .display-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6em 0.9em; margin: 1em 0; font-size: 1.1rem; } /* same size as the card titles */ /* the four properties on their own centred line, like a displayed equation */
-.display-list .dl-item { display: inline-flex; align-items: center; gap: 0.4em; white-space: nowrap; padding: 0.3em 0.7em 0.3em 0.55em; border: 1.5px solid color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 8px; background: none; } /* outlined chips, no fill: rounded rectangles */
+.display-list .dl-item { display: inline-flex; align-items: center; gap: 0.45em; white-space: nowrap; padding: 0.4em 0.85em 0.4em 0.6em; border: 1px solid var(--line); border-radius: 10px; background: var(--card); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px -2px rgba(0, 0, 0, 0.08); } /* soft white tiles, like the cards */
 .display-list .dl-icon { width: 1.35em; height: 1.35em; flex: none; }
 .display-list .dl-name { font-weight: 600; color: var(--ink); } /* semibold: on cream inside an outline, bold reads heavier than the card titles on white */
-a.dl-item { color: inherit; text-decoration: none; transition: border-color 0.15s, background 0.15s; } /* each chip jumps to its card */
-a.dl-item:hover { border-color: color-mix(in srgb, var(--ink) 55%, transparent); background: color-mix(in srgb, var(--card) 70%, transparent); }
+a.dl-item { color: inherit; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s; } /* each chip jumps to its card */
+a.dl-item:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--ours-bar) 60%, var(--line)); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 6px 14px -6px rgba(0, 0, 0, 0.18); }
 a.dl-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.card[id] { scroll-margin-top: 4rem; } /* lands below the sticky bar */
+.card[id] { scroll-margin-top: 7rem; } /* lands below the top bar and the property bar */
 @media (prefers-reduced-motion: reduce) { a.dl-item { transition: none; } }
+
+/* section 1: the four-property chips as a sticky bar under the top bar while the cards scroll by */
+#why .lead:has(+ .prop-nav) { margin-bottom: 0; }
+.prop-nav { position: sticky; top: 2.75rem; z-index: 30; margin: 0.6rem -1rem 0.6rem; padding: 0.5rem 1rem; }
+.prop-nav.stuck { background: var(--page); box-shadow: 0 0 0 100vmax var(--page), 0 7px 10px -9px rgba(0, 0, 0, 0.35); clip-path: inset(0 -100vmax -12px); } /* a full-width band (the shadow paints the page colour out to the edges) */
+.prop-nav.stuck::after { content: ""; position: absolute; left: -100vmax; right: -100vmax; bottom: 0; height: 1px; background: var(--line); }
+#why .lead-after { margin-top: 0.2rem; }
+.prop-nav a.dl-item.current { border-color: var(--ours-bar); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ours-bar) 45%, transparent), 0 2px 6px -2px rgba(0, 0, 0, 0.08); }
+/* phones, once stuck: icons only, plus the name of the current card, so the bar stays one row */
+@media (max-width: 40rem) {
+  .prop-nav.stuck { flex-wrap: nowrap; gap: 0.4em; }
+  .prop-nav.stuck a.dl-item { padding: 0.3em 0.45em; }
+  .prop-nav.stuck a.dl-item:not(.current) .dl-name { display: none; }
+}
+/* defined terms: a fine dotted underline, light enough to repeat; only the colour differs
+   (four properties: amber; linear recurrence: slate-blue, like the standard +, x chips; MinMax RNCs: violet) */
+.term[data-def] { cursor: help; } /* hover, focus or tap shows a short definition */
+.term { color: color-mix(in srgb, var(--term-t, currentColor) 45%, currentColor); text-decoration: underline dotted; text-decoration-color: var(--term-c, var(--ours-mark)); text-decoration-thickness: 2px; text-underline-offset: 0.22em; text-decoration-skip-ink: none; }
+:is(h1, h2, h3, b, strong) .term { color: color-mix(in srgb, var(--term-t, currentColor) 22%, currentColor); } /* bold text: an even lighter tint */
+
+/* the definition bubble for defined terms (main.js) */
+.term-tip { position: fixed; z-index: 100; max-width: min(18rem, calc(100vw - 1rem)); padding: 0.45rem 0.7rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-size: 0.85rem; font-weight: 500; font-style: normal; line-height: 1.4; text-align: left; box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.3); pointer-events: none; opacity: 0; transform: translateY(3px); transition: opacity 0.12s, transform 0.12s; }
+.term-tip.below { transform: translateY(-3px); }
+.term-tip.on { opacity: 1; transform: none; }
+.term:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { .term-tip { transition: none; } }
+.term-tip.interactive { pointer-events: auto; } /* touch, with a target: the "Go there" link can be tapped */
+.term-tip-go { display: inline-block; margin-top: 0.2rem; font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-color: var(--ours-bar); text-underline-offset: 0.18em; white-space: nowrap; }
+.term-tip-go::after { content: " \2192"; }
+.term.has-target { cursor: pointer; } /* a mouse click goes to its target */
+.card .lead-in { font-weight: 500; color: var(--ink); } /* a card's opening phrase, up to the colon: the gist at a glance */
+.card-list li > b .term { font-weight: 500; } /* list items' term headers: lighter than bold */
+/* Tags: each names a concept (data-concept), so different phrasings of one concept look the same.
+   Colour groups below; definitions and link targets live in the concept registry in main.js. */
+.term[data-concept="four-properties"], .term[data-concept="long-term-memory"], .term[data-concept="state-tracking"],
+.term[data-concept="parallel-processing"], .term[data-concept="sequential-processing"],
+.term[data-concept="subquadratic-parallel"], .term[data-concept="constant-per-token"] { --term-c: var(--ours-mark); --term-t: var(--concept-props); }
+.term[data-concept="linear-recurrence"],
+.term[data-concept="nonlinear-rnns"], .term[data-concept="transformers"], .term[data-concept="linear-rnns"] { --term-c: var(--classic-op); --term-t: var(--concept-linrec); } /* slate: the standard approaches */
+.term[data-concept="minmax-rncs"] { --term-c: var(--concept-ours); --term-t: var(--concept-ours); }
+.aside { font-style: italic; } /* parenthetical examples, e.g. "(say during training)": one class to restyle them all */
+.lead.lead-intro { margin-bottom: 0.7rem; } /* a short context sentence before a section's main lead */
+/* a "statement" environment: a key claim set apart, like a theorem in a paper */
+.statement { margin: 1.2rem 0 1.4rem; padding: 0.7rem 1.1rem; border-left: 3px solid var(--ours-bar); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--ours-bar) 14%, var(--card)); font-size: 1.15rem; font-weight: 600; line-height: 1.45; color: var(--ink); }
+.statement-ours { border-left-color: var(--concept-ours); background: color-mix(in srgb, var(--concept-ours) 7%, var(--card)); } /* about MinMax RNCs: their violet */
+.statement + .lead { margin-top: -0.3rem; }
+.more-body [id] { scroll-margin-top: 4rem; } /* jump targets inside a "See more" land below the top bar */
+/* a small "References" header above a reference list in a "See more" panel */
+.refs-title { margin: 1rem 0 0.35rem; padding-top: 0.6rem; border-top: 1px solid var(--rule); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.refs-title + .refs.why-refs { margin-top: 0; padding-top: 0; border-top: 0; }

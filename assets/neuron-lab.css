@@ -1,0 +1,166 @@
+/* minmaxrnc.org: "Neuron lab" widget (assets/neuron-lab.js). Uses the colour tokens of style.css. */
+.neuron-lab {
+  /* state entries: three categorical slots, validated for colour-vision deficiency (all pairs) */
+  --nl-c1: #257de0;
+  --nl-c2: #f47230;
+  --nl-c3: #00b894;
+  --nl-grad: #c47f00; /* gradient bars: a deep amber (MinMax), 3.3:1 on white */
+  --nl-band: color-mix(in srgb, var(--track) 70%, var(--card));
+  margin: 1.5rem 0;
+  font-size: 1rem;
+  min-width: 0;
+}
+@media (prefers-color-scheme: dark) {
+  .neuron-lab {
+    --nl-c1: #338ced;
+    --nl-c2: #e76624;
+    --nl-c3: #00a888;
+    --nl-grad: #ffc13b;
+    --nl-band: color-mix(in srgb, var(--track) 80%, var(--card));
+  }
+}
+.neuron-lab * { min-width: 0; }
+
+/* cards */
+.neuron-lab .nl-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.05rem 1.15rem 1.15rem;
+  margin-top: 1rem;
+}
+.neuron-lab .nl-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; }
+.neuron-lab .nl-pair .nl-card { margin-top: 1rem; }
+.neuron-lab h4 { margin: 0 0 0.35rem; font-size: 1.1rem; line-height: 1.3; }
+.neuron-lab p { margin: 0 0 0.6rem; }
+.neuron-lab .nl-sub { margin: 0 0 0.45rem; font-size: 0.9rem; color: var(--muted); }
+.neuron-lab .nl-note { margin: 0.7rem 0 0; font-size: 0.85rem; line-height: 1.5; color: var(--muted); }
+.neuron-lab .nl-tag { margin: -0.15rem 0 0.5rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.neuron-lab .nl-count { font-weight: 500; font-size: 0.9rem; color: var(--muted); }
+
+/* buttons: the site's pill buttons, a little smaller */
+.neuron-lab button { font-size: 0.88rem; padding: 0.35rem 0.85rem; line-height: 1.3; }
+.neuron-lab button:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.neuron-lab button.primary:hover:not(:disabled) { background: var(--chip-hover); }
+.neuron-lab button:focus-visible, .neuron-lab summary:focus-visible, .neuron-lab input:focus-visible, .neuron-lab svg:focus-visible {
+  outline: 3px solid var(--ink); outline-offset: 2px;
+}
+.neuron-lab svg:focus-visible { border-radius: 4px; }
+.neuron-lab .nl-controls { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.4rem; align-items: center; }
+.neuron-lab .nl-controls > .nl-controls { margin: 0; }
+.neuron-lab .nl-edit { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+.neuron-lab .nl-presets button { border-color: var(--line); font-weight: 500; }
+
+/* picker: toggle chips, the selected one filled like the site's tabs */
+.neuron-lab .nl-pick { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.neuron-lab .nl-pick button { border-color: var(--line); background: var(--card); }
+.neuron-lab .nl-pick button[aria-pressed="true"] { background: var(--chip-bg); color: var(--chip-ink); border-color: var(--chip-bg); }
+
+/* automaton */
+.neuron-lab .nl-trans { margin: 0 0 0.6rem; padding: 0; list-style: none; font-size: 0.95rem; }
+.neuron-lab .nl-trans li { margin: 0.2rem 0; }
+.neuron-lab .nl-sym {
+  display: inline-block; min-width: 1.7em; padding: 0 0.4em; border-radius: 0.35em; text-align: center;
+  background: var(--code-bg); border: 1px solid var(--line); font-weight: 700; font-size: 0.92em; line-height: 1.45;
+}
+
+/* neuron */
+.neuron-lab .nl-formula { margin: 0.25rem 0 0.7rem; overflow-x: auto; overflow-y: hidden; padding: 0.1rem 0; }
+.neuron-lab .nl-formula math { font-size: 1.1em; }
+.neuron-lab math { font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", math; }
+.neuron-lab mi.fn-reset, .neuron-lab mi.fn-set { font-style: normal; }
+.neuron-lab mpadded.op { padding: 0.07em 0.3em; margin-inline: 0.06em; border-radius: 0.38em; background: color-mix(in srgb, var(--ours-bar) 24%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ours-bar) 75%, transparent); }
+.neuron-lab mn.nl-hi { font-weight: 700; background: color-mix(in srgb, var(--ours-bar) 30%, transparent); border-radius: 0.25em; padding: 0 0.12em; }
+.neuron-lab mtable { math-style: normal; font-size: 1em; }
+.neuron-lab .nl-params math, .neuron-lab .nl-readout math { font-size: 1.05rem; }
+.neuron-lab .nl-nowrap { white-space: nowrap; }
+.neuron-lab mtd { padding: 0.12em 0.3em; } /* token boxes hug the ink: a little air between rows */
+.neuron-lab .nl-levels { margin: 0 0 0.6rem; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.2rem 1.1rem; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+.neuron-lab .nl-scroll { overflow-x: auto; max-width: 100%; }
+.neuron-lab table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.neuron-lab th, .neuron-lab td { padding: 0.35rem 0.45rem; border-bottom: 1px solid var(--line); text-align: center; vertical-align: middle; }
+.neuron-lab thead th { font-size: 0.8rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.neuron-lab .nl-params td.nl-acts { text-align: left; font-size: 0.88rem; }
+.neuron-lab .nl-params th[scope="row"] { text-align: left; }
+.neuron-lab .nl-params .nl-acts-row { display: none; }
+@media (max-width: 30rem) {
+  .neuron-lab .nl-params .nl-acts { display: none; }
+  .neuron-lab .nl-params .nl-acts-row { display: table-row; }
+  .neuron-lab .nl-params tr.nl-prow > * { border-bottom: 0; padding-bottom: 0.1rem; }
+  .neuron-lab .nl-params .nl-acts-row td { text-align: left; padding-top: 0; font-size: 0.85rem; color: var(--muted); }
+}
+
+/* input sequence */
+.neuron-lab .nl-seq { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 0.5rem; padding: 0; list-style: none; }
+.neuron-lab .nl-seq li {
+  display: inline-flex; align-items: baseline; gap: 0.25em; padding: 0.1rem 0.45rem; border-radius: 0.4em;
+  background: var(--code-bg); border: 1px solid var(--line); font-weight: 700; font-size: 0.92rem; line-height: 1.4;
+}
+.neuron-lab .nl-seq .nl-t { font-size: 0.7rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.neuron-lab .nl-seq li.nl-cur { background: color-mix(in srgb, var(--ours-bar) 45%, var(--card)); border-color: var(--ours-bar); }
+.neuron-lab .nl-seq li.nl-empty { background: none; border-style: dashed; font-weight: 400; color: var(--muted); }
+.neuron-lab .nl-check { display: flex; align-items: center; gap: 0.5rem; margin: 0.6rem 0 0; font-size: 0.92rem; }
+.neuron-lab .nl-check input { width: 1.1rem; height: 1.1rem; accent-color: var(--ink); flex: none; }
+
+/* charts */
+.neuron-lab .nl-chart-wrap { position: relative; }
+.neuron-lab .nl-chart { width: 100%; }
+.neuron-lab .nl-svg { display: block; overflow: visible; touch-action: manipulation; }
+.neuron-lab .nl-axis { fill: var(--muted); font-variant-numeric: tabular-nums; }
+.neuron-lab .nl-axis-t { fill: var(--ink); font-weight: 700; }
+.neuron-lab .nl-sym-t { fill: var(--ink); font-weight: 600; }
+.neuron-lab .nl-direct { fill: var(--ink); }
+.neuron-lab .nl-band { fill: var(--nl-band); }
+.neuron-lab .nl-rule { stroke: var(--line); stroke-width: 1; }
+.neuron-lab .nl-grid { stroke: var(--line); stroke-width: 1; }
+.neuron-lab .nl-sel { stroke: var(--ink); stroke-width: 1; }
+.neuron-lab .nl-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.neuron-lab .nl-dot { stroke: var(--card); stroke-width: 2; }
+.neuron-lab .nl-line.nl-c1 { stroke: var(--nl-c1); } .neuron-lab .nl-dot.nl-c1 { fill: var(--nl-c1); }
+.neuron-lab .nl-line.nl-c2 { stroke: var(--nl-c2); } .neuron-lab .nl-dot.nl-c2 { fill: var(--nl-c2); }
+.neuron-lab .nl-line.nl-c3 { stroke: var(--nl-c3); } .neuron-lab .nl-dot.nl-c3 { fill: var(--nl-c3); }
+.neuron-lab .nl-hit { fill: transparent; cursor: pointer; }
+.neuron-lab .nl-bar { fill: var(--nl-grad); opacity: 0.72; transition: opacity 0.15s; }
+.neuron-lab .nl-bar.nl-bar-sel { opacity: 1; }
+.neuron-lab .nl-zero { stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+.neuron-lab .nl-colsel { fill: color-mix(in srgb, var(--ours-bar) 16%, transparent); }
+.neuron-lab .nl-reduced .nl-bar, .neuron-lab.nl-reduced .nl-bar { transition: none; }
+@media (prefers-reduced-motion: reduce) { .neuron-lab .nl-bar { transition: none; } }
+
+.neuron-lab .nl-legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; margin: 0.2rem 0 0.1rem; padding: 0; list-style: none; font-size: 0.85rem; color: var(--ink); }
+.neuron-lab .nl-legend li { display: inline-flex; align-items: center; gap: 0.35rem; }
+.neuron-lab .nl-legend svg { display: block; }
+
+.neuron-lab .nl-tip {
+  position: absolute; z-index: 2; pointer-events: none; display: grid; gap: 0.05rem;
+  padding: 0.35rem 0.55rem; border-radius: 8px; background: var(--card); border: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); font-size: 0.82rem; line-height: 1.35; color: var(--muted);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.neuron-lab .nl-tip b { color: var(--ink); font-size: 0.9rem; }
+
+.neuron-lab .nl-agree { display: flex; gap: 0.45rem; align-items: baseline; margin: 0.6rem 0 0.2rem; font-size: 0.95rem; }
+.neuron-lab .nl-agree .nl-mark { font-weight: 800; flex: none; }
+.neuron-lab .nl-agree.nl-good .nl-mark, .neuron-lab .nl-yes { color: var(--yes); }
+.neuron-lab .nl-agree.nl-bad .nl-mark, .neuron-lab .nl-no { color: var(--no); }
+.neuron-lab td.nl-yes, .neuron-lab td.nl-no { font-weight: 700; }
+.neuron-lab td.nl-num { white-space: nowrap; }
+
+.neuron-lab .nl-details { margin-top: 0.6rem; }
+.neuron-lab .nl-details summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; width: fit-content; border-radius: 4px; }
+.neuron-lab .nl-details table { margin-top: 0.4rem; font-size: 0.88rem; }
+
+/* gradients */
+.neuron-lab .nl-range { display: grid; gap: 0.3rem; margin: 0 0 0.4rem; font-size: 0.95rem; }
+.neuron-lab .nl-range output { font-weight: 800; font-variant-numeric: tabular-nums; }
+.neuron-lab .nl-range input[type="range"] { width: 100%; max-width: 28rem; accent-color: var(--nl-grad); margin: 0; min-height: 1.6rem; }
+.neuron-lab .nl-readout { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.5rem; min-height: 2.6rem; margin: 0.3rem 0 0.4rem; font-size: 0.92rem; }
+.neuron-lab .nl-readout math { font-size: 1.1em; }
+.neuron-lab .nl-explain { margin: 0.2rem 0 0; font-size: 0.95rem; }
+.neuron-lab .nl-long-out { margin: 0.5rem 0 0; font-size: 0.95rem; }
+.neuron-lab .nl-long-out:empty { display: none; }
+
+@media (max-width: 30rem) {
+  .neuron-lab .nl-card { padding: 0.9rem 0.85rem 1rem; }
+  .neuron-lab th, .neuron-lab td { padding: 0.3rem 0.3rem; }
+}

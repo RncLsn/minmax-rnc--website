@@ -442,3 +442,147 @@ function stepperState() {
   else window.addEventListener('resize', check);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
 })();
+
+// Section 1: the property chips stick under the top bar; mark when stuck and which card is in view.
+(function () {
+  const nav = document.querySelector('.prop-nav');
+  if (!nav) return;
+  const items = Array.from(nav.querySelectorAll('a.dl-item')).map((a) => ({ a, card: document.querySelector(a.getAttribute('href')) })).filter((x) => x.card);
+  function update() {
+    const top = parseFloat(getComputedStyle(nav).top) || 0;
+    nav.classList.toggle('stuck', nav.getBoundingClientRect().top <= top + 0.5);
+    const line = nav.getBoundingClientRect().bottom + 24;
+    let cur = null;
+    items.forEach((x) => { if (x.card.getBoundingClientRect().top <= line) cur = x; });
+    if (cur && cur.card.getBoundingClientRect().bottom < nav.getBoundingClientRect().bottom) cur = null;
+    items.forEach((x) => {
+      x.a.classList.toggle('current', x === cur);
+      if (x === cur) x.a.setAttribute('aria-current', 'location'); else x.a.removeAttribute('aria-current');
+    });
+  }
+  let q = false;
+  const queue = () => { if (!q) { q = true; requestAnimationFrame(() => { q = false; update(); }); } };
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  update();
+})();
+
+// Defined terms (dotted underline): a small definition bubble on hover or keyboard focus, and on tap
+// on touch screens, where native title tooltips never show. The definition comes from the title
+// attribute, which is then removed so the browser's own tooltip does not double up.
+// A term can also point to a place on the page with data-target="#id": a mouse click goes there,
+// and on touch screens the bubble carries a "Go there" link (a first tap shows the definition).
+(function () {
+  // The concept registry: one entry per concept, shared by all its phrasings on the page.
+  // def: the definition shown in the bubble (optional); target: a page element to go to (optional).
+  const CONCEPTS = {
+    'four-properties': { def: 'Expressivity, efficiency, stability and long-range sensitivity' },
+    'linear-recurrence': { def: 'The update of Linear RNNs: the new state is a matrix times the old state, plus an input term' },
+    'minmax-rncs': { def: 'MinMax Recurrent Neural Cascades: cascades of layers of MinMax recurrent neurons' },
+    'nonlinear-rnns': { def: 'Recurrent networks with a nonlinear state update, such as LSTMs and GRUs', target: '#arch-nonlinear', targetLabel: 'More on nonlinear RNNs' },
+    'transformers': { def: 'Models built on attention, which lets each token look at all earlier tokens', target: '#arch-transformers', targetLabel: 'More on Transformers' },
+    'linear-rnns': { def: 'Recurrent networks with a linear state update, such as Mamba and DeltaNet; it can be computed in parallel with a scan', target: '#arch-linear', targetLabel: 'More on Linear RNNs' },
+    'long-term-memory': {},
+    'state-tracking': {},
+    'parallel-processing': {},
+    'sequential-processing': {},
+    'subquadratic-parallel': {},
+    'constant-per-token': {},
+  };
+  // a tag takes its concept's definition and target, unless it sets its own (title, data-target)
+  document.querySelectorAll('.term[data-concept]').forEach((t) => {
+    const c = CONCEPTS[t.dataset.concept] || {};
+    if (c.def && !t.hasAttribute('title')) t.setAttribute('title', c.def);
+    if (c.target && !t.dataset.target) t.dataset.target = c.target;
+    if (c.targetLabel && !t.dataset.targetLabel) t.dataset.targetLabel = c.targetLabel;
+  });
+  const terms = Array.from(document.querySelectorAll('.term[title]'));
+  if (!terms.length) return;
+  const tip = document.createElement('div');
+  tip.className = 'term-tip';
+  tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
+  document.body.appendChild(tip);
+  let current = null;
+  let lastPointer = 'mouse';
+
+  const store = document.createElement('div');
+  store.hidden = true;
+  document.body.appendChild(store);
+  terms.forEach((t, i) => {
+    const def = t.getAttribute('title');
+    t.removeAttribute('title');
+    t.dataset.def = def;
+    // screen readers: the definition as the term's description; kept in a hidden store outside
+    // the text, so copying the text does not pick it up (aria-describedby works on hidden elements)
+    const d = document.createElement('span');
+    d.id = 'term-def-' + i;
+    d.textContent = def;
+    store.appendChild(d);
+    t.setAttribute('aria-describedby', d.id);
+    if (!t.closest('a, button')) t.tabIndex = 0;
+    t.addEventListener('pointerdown', (e) => { lastPointer = e.pointerType || 'mouse'; });
+    t.addEventListener('mouseenter', () => { if (lastPointer === 'mouse') show(t); });
+    t.addEventListener('mouseleave', () => { if (lastPointer === 'mouse' && current === t) hide(); });
+    t.addEventListener('focus', () => show(t));
+    t.addEventListener('blur', () => { if (current === t) hide(); });
+    t.addEventListener('click', (e) => {
+      const target = t.dataset.target && document.querySelector(t.dataset.target);
+      if (lastPointer === 'mouse') {
+        if (target) { e.preventDefault(); e.stopPropagation(); hide(); go(t.dataset.target); }
+        return; // otherwise a mouse click inside a link still follows the link
+      }
+      // touch: a tap shows the definition (with a "Go there" link when the term has a target)
+      e.preventDefault();
+      e.stopPropagation();
+      if (current === t) hide(); else show(t);
+    });
+    if (t.dataset.target) t.classList.add('has-target');
+  });
+
+  function go(hash) {
+    const el = document.querySelector(hash);
+    if (!el) return;
+    history.pushState(null, '', hash);
+    dispatchEvent(new HashChangeEvent('hashchange')); // first: opens a collapsed "See more" holding the target
+    requestAnimationFrame(() => el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }));
+  }
+  function show(t) {
+    current = t;
+    tip.textContent = t.dataset.def;
+    tip.classList.toggle('interactive', !!t.dataset.target && lastPointer !== 'mouse');
+    if (t.dataset.target && lastPointer !== 'mouse') {
+      const a = document.createElement('a');
+      a.className = 'term-tip-go';
+      a.href = t.dataset.target;
+      a.textContent = t.dataset.targetLabel || 'Go there';
+      a.addEventListener('click', (e) => { e.preventDefault(); const h = t.dataset.target; hide(); go(h); });
+      tip.appendChild(document.createTextNode(' '));
+      tip.appendChild(a);
+    }
+    tip.hidden = false;
+    place();
+    requestAnimationFrame(() => tip.classList.add('on'));
+  }
+  function hide() {
+    current = null;
+    tip.classList.remove('on');
+    tip.hidden = true;
+  }
+  function place() {
+    if (!current) return;
+    const r = current.getBoundingClientRect();
+    const w = tip.offsetWidth, h = tip.offsetHeight, m = 8;
+    let x = r.left + r.width / 2 - w / 2;
+    x = Math.max(m, Math.min(x, innerWidth - w - m));
+    let y = r.top - h - 8;
+    tip.classList.toggle('below', y < 56);       // no room above (under the top bar): show below
+    if (y < 56) y = r.bottom + 8;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  document.addEventListener('click', (e) => { if (current && !current.contains(e.target) && !tip.contains(e.target)) hide(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && current) hide(); });
+  addEventListener('scroll', () => { if (current) { if (lastPointer === 'mouse') place(); else hide(); } }, { passive: true });
+  addEventListener('resize', () => { if (current) place(); });
+})();
