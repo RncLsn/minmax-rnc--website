@@ -2,23 +2,15 @@
 // The page reads fine without this script; it only adds interaction.
 document.documentElement.classList.add('js');
 
-// ---------- view state in the URL, so a link opens the same views ----------
-// Only the main view switches are kept: ?dim (scalar or general neurons), ?notation (max/min or oplus/otimes),
-// ?metric (results), ?tryit and ?tryit2 (the two Try it views). Defaults are left out; switching replaces the history entry.
+// ---------- no view state in the URL: links only point to parts of the page (#...) ----------
+// Every view starts from its default. urlState is kept as a no-op so callers stay simple.
 const urlState = {
-  get(key, allowed, fallback) {
-    const v = new URLSearchParams(location.search).get(key);
-    return allowed.includes(v) ? v : fallback;
-  },
-  set(key, value, fallback) {
-    const url = new URL(location.href);
-    if (value === fallback) url.searchParams.delete(key); else url.searchParams.set(key, value);
-    history.replaceState(history.state, '', url);
-  },
+  get(key, allowed, fallback) { return fallback; },
+  set() {},
 };
-(function () { // drop keys that earlier versions stored (open rows, stepper inputs, ...) from old links
+(function () { // drop query keys that earlier versions stored, so old links open clean
   const url = new URL(location.href);
-  const old = ['row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
+  const old = ['dim', 'notation', 'metric', 'compare', 'tryit', 'tryit2', 'row', 'refs', 'step', 'caps', 'floors', 'step2', 'inputs2', 'x0', 'mem', 'gdist', 'galpha'];
   if (old.some((k) => url.searchParams.has(k))) {
     old.forEach((k) => url.searchParams.delete(k));
     history.replaceState(history.state, '', url);
@@ -46,11 +38,6 @@ function stepperState() {
   }
   // switching closes any open "See more" panel in the section (its content depends on the choice)
   function choose(dim) {
-    document.querySelectorAll('#idea .see-more[aria-expanded="true"]').forEach((b) => {
-      b.setAttribute('aria-expanded', 'false');
-      const p = document.getElementById(b.getAttribute('aria-controls'));
-      if (p) { p.getAnimations().forEach((a) => a.cancel()); p.style.overflow = ''; p.hidden = true; }
-    });
     show(dim);
     urlState.set('dim', dim, 'scalar');
   }
@@ -199,16 +186,16 @@ function stepperState() {
   // clean timings, n_h 3 vs 2 divided out), MinMax S₄ eval time estimated from S₃. DeltaNet throughput on S₃/S₄:
   // its mean over the other tasks. (A task's optional `est` list marks bars as estimates with stripes and *.)
   const TASKS = [
-    { name: 'Latching', acc: { 'MinMax': 100, 'Mamba': 54, 'xLSTM-L': 8, 'mLSTM': 7, 'sLSTM': 28, 'DeltaNet': 8 },
+    { name: 'Long-term memory', paper: 'Latching', acc: { 'MinMax': 100, 'Mamba': 54, 'xLSTM-L': 8, 'mLSTM': 7, 'sLSTM': 28, 'DeltaNet': 8 },
       thr: { 'MinMax': 1, 'Mamba': 0.297, 'xLSTM-L': 1.090, 'mLSTM': 0.103, 'sLSTM': 0, 'DeltaNet': 0.615 } },
-    { name: 'Sequences', acc: { 'MinMax': 100, 'Mamba': 47, 'xLSTM-L': 47, 'mLSTM': 45, 'sLSTM': 47, 'DeltaNet': 17 },
+    { name: 'Ordered patterns', paper: 'Sequences', acc: { 'MinMax': 100, 'Mamba': 47, 'xLSTM-L': 47, 'mLSTM': 45, 'sLSTM': 47, 'DeltaNet': 17 },
       thr: { 'MinMax': 1, 'Mamba': 0.908, 'xLSTM-L': 1.881, 'mLSTM': 0.186, 'sLSTM': 0, 'DeltaNet': 1.190 } },
-    { name: 'Induction heads', acc: { 'MinMax': 100, 'Mamba': 52, 'xLSTM-L': 5, 'mLSTM': 5, 'sLSTM': 4.5, 'DeltaNet': 4.5 },
+    { name: 'Recall', paper: 'Induction heads', acc: { 'MinMax': 100, 'Mamba': 52, 'xLSTM-L': 5, 'mLSTM': 5, 'sLSTM': 4.5, 'DeltaNet': 4.5 },
       thr: { 'MinMax': 1, 'Mamba': 0.279, 'xLSTM-L': 1.210, 'mLSTM': 0.084, 'sLSTM': 0, 'DeltaNet': 1.157 } },
-    { name: 'S₃ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 17.16, 'DeltaNet': 0 },
-      thr: { 'MinMax': 1, 'DeltaProduct': 1.32, 'DeltaNet': 0.987 } },
-    { name: 'S₄ state tracking', acc: { 'MinMax': 100, 'DeltaProduct': 4.33, 'DeltaNet': 0 },
-      thr: { 'MinMax': 1, 'DeltaProduct': 1.21, 'DeltaNet': 0.987 } },
+    // S₃ and S₄ in one panel: two bars per model, one per group
+    { name: 'State tracking', paper: 'S₃ and S₄', parts: ['S₃', 'S₄'],
+      acc: { 'MinMax': [100, 100], 'DeltaProduct': [17.16, 4.33], 'DeltaNet': [0, 0] },
+      thr: { 'MinMax': [1, 1], 'DeltaProduct': [1.32, 1.21], 'DeltaNet': [0.987, 0.987] } },
   ];
   const METRICS = {
     acc: { max: 100, fmt: (v) => `${+v.toFixed(1)}%` },
@@ -227,18 +214,21 @@ function stepperState() {
       panel.className = 'panel';
       const h = document.createElement('h3');
       h.textContent = task.name;
+      if (task.paper) { const p = document.createElement('span'); p.className = 'paper'; p.textContent = task.paper; h.append(' ', p); } // the benchmark's name in the paper
       panel.appendChild(h);
+      const bar = (model, v, est) =>
+        `<span class="track" aria-hidden="true"><span class="fill${est ? ' est' : ''}" style="width:${Math.min(v / m.max, 1) * 100}%;background-color:${MODELS[model]}"></span>` +
+        (m.ref ? `<span class="refline" style="left:${(m.ref / m.max) * 100}%"></span>` : '') + '</span>';
       Object.entries(task[metric]).forEach(([model, v]) => {
         const est = metric === 'thr' && (task.est || []).includes(model);
         const row = document.createElement('div');
-        row.className = 'bar-row' + (model === 'MinMax' ? ' ours' : '');
-        const pct = Math.min(v / m.max, 1) * 100;
-        row.innerHTML =
-          `<span class="name">${model}</span>` +
-          `<span class="track"><span class="fill${est ? ' est' : ''}" style="width:${pct}%;background-color:${MODELS[model]}"></span>` +
-          (m.ref ? `<span class="refline" style="left:${(m.ref / m.max) * 100}%"></span>` : '') +
-          `</span><span class="val">${m.fmt(v)}${est ? '*' : ''}</span>`;
-        row.querySelector('.track').setAttribute('aria-hidden', 'true');
+        row.className = 'bar-row' + (model === 'MinMax' ? ' ours' : '') + (task.parts ? ' bar-pair' : '');
+        if (task.parts) {
+          row.innerHTML = `<span class="name">${model}</span>` + task.parts.map((part, k) =>
+            `<span class="sub"><span class="part">${part}</span>${bar(model, v[k], est)}</span><span class="val">${m.fmt(v[k])}${est ? '*' : ''}</span>`).join('');
+        } else {
+          row.innerHTML = `<span class="name">${model}</span>` + bar(model, v, est) + `<span class="val">${m.fmt(v)}${est ? '*' : ''}</span>`;
+        }
         panel.appendChild(row);
       });
       panels.appendChild(panel);
@@ -264,11 +254,10 @@ function stepperState() {
     const btn = item.querySelector('.copy-bib');
     // smooth open/close: animate the body's height, then hand back to the native <details> state
     let token = 0;
-    summary.addEventListener('click', (e) => {
-      if (reduceMotion.matches) return; // native, instant
-      e.preventDefault();
+    item.setOpen = (opening) => {
+      if (opening === details.open) return;
+      if (reduceMotion.matches) { details.open = opening; return; } // instant
       const t = ++token;
-      const opening = !details.open;
       body.style.overflow = 'hidden';
       if (opening) {
         details.open = true;
@@ -285,6 +274,12 @@ function stepperState() {
         if (!opening) details.open = false;
         body.style.height = ''; body.style.opacity = ''; body.style.overflow = '';
       }, 320);
+    };
+    summary.addEventListener('click', (e) => {
+      e.preventDefault();
+      const opening = !details.open;
+      if (opening) items.forEach((other) => { if (other !== item && other.setOpen) other.setOpen(false); }); // at most one open
+      item.setOpen(opening);
     });
     if (!btn || !bib || !navigator.clipboard) return;
     btn.hidden = false;
@@ -332,7 +327,7 @@ function stepperState() {
   function openTarget() {
     const el = location.hash && document.getElementById(location.hash.slice(1));
     if (!el) return;
-    pairs.forEach((p) => { if (p.panel.contains(el) || el.contains(p.btn)) p.set(true); });
+    pairs.forEach((p) => { if (p.panel.contains(el) || el === p.btn.closest('p')) p.set(true); }); // not for links to a whole section or figure
   }
   addEventListener('hashchange', openTarget);
   openTarget();
@@ -443,10 +438,8 @@ function stepperState() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
 })();
 
-// Section 1: the property chips stick under the top bar; mark when stuck and which card is in view.
-(function () {
-  const nav = document.querySelector('.prop-nav');
-  if (!nav) return;
+// Sections 1 and 4: the property chips stick under the top bar; mark when stuck and which card is in view.
+document.querySelectorAll('.prop-nav').forEach((nav) => {
   const items = Array.from(nav.querySelectorAll('a.dl-item')).map((a) => ({ a, card: document.querySelector(a.getAttribute('href')) })).filter((x) => x.card);
   function update() {
     const top = parseFloat(getComputedStyle(nav).top) || 0;
@@ -465,7 +458,7 @@ function stepperState() {
   addEventListener('scroll', queue, { passive: true });
   addEventListener('resize', queue);
   update();
-})();
+});
 
 // Defined terms (dotted underline): a small definition bubble on hover or keyboard focus, and on tap
 // on touch screens, where native title tooltips never show. The definition comes from the title
@@ -479,6 +472,7 @@ function stepperState() {
     'four-properties': { def: 'Expressivity, efficiency, stability and long-range sensitivity' },
     'linear-recurrence': { def: 'The update of Linear RNNs: the new state is a matrix times the old state, plus an input term' },
     'minmax-rncs': { def: 'MinMax Recurrent Neural Cascades: cascades of layers of MinMax recurrent neurons' },
+    'feedforward-nets': { def: 'Neural networks such as MLPs', target: '#rnc-diagram', targetLabel: 'See the diagram' },
     'minmax-algebra': { def: 'Max and min, written ⊕ and ⊗, used as the addition and multiplication of an algebra on numbers, vectors and matrices', target: '#algebra-more', targetLabel: 'More on the MinMax algebra' },
     'scalar-neurons': { def: 'MinMax recurrent neurons whose state is a single number', target: '#scalar-neurons', targetLabel: 'Go to scalar neurons' },
     'general-neurons': { def: 'MinMax recurrent neurons whose state is a vector of any dimension d', target: '#general-neurons', targetLabel: 'Go to general neurons' },
@@ -610,5 +604,62 @@ function stepperState() {
     new MutationObserver(sync).observe(driver, { attributes: true, attributeFilter: ['aria-expanded'] });
     tabs.hidden = false;
     sync();
+  });
+})();
+
+// Recurrence card: the linear recurrence is a collapsible comparison in the card's footer (closed by
+// default); equations too wide for the card are scaled down to fit.
+(function () {
+  const card = document.querySelector('.recur-card');
+  if (!card) return;
+  function fit() {
+    card.querySelectorAll('.recur-eq').forEach((e) => {
+      e.style.fontSize = '';
+      if (!e.clientWidth) return;
+      for (let k = 0; k < 4 && e.scrollWidth > e.clientWidth; k++) {
+        const f = parseFloat(getComputedStyle(e).fontSize);
+        e.style.fontSize = (f * (e.clientWidth / e.scrollWidth) * 0.97).toFixed(2) + 'px';
+      }
+    });
+  }
+  new MutationObserver(fit).observe(card, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  const btn = card.querySelector('.compare-toggle');
+  const panel = card.querySelector('.recur-collapse');
+  if (btn && panel) {
+    btn.hidden = false;
+    const set = (open) => {
+      btn.setAttribute('aria-expanded', String(open));
+      panel.classList.toggle('open', open);
+      panel.toggleAttribute('inert', !open);
+      fit();
+    };
+    set(false);
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+  }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(card);
+  else addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+
+// Recurrence card switches: a white thumb that slides under the selected option.
+(function () {
+  document.querySelectorAll('.recur-controls .tabs').forEach((g) => {
+    const thumb = document.createElement('span');
+    thumb.className = 'thumb';
+    thumb.setAttribute('aria-hidden', 'true');
+    const place = () => {
+      const b = g.querySelector('button[aria-pressed="true"]');
+      if (!b || !b.offsetWidth) return;
+      thumb.style.left = b.offsetLeft + 'px';
+      thumb.style.width = b.offsetWidth + 'px';
+    };
+    thumb.style.transition = 'none';
+    g.prepend(thumb);
+    place();
+    requestAnimationFrame(() => { thumb.style.transition = ''; });
+    new MutationObserver(place).observe(g, { subtree: true, attributes: true, attributeFilter: ['aria-pressed', 'hidden'] });
+    if (window.ResizeObserver) new ResizeObserver(place).observe(g);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
   });
 })();
