@@ -309,14 +309,32 @@ function stepperState() {
       const still = matchMedia('(prefers-reduced-motion: reduce)').matches || !panel.animate;
       if (anim) { anim.cancel(); anim = null; }
       btn.setAttribute('aria-expanded', String(open));
-      if (still) { panel.hidden = !open; return; }
+      if (still) {
+        const y = btn.getBoundingClientRect().top;
+        panel.hidden = !open;
+        if (!open) { const dy = btn.getBoundingClientRect().top - y; if (Math.abs(dy) > 0.5) window.scrollBy({ top: dy, behavior: 'instant' }); }
+        return;
+      }
       panel.hidden = false;
       const cs = getComputedStyle(panel);
       const full = { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginBottom: cs.marginBottom, opacity: 1 };
       const none = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginBottom: '0px', opacity: 0 };
       panel.style.overflow = 'hidden';
       anim = panel.animate(open ? [none, full] : [full, none], { duration: 260, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
-      anim.onfinish = () => { panel.style.overflow = ''; if (!open) panel.hidden = true; anim = null; };
+      // closing: keep the button where it is on screen (the page scrolls in step with the folding text),
+      // so a button below its panel, as in the cards, does not slide away from the pointer
+      let y0 = btn.getBoundingClientRect().top, raf = 0;
+      const hold = () => {
+        const dy = btn.getBoundingClientRect().top - y0;
+        if (Math.abs(dy) > 0.5) window.scrollBy({ top: dy, behavior: 'instant' });
+        if (anim) raf = requestAnimationFrame(hold);
+      };
+      if (!open) raf = requestAnimationFrame(hold);
+      anim.onfinish = () => {
+        panel.style.overflow = ''; if (!open) panel.hidden = true; anim = null;
+        cancelAnimationFrame(raf);
+        if (!open) { const dy = btn.getBoundingClientRect().top - y0; if (Math.abs(dy) > 0.5) window.scrollBy({ top: dy, behavior: 'instant' }); }
+      };
     }
     btn.hidden = false;
     set(false);
@@ -473,18 +491,20 @@ document.querySelectorAll('.prop-nav').forEach((nav) => {
     'linear-recurrence': { def: 'The update of Linear RNNs: the new state is a matrix times the old state, plus an input term' },
     'minmax-rncs': { def: 'MinMax Recurrent Neural Cascades: cascades of layers of MinMax recurrent neurons' },
     'feedforward-nets': { def: 'Neural networks such as MLPs', target: '#rnc-diagram', targetLabel: 'See the diagram' },
-    'minmax-algebra': { def: 'Max and min, written ⊕ and ⊗, used as the addition and multiplication of an algebra on numbers, vectors and matrices', target: '#algebra-more', targetLabel: 'More on the MinMax algebra' },
+    'minmax-algebra': { def: 'Max and min, written ⊕ and ⊗, used as the addition and multiplication of an algebra on numbers, vectors and matrices', target: '#recur-algebra', targetLabel: 'About the MinMax algebra' },
     'scalar-neurons': { def: 'MinMax recurrent neurons whose state is a single number', target: '#scalar-neurons', targetLabel: 'Go to scalar neurons' },
     'general-neurons': { def: 'MinMax recurrent neurons whose state is a vector of any dimension d', target: '#general-neurons', targetLabel: 'Go to general neurons' },
     'nonlinear-rnns': { def: 'Recurrent networks with a nonlinear state update, such as LSTMs and GRUs', target: '#arch-nonlinear', targetLabel: 'More on nonlinear RNNs' },
     'transformers': { def: 'Models built on attention, which lets each token look at all earlier tokens', target: '#arch-transformers', targetLabel: 'More on Transformers' },
-    'linear-rnns': { def: 'Recurrent networks with a linear state update, such as Mamba and DeltaNet; it can be computed in parallel with a scan', target: '#arch-linear', targetLabel: 'More on Linear RNNs' },
+    'linear-rnns': { def: 'Recurrent networks with a linear state update, such as Mamba, mLSTM and DeltaNet; it can be computed in parallel with a scan', target: '#arch-linear', targetLabel: 'More on Linear RNNs' },
     'long-term-memory': {},
     'state-tracking': {},
     'parallel-processing': {},
     'sequential-processing': {},
     'subquadratic-parallel': {},
     'constant-per-token': {},
+    'bounded-any-length': {},
+    'non-vanishing-gradients': {},
   };
   // a tag takes its concept's definition and target, unless it sets its own (title, data-target)
   document.querySelectorAll('.term[data-concept]').forEach((t) => {
@@ -623,19 +643,31 @@ document.querySelectorAll('.prop-nav').forEach((nav) => {
     });
   }
   new MutationObserver(fit).observe(card, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
-  const btn = card.querySelector('.compare-toggle');
-  const panel = card.querySelector('.recur-collapse');
-  if (btn && panel) {
-    btn.hidden = false;
-    const set = (open) => {
-      btn.setAttribute('aria-expanded', String(open));
-      panel.classList.toggle('open', open);
-      panel.toggleAttribute('inert', !open);
+  // footer rows (compare with linear recurrence, the MinMax algebra): an accordion, at most one open
+  const rows = Array.from(card.querySelectorAll('.recur-foot .compare-toggle')).map((btn) => ({ btn, panel: document.getElementById(btn.getAttribute('aria-controls')) })).filter((r) => r.panel);
+  const set = (row, open) => {
+    row.btn.setAttribute('aria-expanded', String(open));
+    row.panel.classList.toggle('open', open);
+    row.panel.toggleAttribute('inert', !open);
+  };
+  rows.forEach((row) => {
+    row.btn.hidden = false;
+    set(row, false);
+    row.btn.addEventListener('click', () => {
+      const open = row.btn.getAttribute('aria-expanded') !== 'true';
+      if (open) rows.forEach((r) => { if (r !== row) set(r, false); });
+      set(row, open);
       fit();
-    };
-    set(false);
-    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
-  }
+    });
+  });
+  // a link into a footer panel (e.g. the MinMax algebra tag) opens it
+  const fromHash = () => {
+    const el = location.hash && document.getElementById(location.hash.slice(1));
+    const row = el && rows.find((r) => r.panel.contains(el));
+    if (row) { rows.forEach((r) => set(r, r === row)); fit(); }
+  };
+  addEventListener('hashchange', fromHash);
+  fromHash();
   fit();
   if (window.ResizeObserver) new ResizeObserver(fit).observe(card);
   else addEventListener('resize', fit);
@@ -661,5 +693,118 @@ document.querySelectorAll('.prop-nav').forEach((nav) => {
     new MutationObserver(place).observe(g, { subtree: true, attributes: true, attributeFilter: ['aria-pressed', 'hidden'] });
     if (window.ResizeObserver) new ResizeObserver(place).observe(g);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+  });
+})();
+
+// "Read more", two forms. In a .read-more-line below the text: the hidden text starts out as a short
+// faded preview with a centred button over the fade. Inline at the end of a paragraph: the text is fully
+// hidden. Either way, clicking unfolds the rest and the button goes away. Without JS everything is shown.
+// A link into the hidden text unfolds it too.
+(function () {
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const items = Array.from(document.querySelectorAll('.read-more[aria-controls]')).map((btn) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    if (!panel) return null;
+    const line = btn.closest('.read-more-line');
+    const preview = !!line;
+    let open = false;
+    const reveal = (animate) => {
+      if (open) return;
+      open = true;
+      btn.setAttribute('aria-expanded', 'true');
+      panel.inert = false;
+      const still = !animate || reduce() || !panel.animate;
+      if (preview) {
+        if (line) line.hidden = true;
+        if (still) { panel.classList.remove('rm-collapsed'); return; }
+        const from = panel.getBoundingClientRect().height;
+        panel.classList.add('rm-opening');
+        panel.style.maxHeight = from + 'px';
+        void panel.offsetHeight;
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        setTimeout(() => { panel.classList.remove('rm-collapsed', 'rm-opening'); panel.style.maxHeight = ''; }, 380);
+        return;
+      }
+      // inline: fade the button out in place (no reflow until it is gone), then unfold the text
+      panel.hidden = false;
+      if (less) less.hidden = false;
+      if (still) { btn.hidden = true; return; }
+      const fade = btn.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: 'forwards' });
+      fade.onfinish = () => { btn.hidden = true; fade.cancel(); }; // cancel: the link must not stay transparent when it comes back
+      const cs = getComputedStyle(panel);
+      const full = { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: cs.marginTop, marginBottom: cs.marginBottom, opacity: 1 };
+      const none = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', marginBottom: '0px', opacity: 0 };
+      panel.style.overflow = 'hidden';
+      panel.animate([none, full], { duration: 300, easing: 'cubic-bezier(0.2, 0, 0, 1)' }).onfinish = () => { panel.style.overflow = ''; };
+    };
+    if (preview) { panel.hidden = false; panel.classList.add('rm-collapsed'); panel.inert = true; }
+    else panel.hidden = true;
+    // inline form: a "See less" at the end of the text folds it back and brings the link back
+    let less = null;
+    if (!preview) {
+      const p = document.createElement('p');
+      p.className = 'read-less-line';
+      less = document.createElement('button');
+      less.type = 'button';
+      less.className = 'read-more read-more-inline read-less';
+      less.innerHTML = 'See less<svg class="chev" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M3.5 6 8 10.5 12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      less.setAttribute('aria-controls', panel.id);
+      p.appendChild(less);
+      panel.appendChild(p);
+      less.addEventListener('click', () => {
+        if (!open) return;
+        open = false;
+        const show = () => {
+          btn.hidden = false; btn.setAttribute('aria-expanded', 'false');
+          if (!reduce() && btn.animate) btn.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+          btn.focus({ preventScroll: true });
+        };
+        // If the start of the text is off screen, fold it at once and scroll so that "See more" lands exactly
+        // where "See less" was: the toggle stays under the pointer and nothing slides around.
+        if (panel.getBoundingClientRect().top < 0 || reduce() || !panel.animate) {
+          const before = less.getBoundingClientRect().top;
+          panel.hidden = true;
+          show();
+          window.scrollBy({ top: btn.getBoundingClientRect().top - before, behavior: 'instant' });
+          return;
+        }
+        // Otherwise the whole text is in view: fold it smoothly, the page above does not move.
+        const cs = getComputedStyle(panel);
+        const full = { height: cs.height, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: cs.marginTop, marginBottom: cs.marginBottom, opacity: 1 };
+        const none = { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', marginBottom: '0px', opacity: 0 };
+        panel.style.overflow = 'hidden';
+        panel.animate([full, none], { duration: 260, easing: 'cubic-bezier(0.2, 0, 0, 1)' }).onfinish = () => { panel.hidden = true; panel.style.overflow = ''; show(); };
+      });
+    }
+    btn.hidden = false;
+    btn.addEventListener('click', () => reveal(true));
+    return { panel, reveal };
+  }).filter(Boolean);
+  const fromHash = () => {
+    const el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el) items.forEach((x) => { if (x.panel.contains(el)) x.reveal(false); });
+  };
+  addEventListener('hashchange', fromHash);
+  fromHash();
+})();
+
+// Card footers: one accordion per card (at most one row open). Without JS every part is shown.
+(function () {
+  document.querySelectorAll('.card-foots').forEach((group) => {
+    const rows = Array.from(group.querySelectorAll('.card-foot-toggle')).map((btn) => ({ btn, panel: document.getElementById(btn.getAttribute('aria-controls')) })).filter((r) => r.panel);
+    const set = (row, open) => {
+      row.btn.setAttribute('aria-expanded', String(open));
+      row.panel.classList.toggle('open', open);
+      row.panel.toggleAttribute('inert', !open);
+    };
+    rows.forEach((row) => {
+      row.btn.hidden = false;
+      set(row, false);
+      row.btn.addEventListener('click', () => {
+        const open = row.btn.getAttribute('aria-expanded') !== 'true';
+        if (open) rows.forEach((r) => { if (r !== row) set(r, false); });
+        set(row, open);
+      });
+    });
   });
 })();
